@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security Strategy — Alerting System</title>
+<meta name="description" content="Security strategy for a national alerting system website and AWS account ACCOUNT_ID, aligned to CIS Controls v8.1, CIS Benchmarks, ISO/IEC 27001:2022 and the AWS Well-Architected Security Pillar.">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=zodiak@400,500&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=3">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7z' fill='%230b5a73'/%3E%3Cpath d='M8 18c2.5-2 5-2 8 0s5.5 2 8 0' stroke='%23fff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+</head>
+<body data-account="ACCOUNT_ID" data-region="us-east-1" data-footer="Security Strategy · Alerting system · AWS ACCOUNT_ID · Public edition (redacted)">
+
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <a href="#top" class="brand" aria-label="Security Strategy home">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7z" fill="currentColor"/><path d="M8 18c2.5-2 5-2 8 0s5.5 2 8 0" stroke="#fff" stroke-width="2" fill="none"/></svg>
+    <span class="name">Security Strategy<small>Alerting system · AWS ACCOUNT_ID</small></span>
+  </a>
+  <div class="spacer"></div>
+  <button class="search-trigger" id="searchBtn" aria-label="Search the strategy">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <span class="label">Search risks, controls, decisions…</span>
+    <span class="kbd">Ctrl K</span>
+  </button>
+  <button class="icon-btn" id="themeBtn" aria-label="Switch to dark theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+  </button>
+  <a class="btn btn-ghost export-btn" id="mdBtn" href="security-strategy.md" download="Alerting-System-Security-Strategy.md" aria-label="Export Markdown">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M6 15V9l2.5 3L11 9v6M15.5 9v6m0 0-2-2m2 2 2-2"/></svg>
+    <span class="label">Export Markdown</span>
+  </a>
+  <a class="btn btn-primary export-btn" id="pdfBtn" aria-label="Export PDF" href="security-strategy.pdf" download="Alerting-System-Security-Strategy.pdf">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>
+    <span class="label">Export PDF</span>
+  </a>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="Strategy contents">
+    <h2>Contents</h2>
+    <ol class="toc" id="toc"></ol>
+    <div class="meta">
+      <strong>Status 2026-10-21 · public edition</strong><br>Identifiers, organization names, the system type and the Region are generalized.<br><br>
+      Input: Security Brief (digest of docs 02, 07, 11, 31, 32). Those documents remain the source of truth; re-check this strategy when they change.
+    </div>
+  </nav>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero" id="cover" aria-labelledby="title">
+      <svg class="waves" viewBox="0 0 1200 300" preserveAspectRatio="none" aria-hidden="true">
+        <g fill="none" stroke="#5fb3cc" stroke-width="1">
+          <path d="M0 210 C150 170 300 250 450 210 S750 170 900 210 1100 250 1200 220"/>
+          <path d="M0 228 C150 188 300 268 450 228 S750 188 900 228 1100 268 1200 238" opacity=".8"/>
+          <path d="M0 246 C150 206 300 286 450 246 S750 206 900 246 1100 286 1200 256" opacity=".6"/>
+          <path d="M0 264 C150 224 300 304 450 264 S750 224 900 264 1100 304 1200 274" opacity=".4"/>
+          <path d="M0 190 C200 120 320 230 520 170 S820 110 1000 180 1150 200 1200 170" opacity=".5"/>
+          <path d="M0 170 C200 100 320 210 520 150 S820 90 1000 160 1150 180 1200 150" opacity=".3"/>
+        </g>
+      </svg>
+      <div class="hero-inner">
+        <div class="eyebrow"><span>Security strategy</span><span>Version 1.0</span><span>2026-10-21</span><span>Public edition · identifiers redacted</span></div>
+        <h1 id="title">Security strategy for the alerting system website and its AWS account</h1>
+        <p class="lede">The plan to make the national population-guidance system trustworthy during an evacuation: always reachable, giving guidance no one can tamper with, and protecting location and medical data. It is built on CIS Controls v8.1, CIS Benchmarks, ISO/IEC 27001:2022 and the AWS Well-Architected Security Pillar.</p>
+        <div class="hero-stats">
+          <div><b>500,000</b><span>concurrent public users at peak</span></div>
+          <div><b>1 of 5</b><span>Terraform layers applied (account_infra)</span></div>
+          <div><b>4</b><span>critical application findings open (F5, C21)</span></div>
+          <div><b>12</b><span>go-live security gates defined</span></div>
+        </div>
+        <div class="frameworks" aria-label="Frameworks applied">
+          <span>CIS Controls v8.1 · IG2 → IG3</span><span>CIS AWS Foundations 7.1.0</span><span>CIS EKS 2.0.0</span><span>CIS Ubuntu L1</span><span>CIS PostgreSQL 17</span><span>CIS NGINX</span><span>ISO/IEC 27001:2022 + Amd 1</span><span>AWS WA Security Pillar</span><span>OWASP ASVS 5.0 L2</span><span>GDPR &amp; ISO/IEC 27701:2025</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="doc">
+
+    <!-- PRINT TOC -->
+    <section class="print-only print-toc" id="pdf-contents" aria-label="Table of contents">
+      <h2>Contents</h2>
+      <ol id="printToc"></ol>
+    </section>
+
+    <!-- 1 SUMMARY -->
+    <section class="section" id="summary" data-title="Executive summary">
+      <div class="sec-head">
+        <span class="sec-num">01 · Executive summary</span>
+        <h2>The platform is well designed, but the application is not yet safe to expose</h2>
+        <p class="intro">The AWS platform design is unusually mature for this stage: GitHub OIDC, SHA-pinned actions, signed images, a private EKS cluster, an Imperva edge and an admin plane behind a VPN with MFA. The application inside it is not ready. It has no working authentication or authorization, and its device endpoints are open to the internet. This strategy closes that gap first, then removes the structural risks that sit in the current decisions.</p>
+      </div>
+
+      <div class="verdict">
+        <div class="prose">
+          <h3 id="sum-top-actions" style="margin-top:0">Ten moves that matter most</h3>
+          <ol class="numbered">
+            <li><strong>Close the public device read surface now, at the platform.</strong> Change the public HTTPRoutes and Imperva rules so only exact public paths and methods (position post, geo lookups) pass. This needs no change to <code>app/</code>. See <a href="#ch-01">CH-01</a>.</li>
+            <li><strong>Make admin login and authorization (F5, C21) a hard go-live gate.</strong> Use OIDC against the chosen identity provider, with per-authority RBAC, and remove the seed <code>admin/admin</code> account and <code>NoOpPasswordEncoder</code>. See <a href="#sc-05">SC-05</a>.</li>
+            <li><strong>Decide the identity provider (B3a).</strong> The recommendation is client Entra ID with phishing-resistant MFA, federated to Client VPN, IAM Identity Center, Argo CD and the console. See <a href="#dec-b3a">B3a</a>.</li>
+            <li><strong>Strip debug and outdated parts from images.</strong> Remove JDWP on 8787, run as non-root, replace <code>openjdk:17.0.1</code> and turn off Swagger in prd. See <a href="#ch-06">CH-06</a>.</li>
+            <li><strong>Move logs to immutable storage with tiered retention, replacing 30-days-and-delete (D35).</strong> Keep security logs at least 1 year, in an Object Lock archive. See <a href="#ch-03">CH-03</a>.</li>
+            <li><strong>Limit how long location data is kept (D34) and drop device emails (C15).</strong> Permanent retention of personal location data is the largest legal and breach exposure. See <a href="#ch-04">CH-04</a>.</li>
+            <li><strong>Split prd into its own account, inside AWS Organizations (B25).</strong> Add log-archive and security-tooling accounts and SCP guardrails. See <a href="#ch-02">CH-02</a>.</li>
+            <li><strong>Switch WAF to BLOCK and Kyverno to Enforce with evidence, before go-live</strong> (9.1.7, 9.1.5). Make Imperva origin mTLS mandatory. See <a href="#sc-11">SC-11</a>.</li>
+            <li><strong>De-privilege the database user (D47).</strong> Split owner/migration and runtime roles, and replace <code>ddl-auto: update</code> with versioned migrations. See <a href="#ch-05">CH-05</a>.</li>
+            <li><strong>Commission an independent penetration test (B11)</strong> after the Phase 12 fixes and before go-live. Retest, then repeat at least yearly. See <a href="#dec-b11">B11</a>.</li>
+          </ol>
+        </div>
+        <div>
+          <div class="posture">
+            <h4>Posture by Well-Architected area (today)</h4>
+            <div class="bar-row"><span>Security foundations</span><div class="bar"><i class="mid" style="width:45%"></i></div><span class="v">45%</span></div>
+            <div class="bar-row"><span>Identity &amp; access</span><div class="bar"><i class="lo" style="width:30%"></i></div><span class="v">30%</span></div>
+            <div class="bar-row"><span>Detection</span><div class="bar"><i style="width:65%"></i></div><span class="v">65%</span></div>
+            <div class="bar-row"><span>Infrastructure protection</span><div class="bar"><i style="width:60%"></i></div><span class="v">60%</span></div>
+            <div class="bar-row"><span>Data protection</span><div class="bar"><i class="mid" style="width:45%"></i></div><span class="v">45%</span></div>
+            <div class="bar-row"><span>Incident response</span><div class="bar"><i class="lo" style="width:20%"></i></div><span class="v">20%</span></div>
+            <div class="bar-row"><span>Application security</span><div class="bar"><i class="lo" style="width:15%"></i></div><span class="v">15%</span></div>
+            <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin:var(--space-4) 0 0">This is a judgment score, not a measurement. It weighs each area's live controls against its design. Designed but unapplied controls count for half. Re-score at each phase gate.</p>
+          </div>
+          <div class="callout crit">
+            <h4>Bottom line</h4>
+            <p>Go-live must wait for 12 gates (<a href="#gates">section 10.2</a>). Seven can be done by the platform team alone. Five depend on the application team or the client.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 SCOPE -->
+    <section class="section" id="scope" data-title="Scope and system context">
+      <div class="sec-head">
+        <span class="sec-num">02 · Scope &amp; context</span>
+        <h2>What we are protecting, and from whom it is reachable</h2>
+        <p class="intro">This strategy covers both faces of the system (the public navigation site and the admin console), the AWS account ACCOUNT_ID in us-east-1 with its <code>dev</code> and <code>prd</code> environments, the delivery chain (GitHub, CodeBuild, ECR, Argo CD) and the third parties in the path (Imperva, the identity provider).</p>
+      </div>
+
+      <h3 id="scope-diagram">Trust zones and data flows</h3>
+      <figure class="diagram">
+        <svg viewBox="0 0 1000 560" role="img" aria-labelledby="dgTitle">
+          <title id="dgTitle">Trust-zone diagram: public plane via Imperva and origin ALB, admin plane via Client VPN, delivery via GitHub OIDC, data in RDS.</title>
+          <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="currentColor" style="fill:var(--color-text-muted)"/></marker></defs>
+          <!-- zones -->
+          <rect x="10" y="20" width="170" height="520" rx="10" class="dg-zone-fill"/><text x="22" y="40" class="dg-z">Internet</text>
+          <rect x="195" y="20" width="150" height="520" rx="10" class="dg-zone-fill"/><text x="207" y="40" class="dg-z">Edge / third party</text>
+          <rect x="360" y="20" width="630" height="520" rx="10" class="dg-zone"/><text x="372" y="40" class="dg-z">AWS ACCOUNT_ID · us-east-1 · prd VPC PRD_VPC_CIDR</text>
+          <rect x="375" y="55" width="600" height="215" rx="8" class="dg-zone"/><text x="387" y="72" class="dg-z">Public plane</text>
+          <rect x="375" y="285" width="600" height="150" rx="8" class="dg-zone"/><text x="387" y="302" class="dg-z">Admin plane (private DNS)</text>
+          <rect x="375" y="450" width="600" height="80" rx="8" class="dg-zone"/><text x="387" y="467" class="dg-z">Data tier</text>
+          <!-- internet -->
+          <rect x="25" y="90" width="140" height="60" rx="8" class="dg-box"/><text x="38" y="114" class="dg-t">Public users</text><text x="38" y="132" class="dg-s">CB link · QR on signs</text>
+          <rect x="25" y="320" width="140" height="60" rx="8" class="dg-box"/><text x="38" y="344" class="dg-t">Administrators</text><text x="38" y="362" class="dg-s">Authorities, CPA, EMS…</text>
+          <rect x="25" y="460" width="140" height="56" rx="8" class="dg-box"/><text x="38" y="483" class="dg-t">GitHub Actions</text><text x="38" y="500" class="dg-s">OIDC · org ORG_ID</text>
+          <!-- edge -->
+          <rect x="207" y="90" width="126" height="60" rx="8" class="dg-box"/><text x="219" y="114" class="dg-t">Imperva</text><text x="219" y="132" class="dg-s">CDN · DDoS · WAF</text>
+          <rect x="207" y="320" width="126" height="60" rx="8" class="dg-box"/><text x="219" y="344" class="dg-t">Identity provider</text><text x="219" y="362" class="dg-s">Entra ID or IdC (B3a)</text>
+          <!-- public -->
+          <rect x="390" y="90" width="130" height="60" rx="8" class="dg-box"/><text x="402" y="112" class="dg-t">Origin ALB</text><text x="402" y="128" class="dg-s">Imperva prefix list</text><text x="402" y="142" class="dg-s">AWS WAF (COUNT)</text>
+          <rect x="545" y="90" width="120" height="60" rx="8" class="dg-box"/><text x="557" y="114" class="dg-t">Envoy Gateway</text><text x="557" y="132" class="dg-s">HTTPRoutes</text>
+          <rect x="690" y="80" width="130" height="50" rx="8" class="dg-box"/><text x="702" y="102" class="dg-t">nginx</text><text x="702" y="118" class="dg-s">React · emergency page</text>
+          <rect x="690" y="145" width="130" height="50" rx="8" class="dg-box"/><text x="702" y="167" class="dg-t">Public gateway</text><text x="702" y="183" class="dg-s">/api → devices, geo</text>
+          <rect x="845" y="80" width="115" height="50" rx="8" class="dg-box"/><text x="857" y="102" class="dg-t">devices</text><text x="857" y="118" class="dg-s">no auth</text>
+          <rect x="845" y="145" width="115" height="50" rx="8" class="dg-box"/><text x="857" y="167" class="dg-t">geometry</text><text x="857" y="183" class="dg-s">+ OSRM</text>
+          <rect x="690" y="208" width="130" height="50" rx="8" class="dg-box"/><text x="702" y="230" class="dg-t">OSM tiles</text><text x="702" y="246" class="dg-s">public third party</text>
+          <!-- admin -->
+          <rect x="390" y="320" width="130" height="60" rx="8" class="dg-box"/><text x="402" y="342" class="dg-t">Client VPN</text><text x="402" y="358" class="dg-s">SAML + MFA · 8 h</text><text x="402" y="372" class="dg-s">split tunnel</text>
+          <rect x="545" y="320" width="120" height="60" rx="8" class="dg-box"/><text x="557" y="342" class="dg-t">Admin ALB</text><text x="557" y="358" class="dg-s">internal · own WAF</text><text x="557" y="372" class="dg-s">admin Envoy</text>
+          <rect x="690" y="310" width="130" height="50" rx="8" class="dg-box"/><text x="702" y="332" class="dg-t">Console + gateway</text><text x="702" y="348" class="dg-s">Angular · no login</text>
+          <rect x="845" y="310" width="115" height="50" rx="8" class="dg-box"/><text x="857" y="332" class="dg-t">backend</text><text x="857" y="348" class="dg-s">permitAll()</text>
+          <rect x="690" y="372" width="270" height="50" rx="8" class="dg-box"/><text x="702" y="394" class="dg-t">EKS API · Argo CD · DBA path</text><text x="702" y="410" class="dg-s">super admins only</text>
+          <!-- data -->
+          <rect x="545" y="472" width="120" height="48" rx="8" class="dg-box"/><text x="557" y="494" class="dg-t">ECR + cosign</text><text x="557" y="509" class="dg-s">KMS · immutable</text>
+          <rect x="690" y="472" width="130" height="48" rx="8" class="dg-box"/><text x="702" y="494" class="dg-t">RDS Proxy → PG 17</text><text x="702" y="509" class="dg-s">Multi-AZ · pgaudit</text>
+          <rect x="845" y="472" width="115" height="48" rx="8" class="dg-box"/><text x="857" y="494" class="dg-t">S3 · Secrets Mgr</text><text x="857" y="509" class="dg-s">photos · KMS</text>
+          <rect x="390" y="472" width="130" height="48" rx="8" class="dg-box"/><text x="402" y="494" class="dg-t">CodeBuild · roles</text><text x="402" y="509" class="dg-s">state → deploy</text>
+          <!-- flows -->
+          <path class="dg-l" d="M165 120 H205"/><path class="dg-l" d="M333 120 H388"/><path class="dg-l" d="M520 120 H543"/>
+          <path class="dg-l" d="M665 112 H688"/><path class="dg-l" d="M665 128 C676 128 676 170 688 170"/>
+          <path class="dg-l" d="M820 170 H843"/><path class="dg-l" d="M820 160 C832 160 832 105 843 105"/>
+          <path class="dg-l admin" d="M165 350 H205"/><path class="dg-l admin" d="M333 350 H388"/><path class="dg-l admin" d="M520 350 H543"/><path class="dg-l admin" d="M665 340 H688"/><path class="dg-l admin" d="M820 335 H843"/>
+          <path class="dg-l ci" d="M165 490 C280 490 300 496 388 496"/><path class="dg-l ci" d="M520 496 H543"/>
+          <path class="dg-l" d="M902 195 V470" style="stroke:var(--color-text-faint)"/>
+          <!-- flags -->
+          <g><circle cx="958" cy="80" r="11" class="dg-flag"/><text x="951" y="84" class="dg-flag-t">R2</text></g>
+          <g><circle cx="958" cy="310" r="11" class="dg-flag"/><text x="951" y="314" class="dg-flag-t">R1</text></g>
+          <g><circle cx="818" cy="310" r="11" class="dg-flag"/><text x="811" y="314" class="dg-flag-t">R1</text></g>
+          <g><circle cx="518" cy="90" r="11" class="dg-flag" style="fill:var(--sev-high)"/><text x="511" y="94" class="dg-flag-t">R9</text></g>
+          <g><circle cx="818" cy="208" r="11" class="dg-flag" style="fill:var(--sev-medium)"/><text x="807" y="212" class="dg-flag-t">R15</text></g>
+          <g><circle cx="331" cy="320" r="11" class="dg-flag" style="fill:var(--sev-high)"/><text x="320" y="324" class="dg-flag-t">R11</text></g>
+        </svg>
+        <figcaption>Blue lines show public traffic, amber shows admin traffic, dashed shows delivery. Red markers show where the top risks sit (<a href="#risks">section 05</a>). The dev VPC (DEV_VPC_CIDR) has the same shape in the same account today.</figcaption>
+      </figure>
+
+      <h3 id="scope-assets">Assets and data classification</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Asset</th><th>Class</th><th>Why it matters</th><th>Today</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Guidance content</strong><small>assembly areas, routes, instructions, emergency page</small></td><td><span class="pill sev-critical">Safety-critical integrity</span></td><td>If an attacker changes it, people are sent the wrong way during an evacuation. This is the top impact in the whole system.</td><td>Console has no login (F5)</td></tr>
+            <tr><td><strong>Device location samples</strong></td><td><span class="pill sev-high">Restricted · personal</span></td><td>Continuous tracks of up to 500,000 people are personal data under privacy law (GDPR and equivalent laws). They show where people live, work and shelter.</td><td>Kept permanently (D34)</td></tr>
+            <tr><td><strong>Medical-need flag and counts</strong></td><td><span class="pill sev-high">Restricted · sensitive</span></td><td>Health-related. Must stay as counts per area and never be tied to a device.</td><td>Counts per area</td></tr>
+            <tr><td><strong>Device email</strong> (<code>ds_account</code>)</td><td><span class="pill sev-high">Restricted · personal</span></td><td>An identifier that links location tracks to a person. It goes against the stated policy (C15).</td><td>Stored; can be looked up from the internet</td></tr>
+            <tr><td><strong>Occupancy and movement map</strong></td><td><span class="pill sev-medium">Confidential · operational</span></td><td>Shows where crowds are during an emergency. Its integrity drives decisions by Police, Fire and EMS.</td><td>No rate limiting, open check-in</td></tr>
+            <tr><td><strong>Admin accounts and credentials</strong></td><td><span class="pill sev-critical">Secret</span></td><td>Whoever holds them controls the guidance.</td><td>Plain text, seed <code>admin/admin</code></td></tr>
+            <tr><td><strong>Platform credentials and keys</strong><small>KMS, cosign, Secrets Manager, deployment roles</small></td><td><span class="pill sev-critical">Secret</span></td><td>Control of the supply chain and the data.</td><td>Designed well</td></tr>
+            <tr><td><strong>Authority polygons, photos, logs</strong></td><td><span class="pill sev-low">Internal</span></td><td>Logs are also evidence and can contain IP addresses and locations.</td><td>Logs 30 days (D35)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="scope-responsibility">Shared responsibility</h3>
+      <div class="grid-3">
+        <div class="card"><span class="k">Platform operator</span><h4>AWS account, network, EKS, data services, CI/CD, detection, NOC</h4><p>Owns the platform controls in this strategy. Never edits <code>app/</code>, but can limit what reaches it through routes, WAF and policy.</p></div>
+        <div class="card"><span class="k">Application team</span><h4>Code in <code>app/</code>, its authentication, authorization and APIs</h4><p>Owns Phase 12 fixes (F5 = 12.1.5). Each fix starts only after the developer approves in writing.</p></div>
+        <div class="card"><span class="k">Client &amp; partners</span><h4>Steering Committee, CPA, Imperva, IdP owner, AWS</h4><p>The Steering Committee owns risk acceptance and residency (B6). Civil Protection Authority (CPA) owns the Cell Broadcast. Imperva owns the edge, and AWS owns security of the cloud.</p></div>
+      </div>
+    </section>
+
+    <!-- 3 FRAMEWORKS -->
+    <section class="section" id="frameworks" data-title="Framework baseline">
+      <div class="sec-head">
+        <span class="sec-num">03 · Framework baseline</span>
+        <h2>How the four frameworks fit together</h2>
+        <p class="intro">Each framework does a different job. ISO 27001 is the management system that owns risk and evidence. The CIS Controls set the order of work. The CIS Benchmarks define the exact configuration. The Well-Architected Security Pillar provides the AWS-native design patterns. Every strategic control in <a href="#matrix">section 09</a> maps to all four.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card" id="fw-iso">
+          <span class="k">Management system</span>
+          <h4>ISO/IEC 27001:2022 (+ Amd 1:2024)</h4>
+          <p>Clauses 4 to 10 define the ISMS: scope, risk assessment and treatment, a Statement of Applicability, internal audit and management review. Annex A has 93 controls in four themes: organizational (37), people (8), physical (14) and technological (34) (<a href="https://docs.modulos.ai/frameworks/iso-27001/annex-a">Modulos summary of Annex A</a>). Amendment 1 (2024) adds climate-change considerations to the context clauses (<a href="https://www.iso.org/standard/27001">ISO</a>). Physical controls A.7 are mostly inherited from AWS and Imperva, and are covered through supplier evidence.</p>
+        </div>
+        <div class="card" id="fw-cisc">
+          <span class="k">Prioritization</span>
+          <h4>CIS Critical Security Controls v8.1</h4>
+          <p>18 controls, from asset inventory to penetration testing (<a href="https://www.cisecurity.org/controls/cis-controls-list">CIS</a>). They are grouped into Implementation Groups IG1 to IG3. IG3 is meant for organizations handling sensitive data or critical infrastructure (<a href="https://www.cisco.com/c/en/us/products/collateral/security/cis-controls-sb.html">Cisco CIS v8.1 brief</a>). <strong>Target:</strong> all IG2 safeguards at go-live, then the IG3 safeguards that apply to this system (application-layer filtering, RBAC, code-level checks, application pen testing) within 12 months.</p>
+        </div>
+        <div class="card" id="fw-cisb">
+          <span class="k">Configuration</span>
+          <h4>CIS Benchmarks</h4>
+          <p>Current versions: AWS Foundations 7.1.0 (<a href="https://www.cisecurity.org/benchmark/amazon_web_services">CIS AWS</a>), EKS 2.0.0, which covers Kubernetes 1.34 and 1.35 (<a href="https://www.cisecurity.org/insights/blog/cis-benchmarks-june-2026-update">CIS June 2026 update</a>), PostgreSQL 17 1.1.0 (<a href="https://www.cisecurity.org/benchmark/postgresql">CIS PostgreSQL</a>), and NGINX 3.1.0 (<a href="https://www.cisecurity.org/benchmark/nginx">CIS NGINX</a>). Add the CIS Ubuntu benchmark (nodes, already L1) and the CIS Docker benchmark (images).</p>
+        </div>
+        <div class="card" id="fw-wa">
+          <span class="k">AWS design</span>
+          <h4>Well-Architected Security Pillar</h4>
+          <p>Seven best-practice areas: security foundations, identity and access management, detection, infrastructure protection, data protection, incident response and application security (<a href="https://docs.aws.amazon.com/wellarchitected/latest/framework/a-security.html">AWS Well-Architected</a>). Its design principles include a strong identity foundation, traceability, security at all layers and keeping people away from data (<a href="https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/security.html">Security Pillar</a>). Section 07 is organized by these seven areas.</p>
+        </div>
+      </div>
+
+      <h3 id="fw-gaps">Version gaps you need to manage</h3>
+      <div class="callout">
+        <h4>Security Hub automates CIS AWS Foundations only up to v5.0.0</h4>
+        <p>Security Hub CSPM supports CIS AWS Foundations v5.0.0, 3.0.0, 1.4.0 and 1.2.0, and does not cover every requirement automatically (<a href="https://docs.aws.amazon.com/securityhub/latest/userguide/cis-aws-foundations-benchmark.html">AWS Security Hub documentation</a>). CIS has since published v7.0.0 and v7.1.0 (<a href="https://www.cisecurity.org/insights/blog/cis-benchmarks-april-2026-update">CIS April 2026 update</a>). <strong>Strategy:</strong> enable the v5.0.0 standard in Security Hub as the automated baseline. Cover the manual and newer v7.1.0 items with AWS Config custom rules or a quarterly CIS-CAT/Prowler run, and record the results as ISMS evidence.</p>
+      </div>
+      <div class="callout">
+        <h4>EKS 1.36 is newer than the CIS EKS benchmark</h4>
+        <p>CIS EKS 2.0.0 targets Kubernetes 1.34 and 1.35. Apply it to the 1.36 cluster, record any differences as justified deviations in the Statement of Applicability, and re-baseline when CIS publishes a release that covers 1.36.</p>
+      </div>
+      <div class="callout">
+        <h4>Privacy law is a binding overlay, not optional</h4>
+        <p>Use the EU GDPR as the global privacy baseline. Most modern privacy laws follow its model. Article 5 requires data minimisation, storage limitation, and integrity and confidentiality of personal data (<a href="https://www.gdpr.org/regulation/article-5.html">GDPR Article 5</a>). Under Article 35, a Data Protection Impact Assessment is mandatory for large-scale systematic monitoring, and supervisory authorities list tracking people's location as a trigger (<a href="https://www.edpb.europa.eu/system/files/decisions/ie_dpc_data-protection-impact-assessment.pdf">EDPB-published DPIA guidance</a>). Continuous location samples from up to 500,000 devices clearly meet that bar. Run privacy management with ISO/IEC 27701:2025, which is now a stand-alone privacy information management system standard (<a href="https://cdn.standards.iteh.ai/samples/iso/iso-iec-27701-2025/999f0b4e27d84804be12758c821cc34e/iso-iec-27701-2025.pdf">ISO/IEC 27701:2025</a>). Map the local law of each jurisdiction you operate in onto this baseline, and appoint a DPO.</p>
+      </div>
+    </section>
+
+    <!-- 4 THREATS -->
+    <section class="section" id="threats" data-title="Threat model">
+      <div class="sec-head">
+        <span class="sec-num">04 · Threat model</span>
+        <h2>Who attacks an emergency system, and when</h2>
+        <p class="intro">The attack that matters most comes during a real event or drill, when the site's value and public attention are at their peak. Plan for availability and integrity attacks on the day, and for quiet data theft in between.</p>
+      </div>
+      <div class="grid-2">
+        <div class="card" id="ta-state"><span class="k">TA-1 · State-sponsored</span><h4>Disruption or disinformation during a real event</h4><p>DDoS timed to an alert, tampering with guidance content, a fake guidance site, and pre-positioned access through the supply chain or admin accounts. Targets integrity and availability.</p></div>
+        <div class="card" id="ta-hack"><span class="k">TA-2 · Hacktivists</span><h4>Defacement and volumetric DDoS</h4><p>Opportunistic. Uses public findings like Swagger UI, open device endpoints and default credentials. Will publish any data leak.</p></div>
+        <div class="card" id="ta-crime"><span class="k">TA-3 · Data harvesters</span><h4>Bulk extraction of location and contact data</h4><p>Enumerates <code>GET /device?all=true</code> and email lookups. Re-identification and resale. Highest legal impact under GDPR-style privacy law.</p></div>
+        <div class="card" id="ta-insider"><span class="k">TA-4 · Insider or compromised partner</span><h4>Misuse of legitimate access</h4><p>Wide authority user base (Police, Fire, EMS, local authorities, CPA). Shared or leftover accounts, and social engineering of the NOC to scale capacity down.</p></div>
+        <div class="card" id="ta-physical"><span class="k">TA-5 · Physical / local</span><h4>QR sticker replacement on signs</h4><p>A cheap way to send people to a lookalike site. It bypasses every cloud control, so it needs physical and domain-trust countermeasures.</p></div>
+        <div class="card" id="ta-abuse"><span class="k">TA-6 · Abuse of public flows</span><h4>Fake check-ins and location floods</h4><p>Bots post fake arrivals or medical flags to distort occupancy, which misleads first responders. There is no rate limiting today (C14).</p></div>
+      </div>
+      <h3 id="threat-stride">STRIDE view of the critical flows</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Flow</th><th>Main threats</th><th>Primary controls</th></tr></thead>
+        <tbody>
+          <tr><td>Public user → Imperva → origin → devices/geo</td><td>DoS, Tampering (fake check-ins), Information disclosure (device enumeration)</td><td><a href="#sc-11">SC-11</a>, <a href="#sc-12">SC-12</a>, <a href="#sc-13">SC-13</a>, <a href="#sc-26">SC-26</a>, <a href="#sc-33">SC-33</a></td></tr>
+          <tr><td>Administrator → VPN → console → backend</td><td>Spoofing (no app login), Elevation (no RBAC), Repudiation (no per-user audit)</td><td><a href="#sc-04">SC-04</a>, <a href="#sc-05">SC-05</a>, <a href="#sc-08">SC-08</a></td></tr>
+          <tr><td>Service → service (plain HTTP)</td><td>Spoofing, Tampering inside the cluster after one pod is compromised</td><td><a href="#sc-14">SC-14</a>, <a href="#sc-17">SC-17</a></td></tr>
+          <tr><td>GitHub → OIDC → AWS roles → ECR → Argo CD</td><td>Tampering (malicious image), Elevation (role trust abuse)</td><td><a href="#sc-06">SC-06</a>, <a href="#sc-24">SC-24</a>, <a href="#sc-15">SC-15</a></td></tr>
+          <tr><td>App → RDS Proxy → PostgreSQL</td><td>Elevation (superuser app role), Information disclosure</td><td><a href="#sc-07">SC-07</a>, <a href="#sc-18">SC-18</a>, <a href="#sc-19">SC-19</a></td></tr>
+          <tr><td>Citizen → sign → QR → domain</td><td>Spoofing (lookalike site)</td><td><a href="#sc-31">SC-31</a></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 5 RISKS -->
+    <section class="section" id="risks" data-title="Risk register">
+      <div class="sec-head">
+        <span class="sec-num">05 · Risk register</span>
+        <h2>Twenty risks, ranked by likelihood and impact</h2>
+        <p class="intro">This is the ISO 27001 clause 6.1.2 risk assessment. Likelihood and impact use a 1 to 5 scale, and impact puts life-safety first. Every risk links to the controls and changes that treat it. Click a code in the heat map to jump to that row.</p>
+      </div>
+      <div class="heat-wrap">
+        <div>
+          <div class="heat" id="heat" aria-label="Risk heat map, likelihood by impact"></div>
+          <div style="display:flex;justify-content:space-between;font-size:var(--text-xs);color:var(--color-text-muted);margin:6px 0 0 32px;max-width:336px"><span>Impact →</span><span>1 … 5</span></div>
+        </div>
+        <div class="heat-legend">
+          <p><strong>Reading the map.</strong> Rows show likelihood (5 at the top) and columns show impact. Risks rated Critical (score 20 or more) must be closed or mitigated before go-live. High risks (12 to 19) need a dated treatment plan that the Steering Committee owns.</p>
+          <p><strong>Risk appetite (proposed for client approval).</strong> No tolerance for risks to the integrity of guidance or bulk exposure of personal data. Low tolerance for availability risk during an event. Moderate tolerance for confidentiality risk on operational data.</p>
+        </div>
+      </div>
+      <div class="filters no-print" role="group" aria-label="Filter risks">
+        <div class="fgroup" data-filter="sev" data-target="riskTable"><span>Severity</span>
+          <button class="chip" aria-pressed="false" data-v="Critical">Critical</button><button class="chip" aria-pressed="false" data-v="High">High</button><button class="chip" aria-pressed="false" data-v="Medium">Medium</button><button class="chip" aria-pressed="false" data-v="Low">Low</button>
+        </div>
+        <input class="filter-input" type="search" placeholder="Filter risks…" data-target="riskTable" aria-label="Filter risks by text">
+        <span class="count" id="riskTable-count"></span>
+      </div>
+      <div class="table-wrap"><table id="riskTable">
+        <thead><tr><th>ID</th><th>Risk</th><th>L</th><th>I</th><th>Rating</th><th>Source</th><th>Treated by</th></tr></thead>
+        <tbody>
+          <tr id="r01" data-l="5" data-i="5" data-sev="Critical"><td class="id">R01</td><td><strong>Admin console and API without authentication</strong><small><code>permitAll()</code>, plain-text passwords, seed <code>admin/admin</code>, no RBAC. Anyone on the VPN can change guidance, and anyone who reaches the gateway can too.</small></td><td>5</td><td>5</td><td><span class="pill sev-critical">Critical</span></td><td>F5, C21</td><td class="refs"><a href="#sc-05">SC-05</a><a href="#sc-04">SC-04</a><a href="#ch-01">CH-01</a></td></tr>
+          <tr id="r02" data-l="5" data-i="5" data-sev="Critical"><td class="id">R02</td><td><strong>Device data can be read from the internet</strong><small>Through <code>GET /device?all=true</code>, lookup by email, count and check-in. Bulk exposure of personal location data.</small></td><td>5</td><td>5</td><td><span class="pill sev-critical">Critical</span></td><td>F5, C21</td><td class="refs"><a href="#sc-13">SC-13</a><a href="#ch-01">CH-01</a><a href="#sc-18">SC-18</a></td></tr>
+          <tr id="r03" data-l="4" data-i="5" data-sev="Critical"><td class="id">R03</td><td><strong>JDWP debug agent on 8787 as root, on a 2021 JDK base</strong><small>JDWP gives remote code execution to anything that can reach the port. Old base image has known CVEs.</small></td><td>4</td><td>5</td><td><span class="pill sev-critical">Critical</span></td><td>C20</td><td class="refs"><a href="#sc-23">SC-23</a><a href="#ch-06">CH-06</a></td></tr>
+          <tr id="r04" data-l="4" data-i="5" data-sev="Critical"><td class="id">R04</td><td><strong>Guidance spoofing: lookalike domain or swapped QR codes</strong><small>Citizens are sent to an attacker's page during an evacuation.</small></td><td>4</td><td>5</td><td><span class="pill sev-critical">Critical</span></td><td>Threat model</td><td class="refs"><a href="#sc-31">SC-31</a><a href="#sc-27">SC-27</a></td></tr>
+          <tr id="r05" data-l="4" data-i="5" data-sev="Critical"><td class="id">R05</td><td><strong>Outage under DDoS or surge during a real event</strong><small>Imperva is a single edge, scaling is manual (NOC), and there is a hard cap of four m7g.8xlarge nodes.</small></td><td>4</td><td>5</td><td><span class="pill sev-critical">Critical</span></td><td>Brief, B22</td><td class="refs"><a href="#sc-11">SC-11</a><a href="#sc-33">SC-33</a><a href="#sc-26">SC-26</a></td></tr>
+          <tr id="r06" data-l="4" data-i="4" data-sev="High"><td class="id">R06</td><td><strong>Permanent retention of location samples, plus device emails</strong><small>Goes against data minimization. A breach would expose the full history. Legal exposure under GDPR storage limitation.</small></td><td>4</td><td>4</td><td><span class="pill sev-high">High</span></td><td>D34, C15</td><td class="refs"><a href="#ch-04">CH-04</a><a href="#sc-18">SC-18</a></td></tr>
+          <tr id="r07" data-l="3" data-i="5" data-sev="High"><td class="id">R07</td><td><strong>Fake check-ins and medical flags distort occupancy</strong><small>No rate limiting and no device binding. Responders act on false data.</small></td><td>3</td><td>5</td><td><span class="pill sev-high">High</span></td><td>C14</td><td class="refs"><a href="#sc-26">SC-26</a><a href="#sc-11">SC-11</a></td></tr>
+          <tr id="r08" data-l="3" data-i="5" data-sev="High"><td class="id">R08</td><td><strong>dev and prd share one account</strong><small>A dev compromise or a mistake can reach prd. Permission boundaries and tags are weaker isolation than separate accounts.</small></td><td>3</td><td>5</td><td><span class="pill sev-high">High</span></td><td>D44, B25</td><td class="refs"><a href="#ch-02">CH-02</a><a href="#sc-02">SC-02</a></td></tr>
+          <tr id="r09" data-l="4" data-i="4" data-sev="High"><td class="id">R09</td><td><strong>Preventive controls in observe-only mode</strong><small>AWS WAF is in COUNT, Kyverno is in Audit and origin mTLS is optional. Attacks are logged, not stopped.</small></td><td>4</td><td>4</td><td><span class="pill sev-high">High</span></td><td>9.1.7, 9.1.5, B22</td><td class="refs"><a href="#sc-12">SC-12</a><a href="#sc-15">SC-15</a><a href="#sc-11">SC-11</a></td></tr>
+          <tr id="r10" data-l="3" data-i="5" data-sev="High"><td class="id">R10</td><td><strong>Application database user is <code>rds_superuser</code> and owner</strong><small>Any SQL injection or app compromise has full control of the database.</small></td><td>3</td><td>5</td><td><span class="pill sev-high">High</span></td><td>D47</td><td class="refs"><a href="#ch-05">CH-05</a><a href="#sc-07">SC-07</a></td></tr>
+          <tr id="r11" data-l="3" data-i="4" data-sev="High"><td class="id">R11</td><td><strong>No identity provider and no admin inventory yet</strong><small>No joiner-mover-leaver process for many partner organizations.</small></td><td>3</td><td>4</td><td><span class="pill sev-high">High</span></td><td>B3a, B3b</td><td class="refs"><a href="#sc-04">SC-04</a><a href="#dec-b3a">B3a</a></td></tr>
+          <tr id="r12" data-l="3" data-i="4" data-sev="High"><td class="id">R12</td><td><strong>Lateral movement inside the cluster</strong><small>Plain HTTP and no authentication between services. NetworkPolicies are the only barrier (C9).</small></td><td>3</td><td>4</td><td><span class="pill sev-high">High</span></td><td>C9</td><td class="refs"><a href="#sc-17">SC-17</a><a href="#sc-14">SC-14</a></td></tr>
+          <tr id="r13" data-l="3" data-i="4" data-sev="High"><td class="id">R13</td><td><strong>Not enough evidence for forensics</strong><small>All logs kept 30 days with no archive. Investigations and legal requests usually come later than that.</small></td><td>3</td><td>4</td><td><span class="pill sev-high">High</span></td><td>D35</td><td class="refs"><a href="#ch-03">CH-03</a><a href="#sc-08">SC-08</a></td></tr>
+          <tr id="r14" data-l="3" data-i="4" data-sev="High"><td class="id">R14</td><td><strong>NOC tricked into scaling down</strong><small>Manual scaling with no caller verification (B12).</small></td><td>3</td><td>4</td><td><span class="pill sev-high">High</span></td><td>B12</td><td class="refs"><a href="#sc-30">SC-30</a><a href="#dec-b12">B12</a></td></tr>
+          <tr id="r15" data-l="3" data-i="3" data-sev="Medium"><td class="id">R15</td><td><strong>Third-party map tiles</strong><small>Public OSM tiles send user locations to a third party and can be throttled during a surge.</small></td><td>3</td><td>3</td><td><span class="pill sev-medium">Medium</span></td><td>C13</td><td class="refs"><a href="#sc-34">SC-34</a></td></tr>
+          <tr id="r16" data-l="2" data-i="4" data-sev="Medium"><td class="id">R16</td><td><strong>Supply-chain compromise</strong><small>GitHub org takeover, a poisoned dependency or base image. Mitigated by OIDC pinning, SHA-pinned actions and cosign, but signature enforcement is still in Audit.</small></td><td>2</td><td>4</td><td><span class="pill sev-medium">Medium</span></td><td>Brief</td><td class="refs"><a href="#sc-24">SC-24</a><a href="#sc-15">SC-15</a></td></tr>
+          <tr id="r17" data-l="3" data-i="3" data-sev="Medium"><td class="id">R17</td><td><strong>Uncontrolled schema changes</strong><small><code>ddl-auto: update</code> with no migrations. A drifting schema can cause data loss.</small></td><td>3</td><td>3</td><td><span class="pill sev-medium">Medium</span></td><td>C23</td><td class="refs"><a href="#sc-35">SC-35</a><a href="#ch-05">CH-05</a></td></tr>
+          <tr id="r18" data-l="2" data-i="4" data-sev="Medium"><td class="id">R18</td><td><strong>Residency drift</strong><small>Imperva logs, PoPs or IdP data stored outside the approved jurisdiction before B6 is confirmed.</small></td><td>2</td><td>4</td><td><span class="pill sev-medium">Medium</span></td><td>B6, B22</td><td class="refs"><a href="#sc-29">SC-29</a><a href="#dec-b6">B6</a></td></tr>
+          <tr id="r19" data-l="3" data-i="2" data-sev="Medium"><td class="id">R19</td><td><strong>Posture blind spots</strong><small>CIS standard INCOMPLETE, FSBP unscored, default VPC still present.</small></td><td>3</td><td>2</td><td><span class="pill sev-medium">Medium</span></td><td>Live state</td><td class="refs"><a href="#sc-10">SC-10</a><a href="#ch-08">CH-08</a></td></tr>
+          <tr id="r20" data-l="1" data-i="5" data-sev="Medium"><td class="id">R20</td><td><strong>Root or break-glass misuse</strong><small>Account root and the cluster break-glass role are the only unlimited identities.</small></td><td>1</td><td>5</td><td><span class="pill sev-medium">Medium</span></td><td>Baseline</td><td class="refs"><a href="#sc-03">SC-03</a></td></tr>
+          <tr class="empty-row" hidden><td colspan="7">No risks match the current filter.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 6 PRINCIPLES -->
+    <section class="section" id="principles" data-title="Strategic principles">
+      <div class="sec-head">
+        <span class="sec-num">06 · Strategic principles</span>
+        <h2>Seven rules that decide trade-offs</h2>
+        <p class="intro">When two good controls conflict, such as caching against freshness, or strict blocking against reachability during a surge, apply these principles in order.</p>
+      </div>
+      <ol class="numbered">
+        <li id="p1"><strong>Life-safety first: integrity, then availability, then confidentiality.</strong> Guidance must be correct before it is fast, and fast before it is private. A cached, signed emergency page is better than a live page that may have been tampered with.</li>
+        <li id="p2"><strong>Fail to a known-good degraded mode, never to open.</strong> If the cluster is down or overloaded, the edge serves the static emergency page. If authentication fails, admin writes are denied.</li>
+        <li id="p3"><strong>Public plane is read-mostly and explicitly allow-listed.</strong> Only named paths and methods are routed. Everything else returns 404 at the edge.</li>
+        <li id="p4"><strong>Every human is named, federated and phishing-resistant.</strong> No shared accounts, no local passwords in the app, and MFA everywhere a person authenticates.</li>
+        <li id="p5"><strong>Collect less, keep less.</strong> Store the minimum needed for the evacuation purpose, for a set time, then aggregate or delete. Retention is set per data class, not as one rule for everything.</li>
+        <li id="p6"><strong>Platform compensates, app remediates.</strong> The platform team contains application weaknesses with routing, WAF, policy and network controls, but never treats that as permanent. Each compensating control has an expiry tied to a Phase 12 task.</li>
+        <li id="p7"><strong>Everything as code, everything evidenced.</strong> Controls live in Terraform, Argo CD and Kyverno. Their state is measured continuously in Security Hub and Config, and the results feed the ISO 27001 evidence pack.</li>
+      </ol>
+    </section>
+
+    <!-- 7 DOMAINS -->
+    <section class="section" id="domains" data-title="Control domains">
+      <div class="sec-head">
+        <span class="sec-num">07 · Control domains</span>
+        <h2>The strategy by Well-Architected area</h2>
+        <p class="intro">For each area: where it stands today, the target state, and the specific work. The tags show the main CIS Controls (CIS n), ISO Annex A controls (A.x.y) and CIS Benchmarks that apply.</p>
+      </div>
+
+      <div class="domain" id="d-foundations">
+        <div class="domain-head"><h3 id="d-foundations-h">7.1 Security foundations and governance</h3><div class="tags"><span class="tag">ISO Cl. 4–10</span><span class="tag">A.5.1–5.4</span><span class="tag">A.5.19–5.23</span><span class="tag">CIS 15</span><span class="tag">WA SEC01</span></div></div>
+        <div class="split">
+          <div class="card now"><h4>Today</h4><ul><li>Strong decision log (D-, B-, C- items) and ADRs</li><li>One account, dev and prd separated by tags and boundaries</li><li>No ISMS scope, policy set or Statement of Applicability</li><li>Supplier security (Imperva, IdP, app team) not formalized</li></ul></div>
+          <div class="card target"><h4>Target</h4><ul><li>ISMS scoped to "the alerting system service and its AWS platform", with the Steering Committee as owner</li><li>AWS Organizations: management, security tooling, log archive, prd and dev accounts</li><li>SoA covering all 93 Annex A controls, with justification for each exclusion</li><li>Supplier register with security clauses, DPAs and residency commitments</li></ul></div>
+        </div>
+        <details class="more" open><summary>Work items</summary><div><ul>
+          <li>Write a one-page information security policy plus topic policies: access control, cryptography, logging, retention, supplier, secure development, incident response, acceptable use (A.5.1, A.5.37).</li>
+          <li>Set up a RACI covering the platform team, the application team, the Steering Committee, CPA and Imperva (A.5.2, A.5.3 segregation of duties). The prd approver must not be the author.</li>
+          <li>Adopt the risk method in <a href="#risks">section 05</a>. Review it quarterly and after every drill (Cl. 6.1, 8.2).</li>
+          <li>Create a separate prd account (<a href="#ch-02">CH-02</a>) with SCPs that deny leaving the org, deny disabling CloudTrail, Config, GuardDuty or Security Hub, deny Regions other than us-east-1 (residency), and deny creating IAM users or access keys.</li>
+          <li>Run internal audit and management review twice a year, aiming for ISO 27001 certification readiness within 12 months of go-live.</li>
+        </ul></div></details>
+      </div>
+
+      <div class="domain" id="d-iam">
+        <div class="domain-head"><h3 id="d-iam-h">7.2 Identity and access management</h3><div class="tags"><span class="tag">CIS 5, 6</span><span class="tag">A.5.15–5.18</span><span class="tag">A.8.2, A.8.5</span><span class="tag">CIS AWS §IAM</span><span class="tag">WA SEC02–03</span></div></div>
+        <div class="split">
+          <div class="card now"><h4>Today</h4><ul><li>GitHub OIDC with pinned <code>sub</code>, ExternalId, permission boundaries</li><li>EKS access entries and Pod Identity, break-glass as the only cluster-admin</li><li>Client VPN with SAML and MFA, but the IdP is undecided (B3a)</li><li>Application: no working login and no authorization model (F5)</li></ul></div>
+          <div class="card target"><h4>Target</h4><ul><li>One workforce IdP for all human access, with phishing-resistant MFA (FIDO2 or passkeys) for super admins</li><li>IAM Identity Center for AWS console and CLI. No IAM users.</li><li>App uses OIDC with role and scope claims: authority, area and screen</li><li>Quarterly access reviews and automatic deprovisioning</li></ul></div>
+        </div>
+        <details class="more" open><summary>Work items</summary><div><ul>
+          <li><strong>Humans (AWS):</strong> federate Identity Center to the chosen IdP. Use permission sets for Viewer, Operator, Deployer (break-glass) and Auditor. Enforce MFA. Allow console sessions of 8 hours at most, and 1 hour for admin permission sets.</li>
+          <li><strong>Humans (app):</strong> the admin gateway validates OIDC tokens. The backend enforces <code>@PreAuthorize</code> on every endpoint. A data model links users to groups, screens and locations, matching the PRD's two user types (CIS 6.8 RBAC, A.5.15).</li>
+          <li><strong>Root:</strong> hardware MFA, no access keys, root-usage alarm, contact details current. Once the Organization exists, use centralized root access management (CIS AWS Foundations IAM section).</li>
+          <li><strong>Break-glass:</strong> two named sealed identities. Each use triggers a page to the security owner and a mandatory post-use review (A.8.2).</li>
+          <li><strong>Workloads:</strong> keep Pod Identity, with one role per service account, scoped to the exact secret ARN and KMS key. Turn on IAM Access Analyzer unused-access findings.</li>
+          <li><strong>CI:</strong> keep OIDC with immutable <code>sub</code>. Add <code>job_workflow_ref</code> conditions so only named workflows can assume the deploy roles.</li>
+        </ul></div></details>
+      </div>
+
+      <div class="domain" id="d-detect">
+        <div class="domain-head"><h3 id="d-detect-h">7.3 Detection and logging</h3><div class="tags"><span class="tag">CIS 8, 13</span><span class="tag">A.8.15, A.8.16</span><span class="tag">A.5.28</span><span class="tag">CIS AWS §Logging/Monitoring</span><span class="tag">WA SEC04</span></div></div>
+        <div class="split">
+          <div class="card now"><h4>Today (live)</h4><ul><li>CloudTrail multi-Region with validation, Config with a conformance pack</li><li>GuardDuty with S3, EKS audit, malware and runtime monitoring; Security Hub; Access Analyzer; Inspector</li><li>CIS standard INCOMPLETE, FSBP unscored</li><li>All logs 30 days, no archive (D35)</li></ul></div>
+          <div class="card target"><h4>Target</h4><ul><li>Log-archive account with S3 Object Lock (compliance mode), KMS, us-east-1</li><li>Tiered retention: security logs 1 year hot plus 6 years cold, operational logs 30 to 90 days</li><li>Security Hub FSBP and CIS v5.0.0 at 95% or more passing, with tracked exceptions</li><li>24/7 alert routing with runbooks for the 15 top detections</li></ul></div>
+        </div>
+        <details class="more" open><summary>Work items</summary><div><ul>
+          <li>Fix the CIS standard: disable it and re-enable CIS v5.0.0 now that Config is recording, then confirm READY. AWS re:Post notes that Security Hub retries INCOMPLETE standards about every 12 hours (<a href="https://repost.aws/knowledge-center/security-hub-empty-score-status">AWS re:Post</a>).</li>
+          <li>Ship ALB, Envoy, Imperva, VPC Flow, EKS audit, pgaudit and Client VPN connection logs to the archive. Keep at least 90 days hot to meet CIS 8.10.</li>
+          <li>Add app-level audit events: who changed which guidance object, from where and when. This removes the repudiation risk.</li>
+          <li>Detection use cases: guidance changed outside a change window, admin login from a new country, a spike in reads of the device list, high error rates at the Envoy proxy, a GuardDuty runtime finding on any node, a disabled security service, root usage, a break-glass assumption, a cosign verification failure, a WAF block-rate anomaly, a scale-down request outside the procedure.</li>
+          <li>Time sync: confirm nodes use the Amazon Time Sync Service and that Imperva log timestamps are UTC (A.8.17).</li>
+        </ul></div></details>
+      </div>
+
+      <div class="domain" id="d-infra">
+        <div class="domain-head"><h3 id="d-infra-h">7.4 Infrastructure protection</h3><div class="tags"><span class="tag">CIS 4, 12, 13</span><span class="tag">A.8.20–8.22</span><span class="tag">A.8.9</span><span class="tag">CIS EKS 2.0.0</span><span class="tag">CIS Ubuntu L1</span><span class="tag">CIS NGINX</span><span class="tag">WA SEC05–06</span></div></div>
+        <div class="split">
+          <div class="card now"><h4>Today (designed)</h4><ul><li>Imperva → origin ALB limited to an Imperva prefix list. AWS WAF in COUNT, optional mTLS.</li><li>Private EKS endpoint, CIS L1 Ubuntu nodes, IMDSv2 with hop limit 1, SSM only</li><li>PSA restricted, Kyverno in Audit, default-deny NetworkPolicies</li><li>The whole <code>/api</code> prefix is proxied, and the default VPC still exists</li></ul></div>
+          <div class="card target"><h4>Target</h4><ul><li>Imperva with mandatory origin mTLS and a trusted client-IP header. The origin rejects anything else.</li><li>AWS WAF in BLOCK with managed rules, rate rules and route allow-lists</li><li>Kyverno Enforce: non-root, signed images, registry allow-list, no privileged pods</li><li>Egress allow-list. No route to the internet except named destinations.</li></ul></div>
+        </div>
+        <details class="more" open><summary>Work items</summary><div><ul>
+          <li><strong>Edge:</strong> make origin mTLS mandatory (a client certificate from Imperva, validated by an ALB trust store). Keep the prefix list as a second layer. Use only the Imperva client-IP header for rate limiting and logs, and strip it at the edge if it arrives from outside.</li>
+          <li><strong>Routes:</strong> public Envoy HTTPRoutes match exact paths and methods (<a href="#ch-01">CH-01</a>). nginx must not proxy <code>/api</code> as a prefix. Block <code>/swagger-ui</code>, <code>/v3/api-docs</code> and <code>/actuator</code> at Imperva and at AWS WAF.</li>
+          <li><strong>EKS:</strong> score against CIS EKS 2.0.0. Enable control-plane logging for audit and authenticator, KMS envelope encryption of Kubernetes Secrets, and pin the Envoy Gateway and Kyverno charts by digest.</li>
+          <li><strong>Nodes:</strong> keep CIS Ubuntu L1. Adopt the L2 items that don't break workloads (auditd rules, kernel module blacklist) and record the rest as deviations.</li>
+          <li><strong>nginx:</strong> apply CIS NGINX items: run as non-root, <code>server_tokens off</code>, security headers (CSP, HSTS, X-Content-Type-Options, frame-ancestors), TLS settings handled at Imperva and the ALB.</li>
+          <li><strong>Network:</strong> delete the default VPC in every Region, add VPC endpoints for S3, ECR, STS, Secrets Manager, KMS and logs, and route remaining egress through AWS Network Firewall with an FQDN allow-list.</li>
+        </ul></div></details>
+      </div>
+
+      <div class="domain" id="d-data">
+        <div class="domain-head"><h3 id="d-data-h">7.5 Data protection and privacy</h3><div class="tags"><span class="tag">CIS 3, 11</span><span class="tag">A.5.12, A.5.33, A.5.34</span><span class="tag">A.8.10–8.13, A.8.24</span><span class="tag">CIS PostgreSQL 17</span><span class="tag">WA SEC07–09</span></div></div>
+        <div class="split">
+          <div class="card now"><h4>Today</h4><ul><li>KMS customer keys per env, Secrets Manager, CSI-mounted secrets</li><li>RDS Multi-AZ, deletion protection, pgaudit, IAM tokens for DBAs</li><li>Location kept permanently (D34), email per device (C15)</li><li>App user is <code>rds_superuser</code> (D47). No backup vault policy defined.</li></ul></div>
+          <div class="card target"><h4>Target</h4><ul><li>Classification scheme from <a href="#scope-assets">2.2</a>, applied through tags</li><li>Raw location samples kept 30 days after an event closes (proposed), then aggregated to area and time</li><li>Least-privilege DB roles, TLS required to RDS, encrypted backups in a separate account with vault lock</li><li>Encryption in transit everywhere, including between services</li></ul></div>
+        </div>
+        <details class="more" open><summary>Work items</summary><div><ul>
+          <li><strong>Minimization (<a href="#ch-04">CH-04</a>):</strong> replace D34 with a retention rule per class. Remove <code>ds_account.email</code>. Use a random device identifier that rotates for each event.</li>
+          <li><strong>Database (<a href="#ch-05">CH-05</a>):</strong> roles <code>alerting_owner</code> (migrations only, through CI), <code>alerting_app</code> (DML on named tables), <code>alerting_ro</code> (reporting). Set <code>rds.force_ssl=1</code>. Apply the CIS PostgreSQL 17 items that apply to RDS: logging parameters, <code>pgaudit.log</code> classes, <code>log_connections</code>.</li>
+          <li><strong>Backups:</strong> AWS Backup plan with PITR at least 7 days and daily snapshots for 35 days, copied to a backup vault in a separate account in us-east-1 with Vault Lock. Run a restore test every quarter (CIS 11.4, A.8.13).</li>
+          <li><strong>Keys:</strong> separate key policies for administrators and users of keys, yearly rotation, deny <code>kms:ScheduleKeyDeletion</code> through SCP except for break-glass.</li>
+          <li><strong>Photos (<a href="#dec-c17">C17</a>):</strong> uploaded only through the admin plane with presigned PUT URLs, scanned by GuardDuty Malware Protection for S3, served through the edge with no public bucket.</li>
+          <li><strong>Privacy:</strong> run a DPIA, publish a privacy notice on the public site (purpose, retention, rights), and notify or register with the supervisory authority where the local law requires it.</li>
+        </ul></div></details>
+      </div>
+
+      <div class="domain" id="d-app">
+        <div class="domain-head"><h3 id="d-app-h">7.6 Application security</h3><div class="tags"><span class="tag">CIS 16, 18</span><span class="tag">A.8.25–8.29, A.8.32</span><span class="tag">OWASP ASVS 5.0 L2</span><span class="tag">CIS Docker</span><span class="tag">WA SEC11</span></div></div>
+        <div class="split">
+          <div class="card now"><h4>Today</h4><ul><li>Strong supply chain: single build, SBOM, provenance, Trivy and Inspector gates, cosign, immutable tags</li><li>No authentication or authorization, open device endpoints, Swagger served</li><li>JDWP on 8787, root user, <code>openjdk:17.0.1</code>, tests skipped</li><li>No rate limiting, <code>ddl-auto: update</code></li></ul></div>
+          <div class="card target"><h4>Target</h4><ul><li>OWASP ASVS 5.0 Level 2 as the acceptance standard for Phase 12 (<a href="https://github.com/owasp/asvs">OWASP ASVS</a>)</li><li>Distroless or slim supported JRE base, non-root, no debug agents in any image</li><li>Separate public and admin APIs, built from separate controllers</li><li>SAST, SCA, secret scanning and DAST in the pipeline, with blocking thresholds</li></ul></div>
+        </div>
+        <details class="more" open><summary>Work items (Phase 12, need written developer approval)</summary><div><ul>
+          <li><strong>12.1.5 / F5:</strong> remove <code>permitAll()</code>, HTTP basic and <code>NoOpPasswordEncoder</code>. Validate resource-server JWTs from the IdP. Delete the seed in <code>data.sql</code>. Remove the <code>/auth/**</code> route to the missing service.</li>
+          <li><strong>C21:</strong> split the devices controller into a public part (position post, arrival, medical flag, own device only) and an admin part (list, lookup, count) that is reachable only through the admin gateway.</li>
+          <li><strong>Device binding:</strong> issue a short-lived signed device token on first visit. Each post must carry it. Rate-limit per token and per IP (<a href="#sc-26">SC-26</a>).</li>
+          <li><strong>C20:</strong> new Dockerfiles. Multi-stage, supported JRE 17 or 21 base, <code>USER 10001</code>, no JDWP, tests run in CI. Swagger turned off in prd by profile.</li>
+          <li><strong>C23:</strong> set <code>ddl-auto: validate</code> and use Flyway or Liquibase migrations run as a Kubernetes Job with the owner role.</li>
+          <li><strong>Pipeline:</strong> add CodeQL or Semgrep SAST, dependency review, gitleaks, and an OWASP ZAP baseline scan against dev in workflow 05. Block on High and Critical findings.</li>
+        </ul></div></details>
+      </div>
+
+      <div class="domain" id="d-supply">
+        <div class="domain-head"><h3 id="d-supply-h">7.7 Software supply chain and change</h3><div class="tags"><span class="tag">CIS 2, 7, 16</span><span class="tag">A.8.4, A.8.8, A.8.30–8.32</span><span class="tag">WA SEC11</span></div></div>
+        <p class="prose">This is the strongest area today. The strategy keeps it and closes the enforcement loop. Signature verification moves to Enforce, the GitHub org is hardened and vulnerability handling gets SLAs.</p>
+        <details class="more" open><summary>Work items</summary><div><ul>
+          <li>Kyverno <code>verifyImages</code> in Enforce for <code>alias/alerting-prd-cosign</code> with digest pinning, plus a registry allow-list limited to the prd ECR and the pull-through cache.</li>
+          <li>GitHub org: SSO and MFA required, branch protection with signed commits, CODEOWNERS on <code>infra/</code> and workflow files, required reviewers for <code>prd</code> environments, and no self-approval.</li>
+          <li>Vulnerability SLAs (CIS 7): Critical 7 days, High 30 days, Medium 90 days, measured from the first Inspector or Trivy finding. Rebuild nodes monthly (already planned), and rebuild images weekly from the base.</li>
+          <li>Keep the console CodeBuild fallback, but run it only from the same signed source and the same role chain, and log every manual use.</li>
+        </ul></div></details>
+      </div>
+
+      <div class="domain" id="d-ir">
+        <div class="domain-head"><h3 id="d-ir-h">7.8 Incident response and resilience</h3><div class="tags"><span class="tag">CIS 17, 11</span><span class="tag">A.5.24–5.30</span><span class="tag">A.6.8</span><span class="tag">WA SEC10</span></div></div>
+        <div class="split">
+          <div class="card now"><h4>Today</h4><ul><li>Findings SNS topic and weekly digest</li><li>NOC scales by hand, with no caller verification</li><li>No IR plan, playbooks, or forensics account</li></ul></div>
+          <div class="card target"><h4>Target</h4><ul><li>IR plan with named roles: incident commander, comms (with CPA), legal or DPO</li><li>Eight playbooks, each exercised once a year, and DDoS plus surge drills before each national exercise</li><li>Forensics role and isolated account, pre-approved isolation actions</li></ul></div>
+        </div>
+        <details class="more" open><summary>Playbooks</summary><div><ol>
+          <li>DDoS or surge during a live event: Imperva escalation, AWS Shield, scale-up order and emergency page fallback.</li>
+          <li>Unauthorized guidance change: freeze writes, restore from the audit trail, notify CPA.</li>
+          <li>Admin account compromise: disable the user at the IdP, revoke sessions, review audit events.</li>
+          <li>Personal data exposure: contain, assess, notify the supervisory authority and affected people as the law requires.</li>
+          <li>Malicious or unsigned image: Kyverno blocks it, Argo CD rolls back, the signing key is rotated.</li>
+          <li>Compromised node or pod: GuardDuty runtime finding, cordon and isolate, EBS snapshot, rebuild.</li>
+          <li>Lookalike site or swapped QR codes: takedown requests, public messaging through CPA, sign sweep.</li>
+          <li>Social engineering of the NOC: verification failed, escalate, keep current capacity.</li>
+        </ol></div></details>
+      </div>
+
+      <div class="domain" id="d-people">
+        <div class="domain-head"><h3 id="d-people-h">7.9 People and operations</h3><div class="tags"><span class="tag">CIS 14</span><span class="tag">A.6.1–6.8</span><span class="tag">A.5.37</span></div></div>
+        <div class="grid-3">
+          <div class="card"><h4>Role-based training</h4><p>Administrators at each authority get yearly training on phishing, MFA fatigue and how to report. Platform engineers get secure Terraform and Kubernetes training. The app team gets ASVS-based secure coding.</p></div>
+          <div class="card"><h4>NOC procedure</h4><p>A capacity change needs a ticket ID and a callback to a registered number. Scale-down also needs a second approver (<a href="#dec-b12">B12</a>).</p></div>
+          <div class="card"><h4>Screening &amp; offboarding</h4><p>Screening for super admins in line with client policy. When a person leaves, IdP deprovisioning is the single off-switch, checked in the quarterly access review.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 CHANGES -->
+    <section class="section" id="changes" data-title="Required changes to the current setup">
+      <div class="sec-head">
+        <span class="sec-num">08 · Required changes</span>
+        <h2>What has to change in the current setup</h2>
+        <p class="intro">These items change an accepted decision, a design or live state. Each change shows the decision it revises, who owns it, and whether the platform team can do it without touching <code>app/</code>.</p>
+      </div>
+      <div class="table-wrap"><table id="changeTable">
+        <thead><tr><th>ID</th><th>Current</th><th>Change to</th><th>Why</th><th>Owner</th><th>Pri</th></tr></thead>
+        <tbody>
+          <tr id="ch-01"><td class="id">CH-01</td><td>Public nginx proxies the whole <code>/api</code>. The devices route carries the whole controller.</td><td>Exact-match HTTPRoutes for public methods and paths only. Imperva and AWS WAF rules deny everything else, including Swagger and actuator.</td><td>Contains <a href="#r02">R02</a> now, without editing <code>app/</code></td><td>Platform team</td><td><span class="pri p0">P0</span></td></tr>
+          <tr id="ch-02"><td class="id">CH-02</td><td>D44: one account for dev and prd</td><td>AWS Organizations with prd, dev, log-archive, security-tooling and backup accounts. SCP guardrails. Move prd before go-live if possible, otherwise within 90 days.</td><td><a href="#r08">R08</a>, residency SCP, cost tags (payer)</td><td>Platform team + client (B25)</td><td><span class="pri p1">P1</span></td></tr>
+          <tr id="ch-03"><td class="id">CH-03</td><td>D35: all logs 30 days, no archive</td><td>Security and audit logs: 1 year hot plus 6 years in Glacier, Object Lock. Operational logs: 30 to 90 days. Access logs: 1 year.</td><td><a href="#r13">R13</a>, CIS 8.10 (at least 90 days), A.8.15, legal holds</td><td>Platform team + client</td><td><span class="pri p0">P0</span></td></tr>
+          <tr id="ch-04"><td class="id">CH-04</td><td>D34: location samples kept permanently. C15: email per device.</td><td>Raw samples deleted 30 days after the event closes (proposed, for legal review). Aggregates by area and time kept for planning. Email removed.</td><td><a href="#r06">R06</a>, GDPR Art. 5, data minimization</td><td>Client + app team</td><td><span class="pri p0">P0</span></td></tr>
+          <tr id="ch-05"><td class="id">CH-05</td><td>D47: <code>alertingdb</code> is <code>rds_superuser</code> and owner. <code>ddl-auto: update</code>.</td><td>Owner, app and read-only roles created by the bootstrap Lambda. Migrations through Flyway as a Job. Runtime gets DML only.</td><td><a href="#r10">R10</a>, <a href="#r17">R17</a>, CIS PostgreSQL</td><td>Platform team + app team</td><td><span class="pri p1">P1</span></td></tr>
+          <tr id="ch-06"><td class="id">CH-06</td><td>Dockerfiles: JDWP 8787, root, <code>openjdk:17.0.1</code>, tests skipped</td><td>Hardened multi-stage images. In the meantime, a Kyverno rule denies container ports 8787 and runAsUser 0, and a NetworkPolicy denies 8787.</td><td><a href="#r03">R03</a></td><td>App team, with platform-team interim controls</td><td><span class="pri p0">P0</span></td></tr>
+          <tr id="ch-07"><td class="id">CH-07</td><td>AWS WAF COUNT, Kyverno Audit, origin mTLS optional</td><td>BLOCK, Enforce and mandatory mTLS, each with a 7-day clean COUNT/Audit report as evidence</td><td><a href="#r09">R09</a></td><td>Platform team</td><td><span class="pri p0">P0</span></td></tr>
+          <tr id="ch-08"><td class="id">CH-08</td><td>CIS standard INCOMPLETE, default VPC present</td><td>Re-enable CIS v5.0.0 after Config, delete default VPCs in all Regions, and record v7.1.0 deltas</td><td><a href="#r19">R19</a></td><td>Platform team</td><td><span class="pri p0">P0</span></td></tr>
+          <tr id="ch-09"><td class="id">CH-09</td><td>Plain HTTP between services (C9)</td><td>Short term: tighter NetworkPolicies per port. Medium term: mTLS between services through Envoy or a mesh (for example Istio ambient) with SPIFFE identities.</td><td><a href="#r12">R12</a></td><td>Platform team</td><td><span class="pri p1">P1</span></td></tr>
+          <tr id="ch-10"><td class="id">CH-10</td><td>Public OpenStreetMap tiles (C13)</td><td>Self-host vector tiles for the service area, served from S3 through the edge</td><td><a href="#r15">R15</a>, privacy, surge</td><td>Platform team + app team</td><td><span class="pri p2">P2</span></td></tr>
+          <tr id="ch-11"><td class="id">CH-11</td><td>Manual NOC scaling with no verification</td><td>A pre-approved "event mode" scale profile triggered from a signed runbook, with caller verification and two-person scale-down</td><td><a href="#r05">R05</a>, <a href="#r14">R14</a></td><td>Platform team + CPA</td><td><span class="pri p1">P1</span></td></tr>
+          <tr id="ch-12"><td class="id">CH-12</td><td>Emergency page served by nginx in the cluster</td><td>Also publish a signed static emergency page to S3 and cache it at Imperva as the origin-failover target</td><td><a href="#r05">R05</a>, principle <a href="#p2">2</a></td><td>Platform team</td><td><span class="pri p0">P0</span></td></tr>
+          <tr id="ch-13"><td class="id">CH-13</td><td>No egress control described</td><td>VPC endpoints plus Network Firewall with an FQDN allow-list</td><td>Data exfiltration, C2</td><td>Platform team</td><td><span class="pri p1">P1</span></td></tr>
+          <tr id="ch-14"><td class="id">CH-14</td><td>Public domain trust not defined</td><td>One short official domain, DNSSEC, CAA, HSTS preload, tamper-evident QR plates, lookalike-domain monitoring</td><td><a href="#r04">R04</a></td><td>Client + Platform team</td><td><span class="pri p1">P1</span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 9 MATRIX -->
+    <section class="section" id="matrix" data-title="Control mapping matrix">
+      <div class="sec-head">
+        <span class="sec-num">09 · Control matrix</span>
+        <h2>35 strategic controls mapped to all four frameworks</h2>
+        <p class="intro">This is the basis for the Statement of Applicability. Filter by Well-Architected area, status or priority, or type a framework reference such as <code>A.8.15</code> or <code>CIS 16</code>. In the PDF, all rows are shown.</p>
+      </div>
+      <div class="filters no-print" role="group" aria-label="Filter controls">
+        <div class="fgroup" data-filter="area" data-target="matrixTable"><span>Area</span>
+          <button class="chip" aria-pressed="false" data-v="Foundations">Foundations</button><button class="chip" aria-pressed="false" data-v="IAM">IAM</button><button class="chip" aria-pressed="false" data-v="Detection">Detection</button><button class="chip" aria-pressed="false" data-v="Infrastructure">Infrastructure</button><button class="chip" aria-pressed="false" data-v="Data">Data</button><button class="chip" aria-pressed="false" data-v="IR">Incident response</button><button class="chip" aria-pressed="false" data-v="AppSec">AppSec</button>
+        </div>
+        <div class="fgroup" data-filter="status" data-target="matrixTable"><span>Status</span>
+          <button class="chip" aria-pressed="false" data-v="Live">Live</button><button class="chip" aria-pressed="false" data-v="Designed">Designed</button><button class="chip" aria-pressed="false" data-v="Change">Change</button><button class="chip" aria-pressed="false" data-v="Gap">Gap</button>
+        </div>
+        <div class="fgroup" data-filter="pri" data-target="matrixTable"><span>Priority</span>
+          <button class="chip" aria-pressed="false" data-v="P0">P0</button><button class="chip" aria-pressed="false" data-v="P1">P1</button><button class="chip" aria-pressed="false" data-v="P2">P2</button>
+        </div>
+        <input class="filter-input" type="search" placeholder="Filter by text or reference…" data-target="matrixTable" aria-label="Filter controls by text">
+        <span class="count" id="matrixTable-count"></span>
+      </div>
+      <div class="table-wrap"><table id="matrixTable">
+        <thead><tr><th>ID</th><th>Strategic control</th><th>WA area</th><th>CIS Controls v8.1</th><th>CIS Benchmark</th><th>ISO 27001 Annex A</th><th>Status</th><th>Pri</th></tr></thead>
+        <tbody id="matrixBody"></tbody>
+      </table></div>
+    </section>
+
+    <!-- 10 ROADMAP -->
+    <section class="section" id="roadmap" data-title="Roadmap and go-live gates">
+      <div class="sec-head">
+        <span class="sec-num">10 · Roadmap</span>
+        <h2>Four phases, gated by evidence rather than dates</h2>
+        <p class="intro">Phase A can start this week and needs only the platform team. Phase B is the go-live gate. Phases C and D build toward ISO 27001 certification readiness and CIS IG3.</p>
+      </div>
+      <h3 id="phases">10.1 Phases</h3>
+      <div class="phases">
+        <div class="phase"><span class="when">Phase A · next 2–3 weeks</span><h4>Contain</h4><ul><li><a href="#ch-01">CH-01</a> route allow-list and WAF deny rules</li><li><a href="#ch-06">CH-06</a> interim Kyverno and NetworkPolicy for JDWP and root</li><li><a href="#ch-08">CH-08</a> Security Hub CIS fix, default VPC</li><li>Decide <a href="#dec-b3a">B3a</a>, <a href="#dec-b25">B25</a>, <a href="#dec-b11">B11</a></li><li>Draft the ISMS policy and risk appetite</li></ul></div>
+        <div class="phase"><span class="when">Phase B · before go-live</span><h4>Gate</h4><ul><li>Phase 12 auth, RBAC and devices split (F5, C21)</li><li><a href="#ch-07">CH-07</a> WAF BLOCK, Kyverno Enforce, mTLS</li><li><a href="#ch-03">CH-03</a> log archive, <a href="#ch-12">CH-12</a> static failover</li><li>Pen test and retest. DDoS and surge drill.</li><li><a href="#ch-04">CH-04</a> retention decision signed</li></ul></div>
+        <div class="phase"><span class="when">Phase C · go-live + 90 days</span><h4>Segment</h4><ul><li><a href="#ch-02">CH-02</a> multi-account and SCPs</li><li><a href="#ch-05">CH-05</a> DB roles and migrations</li><li><a href="#ch-09">CH-09</a> service-to-service mTLS</li><li><a href="#ch-13">CH-13</a> egress allow-list</li><li>IR playbooks exercised</li></ul></div>
+        <div class="phase"><span class="when">Phase D · go-live + 12 months</span><h4>Certify</h4><ul><li>SoA complete, internal audit, management review</li><li>ISO 27001 Stage 1 and Stage 2 readiness</li><li>CIS IG3 safeguards that apply</li><li>Yearly pen test and red-team exercise</li><li><a href="#ch-10">CH-10</a> self-hosted tiles</li></ul></div>
+      </div>
+
+      <h3 id="gates">10.2 Go-live security gates</h3>
+      <div class="gate-progress no-print"><span id="gateText">0 of 12 gates checked</span><div class="bar"><i id="gateBar" style="width:0%"></i></div></div>
+      <ul class="checklist" id="gateList">
+        <li id="g01"><input type="checkbox" aria-label="Gate 1"><span class="gtext"><strong>G1 · Admin authentication and RBAC live</strong>. OIDC against the IdP, MFA, seed account removed, every endpoint authorized (<a href="#sc-05">SC-05</a>). Evidence: ASVS L2 V6 to V8 test report.</span></li>
+        <li id="g02"><input type="checkbox" aria-label="Gate 2"><span class="gtext"><strong>G2 · Public API surface reduced to an allow-list</strong>. Device list, lookup and count are unreachable from the internet. Evidence: an external scan returns 404 or 403.</span></li>
+        <li id="g03"><input type="checkbox" aria-label="Gate 3"><span class="gtext"><strong>G3 · No debug agents, no root containers</strong>. Kyverno Enforce report is clean.</span></li>
+        <li id="g04"><input type="checkbox" aria-label="Gate 4"><span class="gtext"><strong>G4 · AWS WAF in BLOCK (9.1.7)</strong> on the origin and admin ALBs, after a 7-day clean COUNT period.</span></li>
+        <li id="g05"><input type="checkbox" aria-label="Gate 5"><span class="gtext"><strong>G5 · Kyverno Enforce (9.1.5)</strong> including cosign verification for prd images.</span></li>
+        <li id="g06"><input type="checkbox" aria-label="Gate 6"><span class="gtext"><strong>G6 · Origin accepts only Imperva</strong>, through mandatory mTLS plus the prefix list. Evidence: a direct connection to the origin is refused.</span></li>
+        <li id="g07"><input type="checkbox" aria-label="Gate 7"><span class="gtext"><strong>G7 · Rate limiting and device tokens</strong> on all public write endpoints (<a href="#sc-26">SC-26</a>).</span></li>
+        <li id="g08"><input type="checkbox" aria-label="Gate 8"><span class="gtext"><strong>G8 · Security logs immutable, kept at least 1 year</strong> (<a href="#ch-03">CH-03</a>). App audit trail of guidance changes in place.</span></li>
+        <li id="g09"><input type="checkbox" aria-label="Gate 9"><span class="gtext"><strong>G9 · Security Hub FSBP and CIS v5.0.0 at 95% or more</strong>, with every failure an approved exception. GuardDuty runtime coverage at 100% (D40).</span></li>
+        <li id="g10"><input type="checkbox" aria-label="Gate 10"><span class="gtext"><strong>G10 · Independent pen test passed</strong>. No open Critical or High findings after retest (<a href="#dec-b11">B11</a>).</span></li>
+        <li id="g11"><input type="checkbox" aria-label="Gate 11"><span class="gtext"><strong>G11 · Surge and DDoS drill passed</strong>. 500,000 simulated users, failover to the emergency page proven (<a href="#ch-12">CH-12</a>).</span></li>
+        <li id="g12"><input type="checkbox" aria-label="Gate 12"><span class="gtext"><strong>G12 · Data retention and residency signed off</strong> (<a href="#ch-04">CH-04</a>, <a href="#dec-b6">B6</a>). DPIA approved.</span></li>
+      </ul>
+    </section>
+
+    <!-- 11 METRICS -->
+    <section class="section" id="metrics" data-title="Metrics and reporting">
+      <div class="sec-head">
+        <span class="sec-num">11 · Metrics</span>
+        <h2>How we will know it is working</h2>
+        <p class="intro">Reported monthly to the Steering Committee, and as ISO 27001 clause 9.1 monitoring evidence. Most metrics come straight from Security Hub, Config, Inspector and GuardDuty.</p>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Metric</th><th>Target</th><th>Source</th><th>Framework</th></tr></thead>
+        <tbody>
+          <tr><td>Security Hub score, FSBP and CIS v5.0.0</td><td>≥ 95%</td><td>Security Hub</td><td>CIS 4, A.8.9</td></tr>
+          <tr><td>Critical and High vulnerabilities past SLA</td><td>0</td><td>Inspector, Trivy</td><td>CIS 7, A.8.8</td></tr>
+          <tr><td>Human identities with phishing-resistant MFA</td><td>100% super admins, 100% MFA overall</td><td>IdP</td><td>CIS 6.5, A.8.5</td></tr>
+          <tr><td>Access review completed on time</td><td>Quarterly, 100%</td><td>IdP and Identity Center</td><td>CIS 5, A.5.18</td></tr>
+          <tr><td>prd images running signed and verified</td><td>100%</td><td>Kyverno reports</td><td>CIS 2, A.8.32</td></tr>
+          <tr><td>GuardDuty runtime coverage of nodes</td><td>100% (D40 gate)</td><td>GuardDuty</td><td>CIS 10, A.8.7</td></tr>
+          <tr><td>Mean time to acknowledge a High finding</td><td>&lt; 30 min (event), &lt; 4 h (normal)</td><td>Alarms topic</td><td>CIS 17, A.5.25</td></tr>
+          <tr><td>Backup restore test success</td><td>Quarterly, 100%</td><td>AWS Backup</td><td>CIS 11, A.8.13</td></tr>
+          <tr><td>Location data older than the retention limit</td><td>0 rows</td><td>DB job report</td><td>CIS 3.4, A.8.10</td></tr>
+          <tr><td>Emergency page availability during drills</td><td>≥ 99.95%</td><td>Imperva and synthetics</td><td>A.5.30, A.8.14</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 12 DECISIONS -->
+    <section class="section" id="decisions" data-title="Decisions needed">
+      <div class="sec-head">
+        <span class="sec-num">12 · Decisions</span>
+        <h2>Open decisions, with a recommendation for each</h2>
+        <p class="intro">These come from the brief's list of decisions the strategy needs. Each has a recommended option, so the Steering Committee can approve or reject rather than start from scratch.</p>
+      </div>
+      <div class="grid-2">
+        <div class="card" id="dec-b3a"><span class="k">B3a · Identity provider</span><h4>Recommend: client Entra ID</h4><p>Federated to Client VPN (SAML), IAM Identity Center and the app (OIDC). Use Conditional Access and FIDO2 for super admins. Partner organizations join through B2B guests or their own federation. If the client cannot provide Entra, use IAM Identity Center as the IdP, but plan a manual joiner-mover-leaver process.</p></div>
+        <div class="card" id="dec-b3b"><span class="k">B3b · Admin inventory</span><h4>Recommend: named inventory per authority</h4><p>Each authority names a sponsor who approves its users. There are three VPN groups mapped to app roles. Quarterly recertification. No shared accounts.</p></div>
+        <div class="card" id="dec-b6"><span class="k">B6 · Residency</span><h4>Recommend: single-Region residency, enforced by SCP</h4><p>Deny Regions other than us-east-1. Imperva logs and IdP data stay in the same jurisdiction, or move only with explicit approval. Without a second Region there is no cross-Region DR, so record that as an accepted risk, mitigated by Multi-AZ, a cross-account backup and edge failover.</p></div>
+        <div class="card" id="dec-b11"><span class="k">B11 · Penetration test</span><h4>Recommend: independent firm in Phase 9</h4><p>Scope: public site, admin console through the VPN, AWS configuration and the Kubernetes cluster. Schedule it after the Phase 12 fixes, then retest. Repeat yearly, and after major changes, as the DPIA's risk treatment plan requires.</p></div>
+        <div class="card" id="dec-b12"><span class="k">B12 · NOC caller verification</span><h4>Recommend: ticket plus callback plus two-person rule</h4><p>Scale-up can be done by one verified caller. Scale-down needs a second approver from a different organization. All requests are logged.</p></div>
+        <div class="card" id="dec-b22"><span class="k">B22 · Imperva</span><h4>Recommend: tier with bot management and a DDoS SLA</h4><p>Mandatory origin mTLS. Use only the Imperva client-IP header. Push logs to S3 in us-east-1, and confirm the push before go-live.</p></div>
+        <div class="card" id="dec-b25"><span class="k">B25 · Prd account</span><h4>Recommend: yes, as part of an Organization</h4><p>Create it before go-live if the timeline allows, because migrating prd later is harder. Also needed for cost-allocation tags (payer account).</p></div>
+        <div class="card" id="dec-c21"><span class="k">C21 · App login timeline</span><h4>Recommend: hard go-live gate</h4><p>The platform can contain the devices endpoints (<a href="#ch-01">CH-01</a>) but cannot make up for having no admin login. G1 and G2 are not negotiable.</p></div>
+        <div class="card" id="dec-c17"><span class="k">C17 · Photo path</span><h4>Recommend: presigned upload through the admin plane</h4><p>Upload to S3 with a presigned PUT URL. Scan with GuardDuty Malware Protection for S3. Serve through the edge. The bucket is never public.</p></div>
+        <div class="card" id="dec-gates"><span class="k">9.1.7 · 9.1.5</span><h4>Recommend: both before go-live</h4><p>WAF BLOCK and Kyverno Enforce, each after a 7-day clean observation window, with the reports kept as evidence.</p></div>
+      </div>
+    </section>
+
+    <!-- 13 REFERENCES -->
+    <section class="section" id="references" data-title="References">
+      <div class="sec-head">
+        <span class="sec-num">13 · References</span>
+        <h2>Sources</h2>
+        <p class="intro">Framework versions were checked on 2026-10-21. Internal references (D-, B-, C- and F- items) point to the project documents listed in the Security Brief.</p>
+      </div>
+      <ol class="refs-list">
+        <li>CIS — The 18 CIS Critical Security Controls (v8.1). <a href="https://www.cisecurity.org/controls/cis-controls-list">https://www.cisecurity.org/controls/cis-controls-list</a></li>
+        <li>Cisco — Framework Foundations: CIS Controls v8.1 Solution Brief (Implementation Groups). <a href="https://www.cisco.com/c/en/us/products/collateral/security/cis-controls-sb.html">https://www.cisco.com/c/en/us/products/collateral/security/cis-controls-sb.html</a></li>
+        <li>CIS — CIS Benchmarks list. <a href="https://www.cisecurity.org/cis-benchmarks">https://www.cisecurity.org/cis-benchmarks</a></li>
+        <li>CIS — Amazon Web Services Benchmarks (Foundations 7.1.0). <a href="https://www.cisecurity.org/benchmark/amazon_web_services">https://www.cisecurity.org/benchmark/amazon_web_services</a></li>
+        <li>CIS — CIS Benchmarks April 2026 Update (AWS Foundations v7.0.0). <a href="https://www.cisecurity.org/insights/blog/cis-benchmarks-april-2026-update">https://www.cisecurity.org/insights/blog/cis-benchmarks-april-2026-update</a></li>
+        <li>CIS — CIS Benchmarks June 2026 Update (EKS v2.0.0). <a href="https://www.cisecurity.org/insights/blog/cis-benchmarks-june-2026-update">https://www.cisecurity.org/insights/blog/cis-benchmarks-june-2026-update</a></li>
+        <li>CIS — PostgreSQL Benchmarks. <a href="https://www.cisecurity.org/benchmark/postgresql">https://www.cisecurity.org/benchmark/postgresql</a></li>
+        <li>CIS — NGINX Benchmarks. <a href="https://www.cisecurity.org/benchmark/nginx">https://www.cisecurity.org/benchmark/nginx</a></li>
+        <li>AWS — CIS AWS Foundations Benchmark in Security Hub CSPM. <a href="https://docs.aws.amazon.com/securityhub/latest/userguide/cis-aws-foundations-benchmark.html">https://docs.aws.amazon.com/securityhub/latest/userguide/cis-aws-foundations-benchmark.html</a></li>
+        <li>AWS re:Post — Resolve a security score or compliance status in Security Hub. <a href="https://repost.aws/knowledge-center/security-hub-empty-score-status">https://repost.aws/knowledge-center/security-hub-empty-score-status</a></li>
+        <li>AWS — Well-Architected Framework, Security pillar best practice areas. <a href="https://docs.aws.amazon.com/wellarchitected/latest/framework/a-security.html">https://docs.aws.amazon.com/wellarchitected/latest/framework/a-security.html</a></li>
+        <li>AWS — Security Pillar: Security foundations and design principles. <a href="https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/security.html">https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/security.html</a></li>
+        <li>ISO — ISO/IEC 27001:2022 and Amendment 1:2024. <a href="https://www.iso.org/standard/27001">https://www.iso.org/standard/27001</a></li>
+        <li>Modulos — ISO/IEC 27001:2022 Annex A, 93 controls in four themes. <a href="https://docs.modulos.ai/frameworks/iso-27001/annex-a">https://docs.modulos.ai/frameworks/iso-27001/annex-a</a></li>
+        <li>OWASP — Application Security Verification Standard 5.0.0. <a href="https://github.com/owasp/asvs">https://github.com/owasp/asvs</a></li>
+        <li>GDPR — Article 5: Principles relating to processing of personal data. <a href="https://www.gdpr.org/regulation/article-5.html">https://www.gdpr.org/regulation/article-5.html</a></li>
+        <li>EDPB (Irish DPC list) — Data Protection Impact Assessment requirements. <a href="https://www.edpb.europa.eu/system/files/decisions/ie_dpc_data-protection-impact-assessment.pdf">https://www.edpb.europa.eu/system/files/decisions/ie_dpc_data-protection-impact-assessment.pdf</a></li>
+        <li>ISO/IEC 27701:2025 — Privacy information management systems (preview). <a href="https://cdn.standards.iteh.ai/samples/iso/iso-iec-27701-2025/999f0b4e27d84804be12758c821cc34e/iso-iec-27701-2025.pdf">https://cdn.standards.iteh.ai/samples/iso/iso-iec-27701-2025/999f0b4e27d84804be12758c821cc34e/iso-iec-27701-2025.pdf</a></li>
+      </ol>
+    </section>
+
+    </div>
+    <footer class="site">Security strategy v1.0 · 2026-10-21 · Prepared from the Security Brief for the alerting system (AWS ACCOUNT_ID, us-east-1). Re-check against docs 02, 07, 11, 31 and 32 whenever they change. Public edition: identifiers are placeholders (ACCOUNT_ID, PRD_VPC_CIDR, DEV_VPC_CIDR, ORG_ID, REPO_ID), and organization names are generic (platform team, CPA, EMS).</footer>
+  </main>
+</div>
+
+<!-- Search palette -->
+<div class="palette-backdrop" id="paletteBackdrop"></div>
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Search">
+  <div class="palette-input">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="searchInput" type="search" placeholder="Search risks, controls, ISO / CIS references, decisions…" autocomplete="off" aria-label="Search">
+    <span class="kbd">Esc</span>
+  </div>
+  <ul class="results" id="results" role="listbox"></ul>
+  <div class="palette-foot"><span>↑ ↓ to move</span><span>Enter to open</span><span>Try “A.8.15”, “JDWP”, “B3a”, “retention”</span></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="data.js?v=3"></script>
+<script src="app.js?v=3"></script>
+</body>
+</html>
