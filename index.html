@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=3">
+<link rel="stylesheet" href="styles.css?v=4">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7z' fill='%230b5a73'/%3E%3Cpath d='M8 18c2.5-2 5-2 8 0s5.5 2 8 0' stroke='%23fff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
 </head>
 <body data-account="ACCOUNT_ID" data-region="us-east-1" data-footer="Security Strategy · Alerting system · AWS ACCOUNT_ID · Public edition (redacted)">
@@ -127,7 +127,7 @@
           </div>
           <div class="callout crit">
             <h4>Bottom line</h4>
-            <p>Go-live must wait for 12 gates (<a href="#gates">section 10.2</a>). Seven can be done by the platform team alone. Five depend on the application team or the client.</p>
+            <p>Go-live must wait for 12 gates (<a href="#gates">section 11.2</a>). Seven can be done by the platform team alone. Five depend on the application team or the client.</p>
           </div>
         </div>
       </div>
@@ -227,7 +227,7 @@
       <div class="sec-head">
         <span class="sec-num">03 · Framework baseline</span>
         <h2>How the four frameworks fit together</h2>
-        <p class="intro">Each framework does a different job. ISO 27001 is the management system that owns risk and evidence. The CIS Controls set the order of work. The CIS Benchmarks define the exact configuration. The Well-Architected Security Pillar provides the AWS-native design patterns. Every strategic control in <a href="#matrix">section 09</a> maps to all four.</p>
+        <p class="intro">Each framework does a different job. ISO 27001 is the management system that owns risk and evidence. The CIS Controls set the order of work. The CIS Benchmarks define the exact configuration. The Well-Architected Security Pillar provides the AWS-native design patterns. Every strategic control in <a href="#matrix">section 10</a> maps to all four.</p>
       </div>
 
       <div class="grid-2">
@@ -508,10 +508,238 @@
       </div>
     </section>
 
+    <!-- 8 DEEP DIVES -->
+    <section class="section" id="deepdives" data-title="Design deep dives">
+      <div class="sec-head">
+        <span class="sec-num">08 · Design deep dives</span>
+        <h2>Six design questions, answered in detail</h2>
+        <p class="intro">This section covers WAF rules and location enforcement, alerting without a staffed SOC, database users, Kubernetes service accounts, the admin hostname, and hardened container images. Each topic opens with a direct answer, then gives the concrete rules, roles or options, and links back to the risks, changes and controls they support.</p>
+      </div>
+
+      <!-- 8.1 WAF -->
+      <div class="domain" id="dd-waf">
+        <div class="domain-head"><h3 id="dd-waf-h">8.1 WAF rules for common attacks and location enforcement</h3><div class="tags"><span class="tag">CIS 13.10</span><span class="tag">A.8.20, A.8.23</span><span class="tag">WA SEC05</span><span class="tag">ASVS V4</span></div></div>
+        <div class="callout">
+          <h4>Short answer: some protection is on by default, but most of what this system needs is manual</h4>
+          <p><strong>Imperva</strong> applies its default account WAF Rules policy to every new site automatically. In that policy, SQL injection, cross-site scripting, illegal resource access and remote file inclusion are all set to Block Request (<a href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/policies.htm">Imperva policies</a>). Backdoor protection defaults to Auto-Quarantine (<a href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/settings/waf-settings.htm">Imperva WAF settings</a>). Bad bots are denied and good bots allowed by default (<a href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/settings/security-settings.htm">Imperva security settings</a>).</p>
+          <p><strong>AWS WAF</strong> has no protection until you add rules. A web ACL with no matching rule just applies its default action, normally Allow (<a href="https://docs.aws.amazon.com/waf/latest/developerguide/web-acl-default-action.html">AWS WAF default action</a>). Every managed rule group has to be added and tuned.</p>
+          <p><strong>Manual in both layers:</strong> the public path allow-list, rate limits, country rules, and anything specific to this API.</p>
+        </div>
+
+        <h4>How the two layers share the work</h4>
+        <ul>
+          <li><strong>Imperva (edge, primary):</strong> sees the real client IP, absorbs DDoS, filters bots and reputation, and applies the OWASP rules. It is the only layer that can do IP reputation and anonymizer filtering correctly for the public plane.</li>
+          <li><strong>AWS WAF on the origin ALB (second layer):</strong> applies AWS managed rules for Java and PostgreSQL attacks, enforces the exact public route allow-list, and adds per-client rate limits. It also guards against anything that slips past Imperva.</li>
+          <li><strong>AWS WAF on the admin ALB:</strong> applies managed rules plus a short allow-list of admin routes. It reaches only VPN users, so it doesn't need bot or geo rules.</li>
+        </ul>
+
+        <div class="table-wrap"><table id="wafTable">
+          <thead><tr><th>ID</th><th>Rule</th><th>Layer</th><th>Default or manual</th><th>Action and notes</th></tr></thead>
+          <tbody>
+            <tr id="waf-01"><td class="id">WAF-01</td><td><strong>OWASP rules policy</strong> <small>SQLi, XSS, illegal resource access, RFI</small></td><td>Imperva</td><td>Default, applied automatically</td><td>Block Request. Confirm that no site or rule has been switched to Alert Only, and that the account policy is attached to the public site.</td></tr>
+            <tr id="waf-02"><td class="id">WAF-02</td><td><strong>Backdoor protection</strong></td><td>Imperva</td><td>Default</td><td>Auto-Quarantine. Keep it.</td></tr>
+            <tr id="waf-03"><td class="id">WAF-03</td><td><strong>Bot access control</strong></td><td>Imperva</td><td>Default (bad bots denied, good bots allowed)</td><td>Keep it. Don't put a CAPTCHA on public pages, because people must not hit a puzzle during an evacuation. Use a JavaScript challenge only on the position write path, and only while under attack.</td></tr>
+            <tr id="waf-04"><td class="id">WAF-04</td><td><strong>DDoS protection</strong> settings</td><td>Imperva</td><td>On, but the threshold needs tuning</td><td>Set the detection threshold for peak load (500,000 concurrent users), so a real event doesn't look like an attack. Depends on the Imperva tier (B22).</td></tr>
+            <tr id="waf-05"><td class="id">WAF-05</td><td><strong>Public route allow-list</strong> <small>positive security</small></td><td>Imperva ACL + AWS WAF</td><td>Manual</td><td>Block anything that isn't a listed method and path: site assets, the emergency page, the position POST and the geo routes. Explicitly deny <code>/api/backend-service/**</code>, <code>/api/v1/swagger-ui</code>, <code>/actuator/**</code>, <code>GET /device?all=true</code>, lookup by email, and count. This puts <a href="#ch-01">CH-01</a> into practice and contains <a href="#r02">R02</a>.</td></tr>
+            <tr id="waf-06"><td class="id">WAF-06</td><td><strong>Rate limits per client</strong></td><td>Imperva rules + AWS WAF rate-based</td><td>Manual</td><td>Use separate limits for the position POST, geo and OSRM routing, and site assets. Set thresholds high, because carrier-grade NAT puts many phones behind one IP. Prefer Challenge over Block on read paths. Imperva rules support rate criteria (<a href="https://docs.imperva.com/bundle/cloud-application-security/page/rules/rules.htm">Imperva rules</a>). In AWS WAF, aggregate on the forwarded client IP (<a href="https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-statement-type-rate-based-aggregation-options.html">AWS WAF rate-based rules</a>). Addresses C14, <a href="#r05">R05</a> and <a href="#r07">R07</a>.</td></tr>
+            <tr id="waf-07"><td class="id">WAF-07</td><td><strong>Core rule set</strong> <code>AWSManagedRulesCommonRuleSet</code></td><td>AWS WAF</td><td>Manual (add it)</td><td>Block. It covers a wide range of vulnerabilities from the OWASP Top 10 (<a href="https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-baseline.html">AWS baseline rule groups</a>). If the COUNT period shows false positives on the position body, override the size-restriction rules.</td></tr>
+            <tr id="waf-08"><td class="id">WAF-08</td><td><strong>Known bad inputs</strong> <code>AWSManagedRulesKnownBadInputsRuleSet</code></td><td>AWS WAF</td><td>Manual</td><td>Block. It includes Log4j and Java deserialization RCE rules (<a href="https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-changelog.html">AWS changelog</a>), which matter for a Spring and Java stack.</td></tr>
+            <tr id="waf-09"><td class="id">WAF-09</td><td><strong>SQL database</strong> <code>AWSManagedRulesSQLiRuleSet</code></td><td>AWS WAF</td><td>Manual</td><td>Block. It covers SQL injection patterns (<a href="https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-use-case.html">AWS use-case rule groups</a>), which matters with PostgreSQL behind every service.</td></tr>
+            <tr id="waf-10"><td class="id">WAF-10</td><td><strong>Linux OS</strong> <code>AWSManagedRulesLinuxRuleSet</code></td><td>AWS WAF</td><td>Manual</td><td>Block. Catches local-file-inclusion attempts against Linux paths.</td></tr>
+            <tr id="waf-11"><td class="id">WAF-11</td><td><strong>Admin protection</strong> <code>AWSManagedRulesAdminProtectionRuleSet</code></td><td>AWS WAF (public ACL only)</td><td>Manual</td><td>Block. Admin paths must never be served on the public plane. Leave it off the admin ALB.</td></tr>
+            <tr id="waf-12"><td class="id">WAF-12</td><td><strong>IP reputation and anonymous IP lists</strong></td><td>Imperva, not AWS WAF</td><td>Manual choice</td><td>The AWS groups use the source IP of the request, which behind a proxy is the proxy's address (<a href="https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-ip-rep.html">AWS IP reputation groups</a>). Behind Imperva they would only see Imperva's own IPs. Use Imperva's reputation features instead. Block anonymizers and hosting providers on the write path only.</td></tr>
+            <tr id="waf-13"><td class="id">WAF-13</td><td><strong>Origin guard</strong></td><td>ALB SG + AWS WAF</td><td>Manual</td><td>Keep the Imperva-only prefix list. Add mandatory origin mTLS or a secret header that AWS WAF checks, so the origin can't be reached without going through Imperva (<a href="#ch-07">CH-07</a>).</td></tr>
+            <tr id="waf-14"><td class="id">WAF-14</td><td><strong>Bot Control, account takeover protection</strong></td><td>AWS WAF</td><td>Optional (paid)</td><td>Not needed in release one: Imperva handles bots, and admin login is VPN-only. Reconsider if a public account feature is ever added.</td></tr>
+          </tbody>
+        </table></div>
+
+        <h4>Location enforcement</h4>
+        <p>Location means three different things here, and each needs a different control.</p>
+        <ul>
+          <li><strong>Admins: enforce it at the identity provider, not the WAF.</strong> Admin traffic arrives over the VPN, so the WAF never sees the admin's real location. If the IdP is Entra ID (B3a), use a Conditional Access location policy to block sign-in from outside the service country (<a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/policy-block-by-location">Microsoft Entra</a>). Alert on any VPN connection from an unexpected country (<a href="#al-17">AL-17</a>).</li>
+          <li><strong>Public reading: don't geo-block.</strong> With home-routed roaming, the most common setup, a visitor's traffic leaves the internet through their home operator. A tourist in the service area therefore shows up with a foreign IP (<a href="https://ipregistry.co/blog/travel-esim-ip-geolocation-home-routing">ipregistry</a>). A country block would turn away exactly the visitors who most need guidance. Label requests by country instead (rule action Count), and apply stricter rate limits to traffic from outside the service country.</li>
+          <li><strong>Public writes (position samples): enforce it in the application, with WAF help.</strong> An IP address can't tell you where a device is. The real control is server-side: reject any coordinate outside the service-area polygon (PostGIS <code>ST_Within</code>), any implausible speed between samples, and any timestamp out of range (<a href="#r07">R07</a>). At the edge, block anonymizers and hosting providers on this path, and apply the tightest rate limit.</li>
+          <li><strong>Make AWS WAF see the real client.</strong> Geo match and rate-based rules can read the client address from a forwarded IP header instead of the request origin (<a href="https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-statement-forwarded-ip-address.html">AWS forwarded IP</a>). Configure them to read Imperva's client IP header (B22). That header can only be trusted because the origin accepts nothing but Imperva (WAF-13).</li>
+          <li><strong>Hard country blocking, if the client wants it anyway:</strong> apply it only to the write path, with Imperva's ACL Block Countries (<a href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/policies.htm">Imperva policies</a>), and record the accepted impact on roaming visitors.</li>
+        </ul>
+      </div>
+
+      <!-- 8.2 ALERTING -->
+      <div class="domain" id="dd-alerts">
+        <div class="domain-head"><h3 id="dd-alerts-h">8.2 Security alerting without a staffed SOC</h3><div class="tags"><span class="tag">CIS 8.11, 13.1, 17</span><span class="tag">A.5.24–5.26, A.8.16</span><span class="tag">WA SEC04, SEC10</span></div></div>
+        <div class="callout">
+          <h4>Short answer: yes, use an alert-only model with three tiers and no dashboards</h4>
+          <p>AWS services already do most of the correlation. Since December 2025, Security Hub correlates and enriches signals from GuardDuty, Inspector and Security Hub CSPM to surface critical risks (<a href="https://aws.amazon.com/about-aws/whats-new/2025/12/security-hub-near-real-time-risk-analytics/">AWS Security Hub GA</a>). GuardDuty Extended Threat Detection raises a single Critical attack-sequence finding for a likely compromised EKS cluster (<a href="https://docs.aws.amazon.com/guardduty/latest/ug/guardduty-attack-sequence-finding-types.html">GuardDuty attack sequences</a>).</p>
+          <p>Your job is routing: send the few findings that matter to people, and roll everything else into a weekly digest. A full SIEM can come later, if a client SOC wants the feed.</p>
+        </div>
+
+        <h4>Pipeline</h4>
+        <ol>
+          <li><strong>Sources:</strong> Security Hub (findings from GuardDuty, Inspector and CSPM), CloudTrail management events, AWS WAF and Imperva events, Client VPN connection logs, pgaudit, Kyverno, synthetic canaries, and app audit events.</li>
+          <li><strong>Noise control first:</strong> Security Hub automation rules suppress findings or change their severity before EventBridge sees them (<a href="https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-v2-automations.html">Security Hub automations</a>). Use them to tag prd resources as higher severity, and to suppress accepted exceptions that have an expiry date.</li>
+          <li><strong>Routing:</strong> EventBridge rules and CloudWatch alarms send to one SNS topic per tier, replacing the single findings topic.</li>
+          <li><strong>Delivery:</strong>
+            <ul>
+              <li>P1 goes to an on-call paging tool (phone and SMS).</li>
+              <li>P2 goes to a chat channel through Amazon Q Developer in chat applications, which forwards SNS notifications to Slack or Teams (<a href="https://docs.aws.amazon.com/chatbot/latest/adminguide/what-is.html">Amazon Q Developer in chat</a>), plus email.</li>
+              <li>P3 goes into the weekly digest.</li>
+            </ul>
+          </li>
+          <li><strong>Runbook link in every alert:</strong> each alert carries the alert ID and the first three actions to take.</li>
+          <li><strong>Testing:</strong> monthly, generate GuardDuty sample findings and fire one synthetic event per P1 rule, then confirm that the page arrived and was acknowledged.</li>
+        </ol>
+
+        <div class="table-wrap"><table>
+          <thead><tr><th>Tier</th><th>Meaning</th><th>Delivery</th><th>Target response</th></tr></thead>
+          <tbody>
+            <tr><td><span class="pill sev-critical">P1</span></td><td>Likely compromise, or loss of integrity or availability of guidance</td><td>Page 24/7 (phone and SMS), plus chat</td><td>Acknowledge in 15 minutes, start containment in 1 hour</td></tr>
+            <tr><td><span class="pill sev-high">P2</span></td><td>Serious misconfiguration or suspicious activity, with no sign of compromise yet</td><td>Chat plus email, during working hours. During an event or drill, P2 becomes P1.</td><td>Triage the same working day</td></tr>
+            <tr><td><span class="pill sev-medium">P3</span></td><td>Hygiene and posture</td><td>Weekly digest</td><td>Review weekly, fix by priority</td></tr>
+          </tbody>
+        </table></div>
+
+        <div class="table-wrap"><table id="alertTable">
+          <thead><tr><th>ID</th><th>Alert rule</th><th>Source</th><th>Tier</th><th>First response</th></tr></thead>
+          <tbody>
+            <tr id="al-01"><td class="id">AL-01</td><td><strong>Any GuardDuty attack sequence</strong> <small><code>AttackSequence:*</code></small></td><td>GuardDuty via Security Hub</td><td><span class="pill sev-critical">P1</span></td><td>Isolate the affected workload or role, preserve evidence, follow the incident playbook</td></tr>
+            <tr id="al-02"><td class="id">AL-02</td><td><strong>GuardDuty finding of High severity or above</strong> <small>runtime, EKS audit, IAM credential misuse, malware</small></td><td>GuardDuty</td><td><span class="pill sev-critical">P1</span></td><td>Cordon the node and quarantine the pod. Rotate the credential.</td></tr>
+            <tr id="al-03"><td class="id">AL-03</td><td><strong>Root user activity</strong></td><td>CloudTrail via EventBridge (CIS CloudWatch.1)</td><td><span class="pill sev-critical">P1</span></td><td>Confirm with the root custodian. If not expected, treat as compromise.</td></tr>
+            <tr id="al-04"><td class="id">AL-04</td><td><strong>Break-glass role assumed</strong></td><td>CloudTrail</td><td><span class="pill sev-critical">P1</span></td><td>Confirm the incident ticket. Start the post-use review.</td></tr>
+            <tr id="al-05"><td class="id">AL-05</td><td><strong>Security control disabled or weakened</strong> <small>CloudTrail stopped, GuardDuty, Security Hub or Config off, WAF ACL detached or set to Count, Kyverno policy deleted</small></td><td>CloudTrail, Kubernetes audit</td><td><span class="pill sev-critical">P1</span></td><td>Re-enable the control. Identify who made the change.</td></tr>
+            <tr id="al-06"><td class="id">AL-06</td><td><strong>KMS key disabled or scheduled for deletion</strong></td><td>CloudTrail</td><td><span class="pill sev-critical">P1</span></td><td>Cancel the deletion. Review the key policy.</td></tr>
+            <tr id="al-07"><td class="id">AL-07</td><td><strong>Guidance content changed outside a change window, or by an unexpected identity</strong></td><td>App audit events (<a href="#d-detect">7.3</a>)</td><td><span class="pill sev-critical">P1</span></td><td>Freeze publishing. Verify with the content owner. Roll back if not approved. See <a href="#r01">R01</a>.</td></tr>
+            <tr id="al-08"><td class="id">AL-08</td><td><strong>Public site or emergency page unavailable from outside</strong></td><td>Synthetic canaries in two or more locations</td><td><span class="pill sev-critical">P1</span></td><td>Fail over to the static emergency page (<a href="#ch-12">CH-12</a>). Engage Imperva.</td></tr>
+            <tr id="al-09"><td class="id">AL-09</td><td><strong>Internet request reached a blocked admin or device-list path at the origin</strong> <small>should be zero</small></td><td>Envoy and ALB logs (metric filter)</td><td><span class="pill sev-critical">P1</span></td><td>Find the bypass. Block at the edge. Check what was read (<a href="#r02">R02</a>).</td></tr>
+            <tr id="al-10"><td class="id">AL-10</td><td><strong>Imperva DDoS mitigation or attack alert</strong></td><td>Imperva notifications</td><td><span class="pill sev-high">P2</span> (P1 during an event)</td><td>Check site health and the emergency page. Coordinate with Imperva.</td></tr>
+            <tr id="al-11"><td class="id">AL-11</td><td><strong>WAF block-rate anomaly or rate rule firing</strong> <small>more than 5 times baseline for 15 minutes</small></td><td>AWS WAF metrics, Imperva events</td><td><span class="pill sev-high">P2</span></td><td>Check for false positives against real attack traffic. Tune or escalate.</td></tr>
+            <tr id="al-12"><td class="id">AL-12</td><td><strong>IAM and organization changes</strong> <small>new IAM user or access key, admin policy attached, SCP or permission boundary changed</small></td><td>CloudTrail</td><td><span class="pill sev-high">P2</span> (P1 in prd)</td><td>Verify against an approved change. Revert if none exists.</td></tr>
+            <tr id="al-13"><td class="id">AL-13</td><td><strong>New public exposure</strong> <small>SG or NACL open to 0.0.0.0/0, public S3, new internet-facing LB or listener, exposure finding</small></td><td>Security Hub CSPM and exposure findings, CloudTrail</td><td><span class="pill sev-high">P2</span></td><td>Close the exposure. Run a change review.</td></tr>
+            <tr id="al-14"><td class="id">AL-14</td><td><strong>Critical CVE in a running prd image</strong></td><td>Inspector</td><td><span class="pill sev-high">P2</span> (P1 if a public exploit exists)</td><td>Patch or rebuild within the SLA (<a href="#dd-images">8.6</a>)</td></tr>
+            <tr id="al-15"><td class="id">AL-15</td><td><strong>Admission denied in prd</strong> <small>Kyverno Enforce violation, cosign verification failure</small></td><td>Kyverno events, Kubernetes audit</td><td><span class="pill sev-high">P2</span></td><td>Find the source of the image or manifest. A cosign failure in prd means a P1 investigation.</td></tr>
+            <tr id="al-16"><td class="id">AL-16</td><td><strong>Database anomaly</strong> <small>GuardDuty RDS anomalous login, DDL in prd outside the migration job, login as the owner or superuser role</small></td><td>GuardDuty RDS Protection (<a href="https://docs.aws.amazon.com/guardduty/latest/ug/findings-rds-protection.html">GuardDuty RDS</a>), pgaudit</td><td><span class="pill sev-high">P2</span></td><td>Identify the session. Rotate the role's credentials if not expected (<a href="#dd-db">8.3</a>).</td></tr>
+            <tr id="al-17"><td class="id">AL-17</td><td><strong>Admin access anomaly</strong> <small>VPN connection from an unexpected country or at an unusual hour, repeated admin sign-in failures, IdP risk detection</small></td><td>Client VPN connection logs, IdP</td><td><span class="pill sev-high">P2</span></td><td>Contact the admin through a known channel. Revoke the session if not confirmed.</td></tr>
+            <tr id="al-18"><td class="id">AL-18</td><td><strong>Secret read by an unexpected principal</strong> <small>a prd DB secret read by anything other than its own pod role</small></td><td>CloudTrail <code>GetSecretValue</code></td><td><span class="pill sev-high">P2</span></td><td>Rotate the secret. Review the role trust.</td></tr>
+            <tr id="al-19"><td class="id">AL-19</td><td><strong>Console sign-in without MFA</strong></td><td>CloudTrail (CIS CloudWatch.3) (<a href="https://docs.aws.amazon.com/securityhub/latest/userguide/cloudwatch-controls.html">Security Hub CloudWatch controls</a>)</td><td><span class="pill sev-high">P2</span></td><td>Disable the identity. Investigate.</td></tr>
+            <tr id="al-20"><td class="id">AL-20</td><td><strong>Posture drift</strong> <small>new failed High or Critical CSPM control, overdue exception, coverage gap</small></td><td>Security Hub CSPM</td><td><span class="pill sev-medium">P3</span></td><td>Weekly digest. The owner fixes it by priority.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <!-- 8.3 DB USERS -->
+      <div class="domain" id="dd-db">
+        <div class="domain-head"><h3 id="dd-db-h">8.3 Separate database users for public and admin</h3><div class="tags"><span class="tag">CIS 3.3, 5.4, 6.8</span><span class="tag">A.8.2, A.8.3</span><span class="tag">CIS PostgreSQL</span><span class="tag">WA SEC03</span></div></div>
+        <div class="callout crit">
+          <h4>Short answer: yes, and go one step further, with one login per service</h4>
+          <p>Every service connects today as <code>alertingdb</code>, which is <code>rds_superuser</code> and owns the database (D47). An SQL injection in the public devices service would therefore control the whole database: admin users, guidance content and every location sample. Splitting public from admin is the minimum.</p>
+          <p>One login per service, each with only the privileges that service needs, costs little more. Secrets already sit under <code>/alerting/&lt;env&gt;/&lt;component&gt;/</code>, and the bootstrap Lambda already creates roles (D46). This extends <a href="#ch-05">CH-05</a> and addresses <a href="#r10">R10</a> and <a href="#r17">R17</a>.</p>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Role</th><th>Login</th><th>Used by</th><th>Privileges</th><th>Limits</th></tr></thead>
+          <tbody>
+            <tr><td><code>alerting_owner</code></td><td>No (NOLOGIN)</td><td>Nobody connects as it</td><td>Owns the schemas and tables. Migrations act through it with <code>SET ROLE</code>.</td><td>N/A</td></tr>
+            <tr><td><code>alerting_migrate</code></td><td>Yes</td><td>Flyway Job during deploys only</td><td>Member of the owner role. Can run DDL.</td><td>Connection limit 2. Secret readable only by the migrate pod role.</td></tr>
+            <tr><td><code>devices_app</code></td><td>Yes</td><td>Public devices service</td><td><code>INSERT</code> on position samples. Registration and check-in run through <code>SECURITY DEFINER</code> functions. No <code>SELECT</code> on device lists, accounts or any admin table.</td><td>Its own connection limit and <code>statement_timeout</code></td></tr>
+            <tr><td><code>geo_app</code></td><td>Yes</td><td>Public geometry service</td><td><code>SELECT</code> on area and geometry tables only</td><td>Its own connection limit</td></tr>
+            <tr><td><code>admin_app</code></td><td>Yes</td><td>Admin backend (admin plane)</td><td>DML on guidance and admin tables. <code>SELECT</code> on aggregated device views, not raw samples. No DDL.</td><td>A separate connection pool, so a public flood can't starve the admin plane</td></tr>
+            <tr><td>Named DBA roles</td><td>IAM token</td><td>Humans over the VPN (existing)</td><td>Read-only by default. Elevation through break-glass.</td><td>Session timeout. pgaudit logs everything they do.</td></tr>
+            <tr><td><code>rds_superuser</code> (master)</td><td>Break-glass only</td><td>Bootstrap Lambda, emergencies</td><td>Full</td><td>Alert on every login (<a href="#al-16">AL-16</a>)</td></tr>
+          </tbody>
+        </table></div>
+        <ul>
+          <li><strong>RDS Proxy:</strong> give each database user its own Secrets Manager secret. That is how RDS Proxy is designed to work (<a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy-secrets-arns.html">RDS Proxy credentials</a>). Each pod's Pod Identity role may read only its own secret (<a href="#dd-sa">8.4</a>).</li>
+          <li><strong>Connection limits:</strong> set them per role with <code>CONNECTION LIMIT</code> (<a href="https://www.postgresql.org/docs/17/sql-createrole.html">PostgreSQL CREATE ROLE</a>). Add per-role <code>statement_timeout</code> and <code>idle_in_transaction_session_timeout</code> with <code>ALTER ROLE … SET</code>.</li>
+          <li><strong>Hardening defaults:</strong> revoke <code>CREATE</code> on the <code>public</code> schema, set default privileges, and grant on views instead of base tables where you can. Row-level security on device rows is optional, as defense in depth.</li>
+          <li><strong>Ordering constraint:</strong> <code>ddl-auto: update</code> (C23) needs DDL rights at runtime. The runtime roles can become DML-only only after Flyway takes over schema changes (<a href="#ch-05">CH-05</a>). Until then, at least split public from admin and remove superuser from both.</li>
+          <li><strong>Who changes what:</strong> the platform team does the bootstrap Lambda, secrets and Proxy auth entries. The app team changes only the datasource username or secret path for each service and runs tests. That is a configuration change, not a code change.</li>
+        </ul>
+      </div>
+
+      <!-- 8.4 SERVICE ACCOUNTS -->
+      <div class="domain" id="dd-sa">
+        <div class="domain-head"><h3 id="dd-sa-h">8.4 Separate Kubernetes service accounts for public and admin</h3><div class="tags"><span class="tag">CIS 5.4, 6.8</span><span class="tag">A.8.2, A.8.22</span><span class="tag">CIS EKS §RBAC</span><span class="tag">WA SEC03</span></div></div>
+        <div class="callout">
+          <h4>Short answer: yes, with one service account per workload, in separate public and admin namespaces</h4>
+          <p>Pod Identity is already in the design. Make each service account map to its own IAM role. An association links one service account to one role, with no annotations in the cluster (<a href="https://docs.aws.amazon.com/eks/latest/userguide/pod-id-association.html">EKS Pod Identity</a>). Pod Identity also tags each session with the namespace and service account name, so policies can be keyed on them (<a href="https://docs.aws.amazon.com/eks/latest/userguide/pod-id-abac.html">Pod Identity ABAC</a>).</p>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Namespace</th><th>Workload</th><th>Service account</th><th>AWS access (Pod Identity)</th><th>Kubernetes API</th></tr></thead>
+          <tbody>
+            <tr><td><code>public</code></td><td>nginx (React client, emergency page)</td><td><code>web</code></td><td>None (later: read-only on the tiles bucket, <a href="#ch-10">CH-10</a>)</td><td>None</td></tr>
+            <tr><td><code>public</code></td><td>Public Spring gateway</td><td><code>gateway-public</code></td><td>None</td><td>None</td></tr>
+            <tr><td><code>public</code></td><td>devices</td><td><code>devices</code></td><td>Read <code>/alerting/&lt;env&gt;/devices/*</code>, plus decrypt with that environment's KMS key</td><td>None</td></tr>
+            <tr><td><code>public</code></td><td>geometry, OSRM</td><td><code>geometry</code>, <code>osrm</code></td><td>Its own DB secret (geometry). None for OSRM.</td><td>None</td></tr>
+            <tr><td><code>admin</code></td><td>Angular console</td><td><code>console</code></td><td>None</td><td>None</td></tr>
+            <tr><td><code>admin</code></td><td>Admin gateway</td><td><code>gateway-admin</code></td><td>None</td><td>None</td></tr>
+            <tr><td><code>admin</code></td><td>backend</td><td><code>backend</code></td><td>Its own DB secret. Photo bucket put and get once C17 is decided.</td><td>None</td></tr>
+            <tr><td><code>jobs</code></td><td>Flyway migration</td><td><code>migrate</code></td><td>Migration secret only</td><td>None</td></tr>
+          </tbody>
+        </table></div>
+        <ul>
+          <li><strong>Token mounting:</strong> set <code>automountServiceAccountToken: false</code> on every application service account, because no app pod calls the Kubernetes API (<a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/">Kubernetes</a>). No application service account gets a Role or RoleBinding.</li>
+          <li><strong>Kyverno rules</strong> (Audit now, Enforce at 9.1.5): deny the <code>default</code> service account, require automount off, and deny cross-namespace service account references.</li>
+          <li><strong>Trust policies:</strong> limit each role's trust to its cluster, namespace and service account. Scope IAM to the exact secret ARN and KMS key. Turn on Access Analyzer unused-access findings.</li>
+          <li><strong>Network separation:</strong> NetworkPolicies deny all traffic between <code>public</code> and <code>admin</code>, in both directions. Only the gateways may receive traffic from their own Envoy. Security groups for pods can also limit which pods reach RDS Proxy. This is optional, but it adds a network-layer check behind the database roles.</li>
+          <li><strong>Separate node group for admin:</strong> optional for later. The four-node cap makes it expensive now, and namespaces with PSA <code>restricted</code> and NetworkPolicies already cover release one.</li>
+        </ul>
+      </div>
+
+      <!-- 8.5 ADMIN HOSTNAME -->
+      <div class="domain" id="dd-admin">
+        <div class="domain-head"><h3 id="dd-admin-h">8.5 A separate hostname for admin</h3><div class="tags"><span class="tag">CIS 12.2, 12.8</span><span class="tag">A.8.20, A.8.22</span><span class="tag">WA SEC05</span></div></div>
+        <div class="callout">
+          <h4>Short answer: you already have something stronger than a subdomain, so keep it</h4>
+          <p>Admin lives at <code>admin.alerting.internal</code>. That name exists only in private DNS, behind its own internal ALB, WAF and Envoy, and is reachable only over the VPN. <code>.internal</code> is reserved by ICANN for private use and will never be delegated in the public DNS (<a href="https://icannwiki.org/.internal">ICANNWiki</a>).</p>
+          <p>Moving admin to a public subdomain such as <code>admin.&lt;public-domain&gt;</code> would make it less secure, not more.</p>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Option</th><th>Exposure</th><th>Verdict</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Path on the public host</strong> (<code>/admin</code>)</td><td>Shares the public WAF, origin, cookies and routes with the public site. One routing mistake exposes admin, which is exactly <a href="#r01">R01</a> today.</td><td><span class="pill sev-critical">Reject</span></td></tr>
+            <tr><td><strong>Public subdomain</strong> behind Imperva</td><td>The login page is reachable from the internet. A public TLS certificate publishes the name in Certificate Transparency logs, where anyone can list your subdomains (<a href="https://packet.guru/blog/certificate-transparency-subdomains">packet.guru</a>). There is also a cookie-scope risk if anything sets cookies on the parent domain.</td><td><span class="pill sev-high">Avoid</span></td></tr>
+            <tr><td><strong>Private name, internal ALB, VPN only</strong> (current design)</td><td>No public DNS record, no public certificate, no internet path. The attacker needs a VPN session with MFA first.</td><td><span class="pill sev-low">Keep</span></td></tr>
+          </tbody>
+        </table></div>
+        <ul>
+          <li><strong>Certificates:</strong> the internal ALB needs a certificate from a private CA, such as AWS Private CA, because public CAs don't issue for <code>.internal</code>. That also keeps the name out of Certificate Transparency logs.</li>
+          <li><strong>Real-domain naming, if wanted:</strong> use a private hosted zone (split-horizon) and still a private CA. Never publish the record publicly.</li>
+          <li><strong>Separate session state:</strong> give admin cookies their own names, and set them host-only with <code>Secure</code>, <code>HttpOnly</code> and <code>SameSite=Strict</code>. The public site never sets cookies the admin host could read.</li>
+          <li><strong>Separate the public domain too:</strong> keep the public site on its own short official domain, separate from any corporate domain (<a href="#ch-14">CH-14</a>), so a corporate DNS or certificate incident can't affect it.</li>
+        </ul>
+      </div>
+
+      <!-- 8.6 HARDENED IMAGES -->
+      <div class="domain" id="dd-images">
+        <div class="domain-head"><h3 id="dd-images-h">8.6 Hardened container images</h3><div class="tags"><span class="tag">CIS 2.5, 4.1, 7.5</span><span class="tag">A.8.8, A.8.9, A.8.19</span><span class="tag">WA SEC06-BP02</span></div></div>
+        <div class="callout crit">
+          <h4>Short answer: AWS doesn't publish its own hardened application images, but it points to Docker's</h4>
+          <p>The Well-Architected Security Pillar says to start from hardened images. For containers, it names Docker's hardened images in the ECR Public Gallery (<a href="https://docs.aws.amazon.com/wellarchitected/latest/framework/sec_protect_compute_hardened_images.html">WA SEC06-BP02</a>). Docker Hardened Images have been free and open source under Apache 2.0 since December 2025 (<a href="https://www.docker.com/press-release/docker-makes-hardened-images-free-open-and-transparent-for-everyone/">Docker</a>).</p>
+          <p>The current base, <code>openjdk:17.0.1-jdk-slim</code>, is deprecated and at a 2021 patch level, and it runs JDWP as root (C20, <a href="#r03">R03</a>). Replace it.</p>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Option</th><th>What it is</th><th>Fit for this Java 17 app</th><th>Verdict</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Docker Hardened Images</strong>, Eclipse Temurin 17 JRE</td><td>Minimal, near-zero CVE images with SBOM and VEX. There are variants for CIS, FIPS and STIG, on amd64 and arm64 (<a href="https://hub.docker.com/hardened-images/catalog/dhi/eclipse-temurin">DHI Temurin</a>).</td><td>Strong fit. Amazon Inspector supports Docker's hardened images (<a href="https://docs.amazonaws.cn/en_us/inspector/latest/user/supported.html">Amazon Inspector</a>), so the existing Inspector gate keeps working.</td><td><span class="pill sev-low">Recommended</span></td></tr>
+            <tr><td><strong>Amazon Corretto</strong> official images</td><td>An AWS-built OpenJDK. The default <code>amazoncorretto:17</code> images now run on Amazon Linux 2023 (<a href="https://github.com/corretto/corretto-docker">Corretto Docker</a>).</td><td>Good fallback with AWS support behind it. It's larger, and ships a package manager and a shell.</td><td><span class="pill sev-medium">Fallback</span></td></tr>
+            <tr><td><strong>AL2023 minimal</strong> plus Corretto headless, built yourself</td><td>The AL2023 minimal image contains only what's needed to install other packages (<a href="https://docs.aws.amazon.com/linux/al2023/ug/minimal-container.html">AL2023 minimal</a>).</td><td>Fully AWS-native, but you own the hardening and the rebuild cadence.</td><td><span class="pill sev-medium">Possible</span></td></tr>
+            <tr><td><strong>Red Hat Hardened Images</strong></td><td>Supported in the Inspector scan API and ECR basic scanning (<a href="https://www.redhat.com/en/blog/streamlining-container-security-red-hat-hardened-images-now-supported-aws-inspectorscan-api-and-ecr-basic-scanning">Red Hat</a>). An open AWS request reports that ECR enhanced scanning fails on them (<a href="https://github.com/aws/containers-roadmap/issues/2887">AWS containers roadmap</a>).</td><td>Not yet, while enhanced scanning is the release gate.</td><td><span class="pill sev-high">Not now</span></td></tr>
+            <tr><td><strong>Bottlerocket</strong></td><td>A node operating system, not a container base image</td><td>Not relevant here. Nodes already run CIS L1 Ubuntu.</td><td>N/A</td></tr>
+          </tbody>
+        </table></div>
+        <h4>Image standard for every service</h4>
+        <ul>
+          <li><strong>Multi-stage build:</strong> compile and test with the JDK image, and run on a JRE-only hardened image. Tests are no longer skipped (C20).</li>
+          <li><strong>Runtime settings:</strong> non-root numeric UID, <code>readOnlyRootFilesystem</code>, all capabilities dropped, no shell or package manager in the runtime image where the variant allows it.</li>
+          <li><strong>No debug agent:</strong> remove <code>-agentlib:jdwp</code> from every image. Kyverno and the NetworkPolicy keep denying port 8787 as a backstop (<a href="#ch-06">CH-06</a>).</li>
+          <li><strong>Pinning and mirroring:</strong> pin the base image by digest, and mirror it into ECR with a pull-through cache rule (<a href="https://docs.aws.amazon.com/AmazonECR/latest/userguide/pull-through-cache-working-pulling.md">ECR pull-through cache</a>). Nodes then pull only from ECR, and the Kyverno registry allow-list stays ECR-only.</li>
+          <li><strong>Rebuild cadence:</strong> rebuild weekly and whenever the base image publishes a fix. Patch Critical CVEs within 7 days, and within 48 hours when a public exploit exists (<a href="#al-14">AL-14</a>). SBOM, provenance, cosign and immutable tags stay as they are.</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- 8 CHANGES -->
     <section class="section" id="changes" data-title="Required changes to the current setup">
       <div class="sec-head">
-        <span class="sec-num">08 · Required changes</span>
+        <span class="sec-num">09 · Required changes</span>
         <h2>What has to change in the current setup</h2>
         <p class="intro">These items change an accepted decision, a design or live state. Each change shows the decision it revises, who owns it, and whether the platform team can do it without touching <code>app/</code>.</p>
       </div>
@@ -539,7 +767,7 @@
     <!-- 9 MATRIX -->
     <section class="section" id="matrix" data-title="Control mapping matrix">
       <div class="sec-head">
-        <span class="sec-num">09 · Control matrix</span>
+        <span class="sec-num">10 · Control matrix</span>
         <h2>35 strategic controls mapped to all four frameworks</h2>
         <p class="intro">This is the basis for the Statement of Applicability. Filter by Well-Architected area, status or priority, or type a framework reference such as <code>A.8.15</code> or <code>CIS 16</code>. In the PDF, all rows are shown.</p>
       </div>
@@ -565,11 +793,11 @@
     <!-- 10 ROADMAP -->
     <section class="section" id="roadmap" data-title="Roadmap and go-live gates">
       <div class="sec-head">
-        <span class="sec-num">10 · Roadmap</span>
+        <span class="sec-num">11 · Roadmap</span>
         <h2>Four phases, gated by evidence rather than dates</h2>
         <p class="intro">Phase A can start this week and needs only the platform team. Phase B is the go-live gate. Phases C and D build toward ISO 27001 certification readiness and CIS IG3.</p>
       </div>
-      <h3 id="phases">10.1 Phases</h3>
+      <h3 id="phases">11.1 Phases</h3>
       <div class="phases">
         <div class="phase"><span class="when">Phase A · next 2–3 weeks</span><h4>Contain</h4><ul><li><a href="#ch-01">CH-01</a> route allow-list and WAF deny rules</li><li><a href="#ch-06">CH-06</a> interim Kyverno and NetworkPolicy for JDWP and root</li><li><a href="#ch-08">CH-08</a> Security Hub CIS fix, default VPC</li><li>Decide <a href="#dec-b3a">B3a</a>, <a href="#dec-b25">B25</a>, <a href="#dec-b11">B11</a></li><li>Draft the ISMS policy and risk appetite</li></ul></div>
         <div class="phase"><span class="when">Phase B · before go-live</span><h4>Gate</h4><ul><li>Phase 12 auth, RBAC and devices split (F5, C21)</li><li><a href="#ch-07">CH-07</a> WAF BLOCK, Kyverno Enforce, mTLS</li><li><a href="#ch-03">CH-03</a> log archive, <a href="#ch-12">CH-12</a> static failover</li><li>Pen test and retest. DDoS and surge drill.</li><li><a href="#ch-04">CH-04</a> retention decision signed</li></ul></div>
@@ -577,7 +805,7 @@
         <div class="phase"><span class="when">Phase D · go-live + 12 months</span><h4>Certify</h4><ul><li>SoA complete, internal audit, management review</li><li>ISO 27001 Stage 1 and Stage 2 readiness</li><li>CIS IG3 safeguards that apply</li><li>Yearly pen test and red-team exercise</li><li><a href="#ch-10">CH-10</a> self-hosted tiles</li></ul></div>
       </div>
 
-      <h3 id="gates">10.2 Go-live security gates</h3>
+      <h3 id="gates">11.2 Go-live security gates</h3>
       <div class="gate-progress no-print"><span id="gateText">0 of 12 gates checked</span><div class="bar"><i id="gateBar" style="width:0%"></i></div></div>
       <ul class="checklist" id="gateList">
         <li id="g01"><input type="checkbox" aria-label="Gate 1"><span class="gtext"><strong>G1 · Admin authentication and RBAC live</strong>. OIDC against the IdP, MFA, seed account removed, every endpoint authorized (<a href="#sc-05">SC-05</a>). Evidence: ASVS L2 V6 to V8 test report.</span></li>
@@ -598,7 +826,7 @@
     <!-- 11 METRICS -->
     <section class="section" id="metrics" data-title="Metrics and reporting">
       <div class="sec-head">
-        <span class="sec-num">11 · Metrics</span>
+        <span class="sec-num">12 · Metrics</span>
         <h2>How we will know it is working</h2>
         <p class="intro">Reported monthly to the Steering Committee, and as ISO 27001 clause 9.1 monitoring evidence. Most metrics come straight from Security Hub, Config, Inspector and GuardDuty.</p>
       </div>
@@ -622,7 +850,7 @@
     <!-- 12 DECISIONS -->
     <section class="section" id="decisions" data-title="Decisions needed">
       <div class="sec-head">
-        <span class="sec-num">12 · Decisions</span>
+        <span class="sec-num">13 · Decisions</span>
         <h2>Open decisions, with a recommendation for each</h2>
         <p class="intro">These come from the brief's list of decisions the strategy needs. Each has a recommended option, so the Steering Committee can approve or reject rather than start from scratch.</p>
       </div>
@@ -643,7 +871,7 @@
     <!-- 13 REFERENCES -->
     <section class="section" id="references" data-title="References">
       <div class="sec-head">
-        <span class="sec-num">13 · References</span>
+        <span class="sec-num">14 · References</span>
         <h2>Sources</h2>
         <p class="intro">Framework versions were checked on 2026-10-21. Internal references (D-, B-, C- and F- items) point to the project documents listed in the Security Brief.</p>
       </div>
@@ -666,6 +894,41 @@
         <li>GDPR — Article 5: Principles relating to processing of personal data. <a href="https://www.gdpr.org/regulation/article-5.html">https://www.gdpr.org/regulation/article-5.html</a></li>
         <li>EDPB (Irish DPC list) — Data Protection Impact Assessment requirements. <a href="https://www.edpb.europa.eu/system/files/decisions/ie_dpc_data-protection-impact-assessment.pdf">https://www.edpb.europa.eu/system/files/decisions/ie_dpc_data-protection-impact-assessment.pdf</a></li>
         <li>ISO/IEC 27701:2025 — Privacy information management systems (preview). <a href="https://cdn.standards.iteh.ai/samples/iso/iso-iec-27701-2025/999f0b4e27d84804be12758c821cc34e/iso-iec-27701-2025.pdf">https://cdn.standards.iteh.ai/samples/iso/iso-iec-27701-2025/999f0b4e27d84804be12758c821cc34e/iso-iec-27701-2025.pdf</a></li>
+        <li>AWS — AWS WAF baseline rule groups. <a href="https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-baseline.html">https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-baseline.html</a></li>
+        <li>AWS — AWS WAF use-case specific rule groups. <a href="https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-use-case.html">https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-use-case.html</a></li>
+        <li>AWS — AWS WAF IP reputation rule groups. <a href="https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-ip-rep.html">https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-ip-rep.html</a></li>
+        <li>AWS — AWS Managed Rules changelog. <a href="https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-changelog.html">https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-changelog.html</a></li>
+        <li>AWS — Using forwarded IP addresses in AWS WAF. <a href="https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-statement-forwarded-ip-address.html">https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-statement-forwarded-ip-address.html</a></li>
+        <li>AWS — Aggregating rate-based rules in AWS WAF. <a href="https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-statement-type-rate-based-aggregation-options.html">https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-statement-type-rate-based-aggregation-options.html</a></li>
+        <li>AWS — Setting the web ACL default action. <a href="https://docs.aws.amazon.com/waf/latest/developerguide/web-acl-default-action.html">https://docs.aws.amazon.com/waf/latest/developerguide/web-acl-default-action.html</a></li>
+        <li>Imperva — Create and manage policies (WAF Rules, ACL). <a href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/policies.htm">https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/policies.htm</a></li>
+        <li>Imperva — Web Protection: WAF settings. <a href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/settings/waf-settings.htm">https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/settings/waf-settings.htm</a></li>
+        <li>Imperva — Web Protection: security settings. <a href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/settings/security-settings.htm">https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/settings/security-settings.htm</a></li>
+        <li>Imperva — Rules. <a href="https://docs.imperva.com/bundle/cloud-application-security/page/rules/rules.htm">https://docs.imperva.com/bundle/cloud-application-security/page/rules/rules.htm</a></li>
+        <li>ipregistry — Travel eSIMs, home routing and IP geolocation. <a href="https://ipregistry.co/blog/travel-esim-ip-geolocation-home-routing">https://ipregistry.co/blog/travel-esim-ip-geolocation-home-routing</a></li>
+        <li>Microsoft — Conditional Access: block access by location. <a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/policy-block-by-location">https://learn.microsoft.com/en-us/entra/identity/conditional-access/policy-block-by-location</a></li>
+        <li>AWS — Security Hub generally available with near real-time risk analytics (Dec 2025). <a href="https://aws.amazon.com/about-aws/whats-new/2025/12/security-hub-near-real-time-risk-analytics/">https://aws.amazon.com/about-aws/whats-new/2025/12/security-hub-near-real-time-risk-analytics/</a></li>
+        <li>AWS — Automations in Security Hub. <a href="https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-v2-automations.html">https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-v2-automations.html</a></li>
+        <li>AWS — GuardDuty attack sequence finding types. <a href="https://docs.aws.amazon.com/guardduty/latest/ug/guardduty-attack-sequence-finding-types.html">https://docs.aws.amazon.com/guardduty/latest/ug/guardduty-attack-sequence-finding-types.html</a></li>
+        <li>AWS — GuardDuty RDS Protection finding types. <a href="https://docs.aws.amazon.com/guardduty/latest/ug/findings-rds-protection.html">https://docs.aws.amazon.com/guardduty/latest/ug/findings-rds-protection.html</a></li>
+        <li>AWS — Security Hub controls for CloudWatch. <a href="https://docs.aws.amazon.com/securityhub/latest/userguide/cloudwatch-controls.html">https://docs.aws.amazon.com/securityhub/latest/userguide/cloudwatch-controls.html</a></li>
+        <li>AWS — Amazon Q Developer in chat applications. <a href="https://docs.aws.amazon.com/chatbot/latest/adminguide/what-is.html">https://docs.aws.amazon.com/chatbot/latest/adminguide/what-is.html</a></li>
+        <li>AWS — Setting up database credentials for RDS Proxy. <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy-secrets-arns.html">https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy-secrets-arns.html</a></li>
+        <li>PostgreSQL — CREATE ROLE (17). <a href="https://www.postgresql.org/docs/17/sql-createrole.html">https://www.postgresql.org/docs/17/sql-createrole.html</a></li>
+        <li>AWS — Assign an IAM role to a Kubernetes service account (Pod Identity). <a href="https://docs.aws.amazon.com/eks/latest/userguide/pod-id-association.html">https://docs.aws.amazon.com/eks/latest/userguide/pod-id-association.html</a></li>
+        <li>AWS — Grant Pods access to AWS resources based on tags. <a href="https://docs.aws.amazon.com/eks/latest/userguide/pod-id-abac.html">https://docs.aws.amazon.com/eks/latest/userguide/pod-id-abac.html</a></li>
+        <li>Kubernetes — Configure service accounts for Pods. <a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/">https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/</a></li>
+        <li>ICANNWiki — .internal. <a href="https://icannwiki.org/.internal">https://icannwiki.org/.internal</a></li>
+        <li>packet.guru — Certificate Transparency: anyone can list your subdomains. <a href="https://packet.guru/blog/certificate-transparency-subdomains">https://packet.guru/blog/certificate-transparency-subdomains</a></li>
+        <li>AWS — SEC06-BP02 Provision compute from hardened images. <a href="https://docs.aws.amazon.com/wellarchitected/latest/framework/sec_protect_compute_hardened_images.html">https://docs.aws.amazon.com/wellarchitected/latest/framework/sec_protect_compute_hardened_images.html</a></li>
+        <li>Docker — Docker makes hardened images free, open and transparent (Dec 2025). <a href="https://www.docker.com/press-release/docker-makes-hardened-images-free-open-and-transparent-for-everyone/">https://www.docker.com/press-release/docker-makes-hardened-images-free-open-and-transparent-for-everyone/</a></li>
+        <li>Docker Hub — Hardened Images: Eclipse Temurin. <a href="https://hub.docker.com/hardened-images/catalog/dhi/eclipse-temurin">https://hub.docker.com/hardened-images/catalog/dhi/eclipse-temurin</a></li>
+        <li>AWS — Amazon Inspector supported operating systems and hardened images. <a href="https://docs.amazonaws.cn/en_us/inspector/latest/user/supported.html">https://docs.amazonaws.cn/en_us/inspector/latest/user/supported.html</a></li>
+        <li>Amazon Corretto — corretto-docker. <a href="https://github.com/corretto/corretto-docker">https://github.com/corretto/corretto-docker</a></li>
+        <li>AWS — AL2023 minimal container image. <a href="https://docs.aws.amazon.com/linux/al2023/ug/minimal-container.html">https://docs.aws.amazon.com/linux/al2023/ug/minimal-container.html</a></li>
+        <li>Red Hat — Red Hat Hardened Images supported in AWS InspectorScan API and ECR basic scanning. <a href="https://www.redhat.com/en/blog/streamlining-container-security-red-hat-hardened-images-now-supported-aws-inspectorscan-api-and-ecr-basic-scanning">https://www.redhat.com/en/blog/streamlining-container-security-red-hat-hardened-images-now-supported-aws-inspectorscan-api-and-ecr-basic-scanning</a></li>
+        <li>AWS containers roadmap — ECR enhanced scanning support for Red Hat Hardened Images (#2887). <a href="https://github.com/aws/containers-roadmap/issues/2887">https://github.com/aws/containers-roadmap/issues/2887</a></li>
+        <li>AWS — ECR pull through cache: pulling an image. <a href="https://docs.aws.amazon.com/AmazonECR/latest/userguide/pull-through-cache-working-pulling.md">https://docs.aws.amazon.com/AmazonECR/latest/userguide/pull-through-cache-working-pulling.md</a></li>
       </ol>
     </section>
 
@@ -687,7 +950,7 @@
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="data.js?v=3"></script>
-<script src="app.js?v=3"></script>
+<script src="data.js?v=4"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>

@@ -37,7 +37,7 @@ GitHub Pages serves it from the `main` branch, root directory (`/`): https://tal
 
 | File | What it is |
 | --- | --- |
-| `index.html` | Single-page site with 13 sections: summary, scope, frameworks, threats, risks, principles, domains, changes, matrix, roadmap, metrics, decisions, references |
+| `index.html` | Single-page site with 14 sections: summary, scope, frameworks, threats, risks, principles, domains, deepdives (design deep dives), changes, matrix, roadmap, metrics, decisions, references |
 | `data.js` | `window.CONTROLS`: 35 strategic controls (`SC-01`..`SC-35`), each mapped to its WA area, CIS Controls v8.1, CIS Benchmark and ISO 27001 Annex A |
 | `app.js` | Sidebar TOC with scrollspy, search palette (Ctrl K or `/`), table filters, risk heat map, go-live gate checklist, light/dark theme, and the export buttons |
 | `styles.css` | Design tokens, layout and components, plus `@media print` rules used to make the PDF |
@@ -51,9 +51,10 @@ The site is static, with no build step and no dependencies apart from web fonts 
 ## 5. Reading and using the content
 
 - **Stable ids** you can link to (they are kept the same between publishes):
-  - Sections: `#summary`, `#scope`, `#frameworks`, `#threats`, `#risks`, `#principles`, `#domains`, `#changes`, `#matrix`, `#roadmap`, `#metrics`, `#decisions`, `#references`
+  - Sections: `#summary`, `#scope`, `#frameworks`, `#threats`, `#risks`, `#principles`, `#domains`, `#deepdives`, `#changes`, `#matrix`, `#roadmap`, `#metrics`, `#decisions`, `#references`
   - Risks: `#r01`–`#r20`
   - Required changes: `#ch-01`–`#ch-14`
+  - Deep dives: `#dd-waf`, `#dd-alerts`, `#dd-db`, `#dd-sa`, `#dd-admin`, `#dd-images`. WAF rules `#waf-01`–`#waf-14`, alert rules `#al-01`–`#al-20`
   - Controls: `#sc-01`–`#sc-35`
   - Go-live gates: `#g01`–`#g12`
   - Principles: `#p1`–`#p7`
