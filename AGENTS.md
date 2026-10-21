@@ -53,8 +53,8 @@ The site is static, with no build step and no dependencies apart from web fonts 
 - **Stable ids** you can link to (they are kept the same between publishes):
   - Sections: `#summary`, `#scope`, `#frameworks`, `#threats`, `#risks`, `#principles`, `#domains`, `#deepdives`, `#changes`, `#matrix`, `#roadmap`, `#metrics`, `#decisions`, `#references`
   - Risks: `#r01`–`#r20`
-  - Required changes: `#ch-01`–`#ch-14`
-  - Deep dives: `#dd-waf`, `#dd-alerts`, `#dd-db`, `#dd-sa`, `#dd-admin`, `#dd-images`, `#dd-access` (alternatives to Client VPN, options `#acc-a`, `#acc-b`, `#acc-c`). WAF rules `#waf-01`–`#waf-14`, alert rules `#al-01`–`#al-20`
+  - Required changes: `#ch-01`–`#ch-15`
+  - Deep dives: `#dd-waf`, `#dd-alerts`, `#dd-db`, `#dd-sa`, `#dd-admin`, `#dd-images`, `#dd-access` (alternatives to Client VPN, options `#acc-a`, `#acc-b`, `#acc-c`; recommendation `#dd-access-rec`; mandatory controls `#hc-01`–`#hc-12`). WAF rules `#waf-01`–`#waf-14`, alert rules `#al-01`–`#al-20`
   - Controls: `#sc-01`–`#sc-35`
   - Go-live gates: `#g01`–`#g12`
   - Principles: `#p1`–`#p7`
