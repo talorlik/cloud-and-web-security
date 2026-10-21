@@ -772,7 +772,7 @@ Location means three different things here, and each needs a different control.
 - **Certificates:** the internal ALB needs a certificate from a private CA, such as AWS Private CA, because public CAs don't issue for `.internal`. That also keeps the name out of Certificate Transparency logs.
 - **Real-domain naming, if wanted:** use a private hosted zone (split-horizon) and still a private CA. Never publish the record publicly.
 - **Separate session state:** give admin cookies their own names, and set them host-only with `Secure`, `HttpOnly` and `SameSite=Strict`. The public site never sets cookies the admin host could read.
-- **If Client VPN is replaced** ([8.7](#dd-access)): options A and C (C is the recommended one) need a public admin name and certificate, so the name becomes visible. Pick one that doesn't advertise its purpose, and rely on the identity layer, not on the name staying secret.
+- **If Client VPN is replaced** ([8.7](#dd-access)): options A (the recommended one) and C need a public admin name and certificate, so the name becomes visible. Pick one that doesn't advertise its purpose, and rely on the identity layer, not on the name staying secret.
 - **Separate the public domain too:** keep the public site on its own short official domain, separate from any corporate domain ([CH-14](#ch-14)), so a corporate DNS or certificate incident can't affect it.
 
 <a id="dd-images"></a>
@@ -808,105 +808,65 @@ Location means three different things here, and each needs a different control.
 
 `CIS 6.3, 6.4, 6.5, 12.7` `A.5.15, A.8.5, A.8.20` `WA SEC02, SEC05`
 
-> **Short answer: yes, there are cheaper paths, and every one keeps 2FA mandatory**
+> **Short answer: AWS Verified Access, with no servers to manage and 2FA always required**
 >
-> Client VPN charges per subnet association per hour, plus per connected admin per hour. In the AWS example, one association is $0.10 an hour, and 10 connections for an hour cost $0.50, which is $0.05 each ([AWS VPN pricing](https://aws.amazon.com/vpn/pricing/)). Each connection also pays the standard public IPv4 charge. The bill therefore grows with every admin and every hour they stay connected, and it peaks during a real event, when admins stay on for long shifts.
-> The three options below replace the VPN with identity-based access. Their costs are flat, or free up to a user count.
-> 2FA is not optional in any of them. It is enforced at the identity provider (Entra ID Conditional Access, or IAM Identity Center MFA). Super admins need phishing-resistant MFA (FIDO2 or passkeys), and the application's own login sits behind the access layer, not instead of it.
+> Client VPN charges per subnet association per hour, plus per connected admin per hour. In the AWS example, one association costs $0.10 an hour, and 10 connections for an hour cost $0.50, which is $0.05 each ([AWS VPN pricing](https://aws.amazon.com/vpn/pricing/)). Each connection also pays the standard public IPv4 charge. At up to 100 admins, the bill grows with every admin and every hour they stay connected, and it peaks during a real event.
+> The three options below replace the VPN with identity-based access. The constraints are: no extra servers to run, budget first, and well secured. On that basis, **Option A, AWS Verified Access**, is recommended. Every part of it is AWS-managed, and it costs about $489 a month against about $1,030 for Client VPN.
+> 2FA is never optional. In every option it is enforced at the identity provider, and super admins and governing-organization admins must use phishing-resistant MFA (security keys or passkeys). The application's own login and RBAC sit behind the access layer, not instead of it ([R01](#r01)).
 
 #### What has to be covered
 
-- **Browser access for all three admin groups** (location, governing organization, super admins) to the Angular console and the admin gateway, which today sit behind the internal admin ALB.
-- **Engineering access for super admins only:** the private EKS API endpoint, Argo CD, and the DBA path to RDS Proxy. A private EKS endpoint can only be reached from inside the VPC or a connected network ([Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html)), so each option needs a path into the VPC for these.
+- **Browser access for all three admin groups** (location, governing organization, super admins) to the Angular console and the admin gateway, which sit behind the internal admin ALB.
+- **Engineering access for super admins only:** the private EKS API endpoint, Argo CD, and the DBA path to RDS Proxy. A private EKS endpoint can only be reached from inside the VPC or a connected network ([Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html)).
+- **No new servers.** Nothing in the chosen design is an instance, a connector or a pod the team has to patch, monitor or rebuild.
 
-#### Shared building block: Session Manager for engineering access
+#### Comparison of options, including the considerations
 
-Options A and C use it, and B can use it too. Run one small EC2 instance in a private subnet as a jump node: no inbound rules, no SSH, SSM Agent only, IMDSv2, rebuilt monthly like the nodes. Super admins sign in through IAM Identity Center with MFA, and open a Session Manager port-forwarding session to the EKS API, Argo CD or RDS Proxy. The remote host doesn't have to be managed by Systems Manager ([Session Manager port forwarding](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html)).
+| Factor | Today: Client VPN + MFA | A: AWS Verified Access (recommended) | B: Cloudflare Zero Trust | C: ALB sign-in with MFA |
+| --- | --- | --- | --- | --- |
+| <a id="acc-console"></a>**Console access** | VPN tunnel to the internal ALB | Clientless browser access. Verified Access checks every request against the identity and device policy, then forwards it to the existing internal admin ALB. | Clientless browser access through Cloudflare Access, to a tunnel that runs outbound-only from inside the VPC ([Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/)) | The admin ALB becomes internet-facing. `authenticate-cognito` or `authenticate-oidc` signs users in before any request reaches the console ([ALB authentication](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-authenticate-users.html)). |
+| <a id="acc-eng"></a>**Engineering access** | Same VPN | Connectivity Client to non-HTTP endpoints: one network CIDR endpoint for the EKS API on 443 ([CIDR endpoints](https://docs.aws.amazon.com/verified-access/latest/ug/create-network-cidr-endpoint.html)), and one RDS endpoint for RDS Proxy ([RDS endpoints](https://docs.aws.amazon.com/verified-access/latest/ug/create-rds-endpoint.html)). Argo CD through `kubectl port-forward` over the EKS API, so it needs no endpoint of its own. | Cloudflare One client with private-network routes ([Cloudflare private networks](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/private-net/)) | Needs a separate path: a jump node with Session Manager (a server), or CloudShell VPC environments |
+| <a id="acc-2fa"></a>**How 2FA is enforced** | IdP MFA at VPN sign-in | At the trust provider. Either IAM Identity Center with MFA on every sign-in (no extra charge, [AWS](https://aws.amazon.com/iam/identity-center/faqs/)), or Entra ID through OIDC if Entra ID P1 is already licensed. A Cedar policy also checks group membership. | Entra-reported MFA, or Cloudflare's own independent second factor ([Cloudflare MFA](https://developers.cloudflare.com/cloudflare-one/access-controls/policies/mfa-requirements/)) | Cognito MFA set to required ([Cognito MFA](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-mfa.html)), or Entra with P1 |
+| <a id="acc-servers"></a>**Servers you manage** | None | **None.** Endpoints, policies and the client are AWS-managed. | A tunnel connector (`cloudflared`), run as two replicas on pods or instances, which you patch and monitor | None for the console. Engineering access needs a jump node unless CloudShell covers it. |
+| <a id="acc-client"></a>**Software on admin devices** | VPN client on every admin device | None for the console. Super admins need the Connectivity Client, which runs on Windows and macOS only, not Linux ([Connectivity Client](https://docs.aws.amazon.com/verified-access/latest/ug/connectivity-client.html)). | None for the console. Cloudflare One client for super admins. | None |
+| <a id="acc-exposure"></a>**What faces the internet** | The VPN endpoint | The AWS-managed Verified Access endpoint, with AWS WAF associated ([WAF integration](https://docs.aws.amazon.com/verified-access/latest/ug/waf-integration.html)). The admin ALB stays internal. | The Cloudflare edge. The origin has no inbound path at all. | The admin ALB and its sign-in page |
+| <a id="acc-posture"></a>**Device posture** | None | Optional device trust providers, evaluated on every request ([trust providers](https://docs.aws.amazon.com/verified-access/latest/ug/trust-providers.html)) | Built in, through the Cloudflare One client | Only through Entra P1 compliant-device rules |
+| <a id="acc-vendor"></a>**Vendors and residency** | AWS only | AWS only. Logs stay in the log archive (B6 unchanged). | Adds Cloudflare as a processor of admin traffic and logs. Needs a B6 decision and a DPA. Needs a separate admin domain, because published hostnames need a zone on Cloudflare ([Cloudflare routing](https://developers.cloudflare.com/tunnel/concepts/routing/)). | AWS only |
+| <a id="acc-scale"></a>**What the cost scales with** | Connected admin-hours, which are highest during an event | The number of apps and endpoints, not the number of users. Up to 100 TCP connections per endpoint-hour are free ([Verified Access pricing](https://aws.amazon.com/verified-access/pricing/)). | Users above 50 ([Cloudflare pricing](https://www.cloudflare.com/plans/sase-zero-trust.md)) | Almost nothing |
+| <a id="acc-cost"></a>**Indicative monthly cost at 100 admins** | ~$1,030, plus IPv4 per connection | **~$489:** console app ~$197, plus two TCP endpoints ~$292. About $197 if engineering access uses CloudShell only. | $350–$700, depending on whether the first 50 users stay free | ~$0, plus a jump node if CloudShell isn't enough |
+| <a id="acc-limits"></a>**Main limitations** | Cost rises with use. Network-level access once connected. | The console needs a public name and a public certificate ([Verified Access endpoints](https://docs.aws.amazon.com/verified-access/latest/ug/create-load-balancer-endpoint.html)), so the name appears in CT logs. The client has no Linux build. AWS doesn't test every OIDC provider, so validate in dev ([user trust](https://docs.aws.amazon.com/verified-access/latest/ug/user-trust.html)). | A second edge vendor beside Imperva, plus a connector to run | The sign-in page is internet-reachable. CloudShell sessions end after 20–30 minutes idle, and VPC environments keep no files ([CloudShell limits](https://docs.aws.amazon.com/cloudshell/latest/userguide/limits.html)). |
+| <a id="acc-verdict"></a>**Verdict** | Replace | Recommended No servers, AWS-only, flat cost | Only if the team stays at 50 or fewer and Cloudflare is accepted | Cheapest but the most exposed, and engineering access is weaker |
 
-- Access is controlled by IAM policy on the session document and the target. Session logs go to CloudWatch and S3.
-- There is no extra Systems Manager charge for this use on EC2. The cost is the small instance itself.
-- This replaces the VPN for the engineering path, and it holds up even if the browser path fails.
+— Cost basis: us-east-1 list prices and 730 hours a month. Client VPN assumes two subnet associations (two AZs), with each admin connected 8 hours a day for 22 working days. Verified Access counts the console at $0.27 per app-hour and two non-HTTP endpoints at $0.20 per endpoint-hour, with negligible data at $0.02 per GB. Confirm list prices for the deployment region, and confirm availability in the console. A third-party list shows Verified Access in the deployment region ([AWS Fundamentals](https://awsfundamentals.com/regions/service/aws-verified-access)). Estimates exclude tax and data transfer.
 
-| ID | Option | Console access (all admins) | Engineering access (super admins) | How 2FA is enforced | Indicative monthly cost |
-| --- | --- | --- | --- | --- | --- |
-| <a id="acc-0"></a>Today | **Client VPN + SAML + MFA** <br>baseline | VPN tunnel to the internal ALB | Same VPN | IdP MFA at VPN sign-in | About $410 for 30 admins, about $1,030 for 100 admins, plus IPv4 per connection. It grows with connected hours. |
-| <a id="acc-a"></a>A | **AWS Verified Access + Session Manager** <br>AWS-native zero trust | Clientless browser access. Verified Access checks every request against the IdP and device policy, then forwards it to the existing internal admin ALB. | Session Manager jump node. Optionally, Verified Access non-HTTP endpoints for RDS Proxy and the EKS API. | IdP MFA through the IAM Identity Center or OIDC (Entra ID) trust provider. The policy can also require specific claims, such as group or MFA method. | About $197 flat for one console app ([Verified Access pricing](https://aws.amazon.com/verified-access/pricing/)), plus one small EC2 instance. Adding two non-HTTP endpoints adds about $292. |
-| <a id="acc-b"></a>B | **Cloudflare Zero Trust (Access + Tunnel)** <br>free for small teams | Clientless browser access through Cloudflare Access to a tunnel that runs outbound-only from inside the VPC. No public IP or inbound port at the origin ([Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/)). | Cloudflare One client with private-network routes to the EKS API, Argo CD and RDS Proxy ([Cloudflare private networks](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/private-net/)). Session Manager can be the fallback. | An Access policy can require the MFA method reported by Entra ID, or prompt for its own independent second factor, such as a security key ([Cloudflare MFA](https://developers.cloudflare.com/cloudflare-one/access-controls/policies/mfa-requirements/)). | $0 for up to 50 users. Above that, $7 per user per month on pay-as-you-go ([Cloudflare pricing](https://www.cloudflare.com/plans/sase-zero-trust.md)). The connector runs as two small pods or instances. |
-| <a id="acc-c"></a>C | **ALB sign-in with mandatory MFA + AWS WAF + Session Manager** <br>lowest cost | The admin ALB becomes internet-facing, on its own hostname. A listener rule with `authenticate-cognito` (or `authenticate-oidc` to Entra ID) signs every user in before any request reaches the console ([ALB authentication](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-authenticate-users.html)). AWS WAF on the same ALB sees the real client IP, so country, anonymizer and reputation rules work. | Session Manager jump node | Cognito user pool with MFA set to required ([Cognito MFA](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-mfa.html)), using passkeys or security keys. Or Entra Conditional Access, if the client already has Entra ID P1. | Close to $0 extra. Cognito Essentials is free up to 10,000 monthly active users who sign in directly ([Cognito pricing](https://aws.amazon.com/cognito/pricing/)). The admin ALB and its web ACL already exist. One small EC2 instance. |
+#### <a id="dd-access-rec"></a>Recommended for this programme: AWS Verified Access, with no servers to manage
 
-— Cost basis: us-east-1 list prices and 730 hours a month. Client VPN assumes two subnet associations (two AZs), with each admin connected 8 hours a day for 22 working days. Verified Access assumes one console application, with negligible data at $0.02 per GB. Cloudflare's page does not say clearly whether the first 50 users stay free once you pass 50. Confirm with Cloudflare before budgeting. Estimates exclude tax and data transfer.
+- **Console, for all admins:** one HTTP Verified Access endpoint in front of the existing internal admin ALB. Associate the AWS WAF web ACL with the Verified Access instance.
+- **Engineering access, for super admins:** two TCP endpoints through the Connectivity Client. One is a network CIDR endpoint for the EKS API on 443; the EKS API name resolves through public DNS to private VPC addresses, so `kubectl` works unchanged ([Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html)). The other is an RDS endpoint for RDS Proxy. Argo CD is reached through `kubectl port-forward`.
+- **Break-glass and Linux users:** CloudShell VPC environments. CloudShell has no additional charge ([CloudShell pricing](https://aws.amazon.com/cloudshell/pricing/)), runs inside a chosen VPC subnet ([VPC environments](https://docs.aws.amazon.com/cloudshell/latest/userguide/creating-vpc-environment.html)), and needs no server. Confirm that VPC environments are offered in the deployment region.
+- **Identity:** IAM Identity Center as the trust provider, with MFA. It costs nothing extra and also covers AWS console access. Validate in dev that the chosen trust provider works for both the HTTP and the TCP endpoints. Use Entra ID through OIDC instead only if the client already has Entra ID P1, which is included in Microsoft 365 E3, E5 and Business Premium ([Microsoft Entra licensing](https://learn.microsoft.com/en-us/entra/fundamentals/licensing)). Standalone, P1 is $7.00 per user per month ([Microsoft Entra pricing](https://www.microsoft.com/en-us/security/business/microsoft-entra-pricing)), which is up to $700 a month for 100 admins.
+- **Cheaper variant, if needed:** drop the two TCP endpoints and use CloudShell for all engineering work, for about $197 a month. Super admins then lose local tools, and sessions end after 20–30 minutes idle.
 
-**A · Verified Access: pros and cons**
+| ID | Mandatory control for Option A | Detail |
+| --- | --- | --- |
+| <a id="hc-01"></a>HC-01 | **MFA required, never optional** | IAM Identity Center requires MFA on every sign-in. Super admins and governing-organization admins must use a security key or passkey. Location admins may use an authenticator app as a fallback. SMS and email codes are off. If Entra ID P1 is used, a Conditional Access authentication strength enforces the same rules ([authentication strengths](https://learn.microsoft.com/en-us/Entra/identity/authentication/concept-authentication-strengths)). |
+| <a id="hc-02"></a>HC-02 | **Admin inventory** | Admins are created only by the admin-inventory owner ([B3b](#dec-b3b)), with group membership set at creation. Disable an account after 45 days without sign-in. Review all accounts every quarter. |
+| <a id="hc-03"></a>HC-03 | **Group-based Cedar policies** | The location and governing-organization groups get the console endpoint only. Super admins get the console plus the EKS and RDS Proxy endpoints. The DBA endpoint can be limited further to a named DBA group. Everything not permitted is denied ([Verified Access policies](https://docs.aws.amazon.com/verified-access/latest/ug/trust-data-iam-add-pol.html)). |
+| <a id="hc-04"></a>HC-04 | **Country restriction** | Cedar policies can match the client IP (`context.http_request.client_ip` for HTTP, and the TCP flow context for TCP) ([default context](https://docs.aws.amazon.com/verified-access/latest/ug/trust-data-default-context.html)). Add an AWS WAF geo match on the instance's web ACL, allowing only the service country. Travel abroad needs a time-boxed exception ticket, alerted under [AL-12](#al-12). |
+| <a id="hc-05"></a>HC-05 | **AWS WAF on the instance** | Use the core rule set, known bad inputs, the anonymous IP list and the IP reputation list. They work here because there is no proxy in front ([AWS IP reputation groups](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-ip-rep.html)). Add a per-IP rate limit and an admin route allow-list. |
+| <a id="hc-06"></a>HC-06 | **Device posture for super admins** | If the client runs a supported device-management tool, attach it as a device trust provider and require a managed, encrypted, patched device for the EKS and RDS endpoints. If not, record it as an accepted gap and review it at the yearly exercise. |
+| <a id="hc-07"></a>HC-07 | **Short sessions** | Set the IAM Identity Center session duration to 8 hours, matching today's VPN. A user disabled at the identity provider loses access when the session ends, and the Connectivity Client is re-authorized continuously while connected ([Connectivity Client](https://docs.aws.amazon.com/verified-access/latest/ug/connectivity-client.html)). |
+| <a id="hc-08"></a>HC-08 | **The application verifies the signed identity** | The admin gateway verifies the `x-amzn-ava-user-context` JWT that Verified Access signs ([user claims passing](https://docs.aws.amazon.com/verified-access/latest/ug/user-claims-passing.html)). It checks the signature, issuer and expiry, maps groups to roles, and rejects requests without a valid token. App RBAC is still required ([R01](#r01)). |
+| <a id="hc-09"></a>HC-09 | **Low-visibility name, separate domain** | Use a non-descriptive hostname on a domain separate from the public site, with a public ACM certificate. The name will appear in Certificate Transparency logs, so security comes from the controls above, not from secrecy ([8.5](#dd-admin)). The internal ALB and its private name don't change. |
+| <a id="hc-10"></a>HC-10 | **Least-privilege TCP endpoints** | The CIDR endpoint covers only the subnets holding the EKS control-plane interfaces, on port 443. The RDS endpoint targets RDS Proxy only, never the database instance. Security groups admit only the Verified Access endpoint. |
+| <a id="hc-11"></a>HC-11 | **Logging and alerts** | Send Verified Access logs, with trust context included, to the log archive. Re-point [AL-17](#al-17) at them, and add P1 alerts for changes to policies, trust providers or the web ACL, for any MFA reset or disable, and for any admin created outside the inventory process. |
+| <a id="hc-12"></a>HC-12 | **A break-glass path with no servers** | If Verified Access or the identity provider fails during an event, the break-glass role ([7.2](#d-iam)) opens a CloudShell VPC environment. From inside the VPC it reaches the EKS API, RDS Proxy and the admin gateway API, so urgent guidance changes can still be made. Rehearse this in the yearly exercise. |
 
-- Stays inside AWS, with no new vendor. Logs go to the log archive like everything else, and residency stays the same (B6).
-- Every request is checked, not just the connection. It can add device posture through a device trust provider.
-- Keeps the internal admin ALB, which Verified Access requires for load balancer endpoints.
-- Cost is flat per application, not per admin. It beats the VPN once about six or more admins are connected full-time.
-- **Con:** the console needs a public domain name and a public certificate ([Verified Access endpoints](https://docs.aws.amazon.com/verified-access/latest/ug/create-load-balancer-endpoint.html)). The admin name therefore shows up in Certificate Transparency logs (see [8.5](#dd-admin)). Use a name that doesn't advertise what it is.
-- **Con:** AWS can't test every OIDC provider, so validate Entra ID in dev first ([Verified Access trust providers](https://docs.aws.amazon.com/verified-access/latest/ug/user-trust.html)).
-
-**B · Cloudflare Zero Trust: pros and cons**
-
-- Free while the admin team stays at 50 people or fewer, which is the cheapest secure option at that size.
-- The origin has no inbound path at all. Admin traffic leaves the VPC only as an outbound tunnel.
-- Covers both browser and engineering access with one policy model, and can enforce its own security-key MFA on top of the IdP.
-- **Con:** adds a second edge vendor alongside Imperva. Admin traffic, identity data and access logs pass through Cloudflare, which needs a residency decision (B6) and a DPA.
-- **Con:** published hostnames need a zone on Cloudflare ([Cloudflare routing](https://developers.cloudflare.com/tunnel/concepts/routing/)). Use a separate admin domain, so the public domain stays on Imperva.
-- **Con:** engineering access needs the Cloudflare One client on super admin devices, which is lighter than a VPN but still a client.
-
-**C · ALB sign-in with MFA: pros and cons**
-
-- Lowest cost. It reuses the admin ALB, its web ACL and the Session Manager node. Cognito, IAM Identity Center and Session Manager add no licence or per-user charge at 100 admins.
-- No client software for admins. Nothing reaches the console until sign-in and MFA succeed at the ALB.
-- Without Imperva in front, AWS WAF sees the real client IP. The country rule, the anonymous IP list and the IP reputation list all work on the admin plane (compare [WAF-12](#waf-12)).
-- **Con:** the admin entry point is internet-reachable, which is the exposure [8.5](#dd-admin) advises against. The mandatory controls below exist to offset that.
-- **Con:** no device posture check unless Entra Conditional Access, with P1, requires compliant devices.
-- **Con:** with a Cognito user pool, admin accounts live outside the client's directory. Joiners, movers and leavers need a written process and a quarterly review.
-
-**Applies to all three options**
+#### Applies to every option
 
 - Remove the Client VPN endpoint only after the new path has run in dev and stg for two weeks, with a written rollback.
-- Keep the break-glass path independent of the IdP ([7.2](#d-iam)).
-- Point [AL-17](#al-17) at the new access logs (Verified Access, Cloudflare Access or ALB) and at Session Manager session logs.
-- Keep the three admin groups as IdP groups, and map them to access policies: location and governing-organization admins get the console only, super admins get the console plus engineering access.
-- The application's own authentication and RBAC ([R01](#r01)) are still required. The access layer is an outer gate, not a substitute.
-
-#### <a id="dd-access-rec"></a>Recommended for this programme: hardened Option C
-
-There will be at most 100 admins, and budget is the deciding factor. On that basis, the recommendation is **Option C with every control in the table below**. Option C costs roughly nothing extra per month, against about $1,030 for Client VPN.
-
-Its weak point, an internet-reachable sign-in page, is offset by four layers before anything reaches the console: mandatory MFA (security keys or passkeys for super admins and governing-organization admins), a country allow-list, a short session, and the application's own RBAC.
-
-Option A stays the step-up path if the penetration test ([B11](#dec-b11)) or the client's risk owner rejects an internet-reachable admin entry point. It costs about $197 a month more.
-
-| Option at 100 admins | Access layer | Identity and 2FA | Indicative monthly total |
-| --- | --- | --- | --- |
-| Today: Client VPN | ~$1,030, plus IPv4 per connection, rising during events | Depends on the IdP | ~$1,030 or more |
-| **C, hardened (recommended)** | ~$0. The ALB and web ACL exist already. | $0: Cognito Essentials and IAM Identity Center ([no extra charge](https://aws.amazon.com/iam/identity-center/faqs/)) | **One small EC2 instance, plus a few WAF rules** |
-| A: Verified Access | ~$197 | $0 with IAM Identity Center as the trust provider | ~$197 plus one small EC2 instance |
-| B: Cloudflare Zero Trust | $350–$700, depending on whether the first 50 users stay free | $0 with Cloudflare's own MFA | $350–$700 |
-
-> **Watch the identity licence: it can cost more than the access layer**
->
-> Entra Conditional Access needs an Entra ID P1 licence. It is included in Microsoft 365 E3, E5 and Business Premium ([Microsoft Entra licensing](https://learn.microsoft.com/en-us/entra/fundamentals/licensing)). Standalone, it costs $7.00 per user per month ([Microsoft Entra pricing](https://www.microsoft.com/en-us/security/business/microsoft-entra-pricing)), which is up to $700 a month for 100 admins.
-> - **If the client already has P1:** point the ALB's `authenticate-oidc` directly at Entra, and enforce MFA through Conditional Access with a phishing-resistant authentication strength ([authentication strengths](https://learn.microsoft.com/en-us/Entra/identity/authentication/concept-authentication-strengths)).
-> - **If it doesn't:** use a Cognito user pool for the console and IAM Identity Center for AWS access. Both enforce MFA at no licence cost.
-> - **Don't federate Cognito to Entra just for this.** Federated users get only 50 free monthly active users ([Cognito pricing](https://aws.amazon.com/cognito/pricing/)), and the MFA would still depend on Entra's licence.
-
-| ID | Mandatory control for Option C | Detail |
-| --- | --- | --- |
-| <a id="hc-01"></a>HC-01 | **MFA required, never optional** | Cognito user pool MFA set to `required`, on the Essentials tier, with passkeys or security keys (WebAuthn). Super admins and governing-organization admins must use a security key or passkey. Location admins may use TOTP as a fallback. SMS and email codes are off. |
-| <a id="hc-02"></a>HC-02 | **No self sign-up** | Admins are created only by the admin-inventory owner ([B3b](#dec-b3b)), with group membership set at creation. Disable an account after 45 days without sign-in. Review all accounts every quarter. |
-| <a id="hc-03"></a>HC-03 | **Country allow-list at AWS WAF** | On the admin ALB, allow only the service country (geo match). AWS WAF sees the real client IP here. Travel abroad goes through a time-boxed exception ticket that adds one IP, with the change alerted under [AL-12](#al-12). |
-| <a id="hc-04"></a>HC-04 | **Block anonymizers and bad reputation** | Add `AWSManagedRulesAnonymousIpList` and `AWSManagedRulesAmazonIpReputationList` on the admin ACL, where they work properly because there is no proxy in front ([AWS IP reputation groups](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-ip-rep.html)). |
-| <a id="hc-05"></a>HC-05 | **Rate limits and an admin route allow-list** | Tight per-IP rate limits on `/oauth2/*` and the Cognito sign-in domain. Add the core rule set and known bad inputs. Only the console and admin-gateway routes are allowed, and everything else is blocked. |
-| <a id="hc-06"></a>HC-06 | **Protect the sign-in page itself** | Associate a web ACL with the Cognito user pool, with rate limits and the same country rule. Use a custom sign-in domain on the admin hostname's parent domain. |
-| <a id="hc-07"></a>HC-07 | **Short sessions** | Set the ALB authentication `SessionTimeout` to 8 hours, not the 7-day default. Use a unique cookie name. Cognito refresh tokens last no longer than 8 hours. Sign-out clears both the ALB and Cognito sessions. |
-| <a id="hc-08"></a>HC-08 | **The application verifies identity, not just the network** | The admin gateway verifies the ALB-signed `x-amzn-oidc-data` token (signature, signer ARN, expiry) and maps Cognito groups to roles. It rejects any request without the token. App RBAC is still required ([R01](#r01)). |
-| <a id="hc-09"></a>HC-09 | **Low-visibility name, separate domain** | Use a non-descriptive admin hostname on a domain separate from the public site, with a public ACM certificate. The name will appear in Certificate Transparency logs, so security comes from the controls above, not from secrecy ([8.5](#dd-admin)). |
-| <a id="hc-10"></a>HC-10 | **Engineering access never goes through the console** | The EKS API, Argo CD and RDS Proxy stay private. Reach them only through Session Manager with IAM Identity Center and a security key. The admin ALB has no route to them. |
-| <a id="hc-11"></a>HC-11 | **Alerts** | Re-point [AL-17](#al-17) at Cognito sign-in events, WAF country and anonymizer blocks, and Session Manager starts. Add P1 alerts for any MFA reset or disable, any new user outside the inventory process, and any change to the admin web ACL. |
-| <a id="hc-12"></a>HC-12 | **A fallback path during an event** | If the admin ALB is under attack, super admins can still reach the console through a Session Manager port forward to the internal target. Guidance can always be published. Rehearse this in the yearly exercise. |
+- Keep the three admin groups as identity-provider groups, mapped to access policies.
+- The application's own authentication and RBAC are still required. The access layer is an outer gate, not a substitute.
 
 This is decision [B3c](#dec-access), and change [CH-15](#ch-15).
 
@@ -938,7 +898,7 @@ These items change an accepted decision, a design or live state. Each change sho
 | <a id="ch-12"></a>CH-12 | Emergency page served by nginx in the cluster | Also publish a signed static emergency page to S3 and cache it at Imperva as the origin-failover target | [R05](#r05), principle [2](#p2) | Platform team | P0 |
 | <a id="ch-13"></a>CH-13 | No egress control described | VPC endpoints plus Network Firewall with an FQDN allow-list | Data exfiltration, C2 | Platform team | P1 |
 | <a id="ch-14"></a>CH-14 | Public domain trust not defined | One short official domain, DNSSEC, CAA, HSTS preload, tamper-evident QR plates, lookalike-domain monitoring | [R04](#r04) | Client + Platform team | P1 |
-| <a id="ch-15"></a>CH-15 | Client VPN for all admin access (cost grows per admin-hour) | Internet-facing admin ALB with Cognito or Entra sign-in and required MFA, AWS WAF country, anonymizer and reputation rules, 8-hour sessions, and Session Manager for engineering access. Remove the VPN after two weeks of parallel running. | [R01](#r01), cost, [8.7](#dd-access-rec) | Platform team + client (B3c) | P1 |
+| <a id="ch-15"></a>CH-15 | Client VPN for all admin access (cost grows per admin-hour) | AWS Verified Access: an HTTP endpoint for the console in front of the internal admin ALB, and TCP endpoints for the EKS API and RDS Proxy. IAM Identity Center with mandatory MFA, AWS WAF on the instance, 8-hour sessions, and CloudShell VPC environments for break-glass. No new servers. Remove the VPN after two weeks of parallel running. | [R01](#r01), cost, [8.7](#dd-access-rec) | Platform team + client (B3c) | P1 |
 
 [Back to contents](#pdf-contents)
 
@@ -1092,9 +1052,9 @@ These come from the brief's list of decisions the strategy needs. Each has a rec
 
 Federated to Client VPN (SAML), IAM Identity Center and the app (OIDC). Use Conditional Access and FIDO2 for super admins. Partner organizations join through B2B guests or their own federation. If the client cannot provide Entra, use IAM Identity Center as the IdP, but plan a manual joiner-mover-leaver process.
 
-#### <a id="dec-access"></a>B3c · Admin access path — Recommend: hardened ALB sign-in with mandatory MFA
+#### <a id="dec-access"></a>B3c · Admin access path — Recommend: AWS Verified Access, with no servers
 
-At up to 100 admins with budget as the deciding factor, replace Client VPN with an internet-facing admin ALB. It signs users in through Cognito (or Entra, if P1 is already licensed) with required MFA, uses AWS WAF with a country allow-list, and leaves engineering access to Session Manager. That saves about $1,000 a month against Client VPN. All twelve controls HC-01 to HC-12 are mandatory. Step up to Verified Access (about $197 a month) if the pen test or the risk owner rejects an internet-reachable admin entry point. See [8.7](#dd-access-rec).
+Replace Client VPN with Verified Access. Use one HTTP endpoint for the admin console in front of the internal admin ALB, and two TCP endpoints (EKS API and RDS Proxy) through the Connectivity Client for super admins. Use IAM Identity Center with mandatory MFA as the trust provider, and CloudShell VPC environments for break-glass. Cost is about $489 a month against about $1,030 for Client VPN at 100 admins, with nothing to patch or run. All twelve controls HC-01 to HC-12 are mandatory. See [8.7](#dd-access-rec).
 
 #### <a id="dec-b3b"></a>B3b · Admin inventory — Recommend: named inventory per authority
 
@@ -1215,6 +1175,18 @@ Framework versions were checked on 2026-10-21. Internal references (D-, B-, C- a
 69. AWS — Amazon Cognito pricing. [https://aws.amazon.com/cognito/pricing/](https://aws.amazon.com/cognito/pricing/)
 70. AWS — Adding MFA to a Cognito user pool. [https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-mfa.html](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-mfa.html)
 71. AWS — IAM Identity Center FAQs (pricing). [https://aws.amazon.com/iam/identity-center/faqs/](https://aws.amazon.com/iam/identity-center/faqs/)
+72. AWS — Integrate Verified Access with AWS WAF. [https://docs.aws.amazon.com/verified-access/latest/ug/waf-integration.html](https://docs.aws.amazon.com/verified-access/latest/ug/waf-integration.html)
+73. AWS — Verified Access user claims passing and signature verification. [https://docs.aws.amazon.com/verified-access/latest/ug/user-claims-passing.html](https://docs.aws.amazon.com/verified-access/latest/ug/user-claims-passing.html)
+74. AWS — Verified Access default context for trust data. [https://docs.aws.amazon.com/verified-access/latest/ug/trust-data-default-context.html](https://docs.aws.amazon.com/verified-access/latest/ug/trust-data-default-context.html)
+75. AWS — Verified Access example policies. [https://docs.aws.amazon.com/verified-access/latest/ug/trust-data-iam-add-pol.html](https://docs.aws.amazon.com/verified-access/latest/ug/trust-data-iam-add-pol.html)
+76. AWS — Verified Access trust providers. [https://docs.aws.amazon.com/verified-access/latest/ug/trust-providers.html](https://docs.aws.amazon.com/verified-access/latest/ug/trust-providers.html)
+77. AWS — Verified Access network CIDR endpoints. [https://docs.aws.amazon.com/verified-access/latest/ug/create-network-cidr-endpoint.html](https://docs.aws.amazon.com/verified-access/latest/ug/create-network-cidr-endpoint.html)
+78. AWS — Verified Access RDS endpoints. [https://docs.aws.amazon.com/verified-access/latest/ug/create-rds-endpoint.html](https://docs.aws.amazon.com/verified-access/latest/ug/create-rds-endpoint.html)
+79. AWS — Connectivity Client for Verified Access. [https://docs.aws.amazon.com/verified-access/latest/ug/connectivity-client.html](https://docs.aws.amazon.com/verified-access/latest/ug/connectivity-client.html)
+80. AWS Fundamentals — AWS Verified Access region availability. [https://awsfundamentals.com/regions/service/aws-verified-access](https://awsfundamentals.com/regions/service/aws-verified-access)
+81. AWS — AWS CloudShell pricing. [https://aws.amazon.com/cloudshell/pricing/](https://aws.amazon.com/cloudshell/pricing/)
+82. AWS — Creating a CloudShell VPC environment. [https://docs.aws.amazon.com/cloudshell/latest/userguide/creating-vpc-environment.html](https://docs.aws.amazon.com/cloudshell/latest/userguide/creating-vpc-environment.html)
+83. AWS — CloudShell limits and restrictions. [https://docs.aws.amazon.com/cloudshell/latest/userguide/limits.html](https://docs.aws.amazon.com/cloudshell/latest/userguide/limits.html)
 
 [Back to contents](#pdf-contents)
 

@@ -409,3 +409,13 @@ td.ref-col { font-size: .76rem; } td.ref-col.bench { font-family: var(--font-bod
   #matrixTable .pill { font-size: 6.5pt; padding: 1px 5px; }
 }
 @media print { #matrixTable td:nth-child(3) { font-size: 7pt; } .refs a { font-size: 7pt; } }
+
+/* 8.7 options matrix: fixed layout so long code tokens wrap instead of widening the page */
+#accessTable { table-layout: fixed; width: 100%; min-width: 760px; }
+#accessTable th:first-child, #accessTable td:first-child { width: 13%; }
+#accessTable th:nth-child(3), #accessTable td:nth-child(3) { width: 27%; }
+#accessTable code { white-space: normal; overflow-wrap: anywhere; }
+@media print {
+  #accessTable { min-width: 0; font-size: 8.5pt; }
+  #accessTable td, #accessTable th { padding: 5px 6px; }
+}
