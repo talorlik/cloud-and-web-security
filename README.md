@@ -9,6 +9,7 @@ An interactive security strategy for a public alerting-system website and its AW
 - `index.html`: the interactive site, with sidebar navigation, search (Ctrl K), filterable risk and control tables, and a go-live checklist
 - `security-strategy.pdf`: the full document as a PDF, with bookmarks and working internal links
 - `security-strategy.md`: the full document as Markdown, with anchored internal links and a Mermaid diagram
+- `AGENTS.md`: instructions for AI agents (this repo is generated, so don't edit it directly)
 - `styles.css`, `app.js`, `data.js`: the site's assets (static, with no build step)
 
 ## Public edition
