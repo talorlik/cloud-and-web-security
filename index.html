@@ -385,7 +385,7 @@
           <li>Write a one-page information security policy plus topic policies: access control, cryptography, logging, retention, supplier, secure development, incident response, acceptable use (A.5.1, A.5.37).</li>
           <li>Set up a RACI covering the platform team, the application team, the Steering Committee, CPA and Imperva (A.5.2, A.5.3 segregation of duties). The prd approver must not be the author.</li>
           <li>Adopt the risk method in <a href="#risks">section 05</a>. Review it quarterly and after every drill (Cl. 6.1, 8.2).</li>
-          <li>Create a separate prd account (<a href="#ch-02">CH-02</a>) with SCPs that deny leaving the org, deny disabling CloudTrail, Config, GuardDuty or Security Hub, deny Regions other than us-east-1 (residency), and deny creating IAM users or access keys.</li>
+          <li>Create a separate prd account (<a href="#ch-02">CH-02</a>) with SCPs that deny leaving the org, deny disabling CloudTrail, Config, GuardDuty or Security Hub, deny Regions other than us-east-1 (residency), and deny creating IAM users or access keys. The full guardrail set, account baseline and rollout order are in <a href="#dd-org">8.8</a>.</li>
           <li>Run internal audit and management review twice a year, aiming for ISO 27001 certification readiness within 12 months of go-live.</li>
         </ul></div></details>
       </div>
@@ -512,8 +512,8 @@
     <section class="section" id="deepdives" data-title="Design deep dives">
       <div class="sec-head">
         <span class="sec-num">08 · Design deep dives</span>
-        <h2>Seven design questions, answered in detail</h2>
-        <p class="intro">This section covers WAF rules and location enforcement, alerting without a staffed SOC, database users, Kubernetes service accounts, the admin hostname, hardened container images, and lower-cost alternatives to Client VPN for admin access. Each topic opens with a direct answer, then gives the concrete rules, roles or options, and links back to the risks, changes and controls they support.</p>
+        <h2>Eight design questions, answered in detail</h2>
+        <p class="intro">This section covers WAF rules and location enforcement, alerting without a staffed SOC, database users, Kubernetes service accounts, the admin hostname, hardened container images, lower-cost alternatives to Client VPN for admin access, and AWS account and organization security. Each topic opens with a direct answer, then gives the concrete rules, roles or options, and links back to the risks, changes and controls they support.</p>
       </div>
 
       <!-- 8.1 WAF -->
@@ -801,11 +801,115 @@
 
         <h4>Applies to every option</h4>
         <ul>
-          <li>Remove the Client VPN endpoint only after the new path has run in dev and stg for two weeks, with a written rollback.</li>
+          <li>Remove the Client VPN endpoint only after the new path has run in dev for two weeks, with a written rollback.</li>
           <li>Keep the three admin groups as identity-provider groups, mapped to access policies.</li>
           <li>The application's own authentication and RBAC are still required. The access layer is an outer gate, not a substitute.</li>
         </ul>
         <p>This is decision <a href="#dec-access">B3c</a>, and change <a href="#ch-15">CH-15</a>.</p>
+      </div>
+      <!-- 8.8 AWS ACCOUNT AND ORGANIZATION SECURITY -->
+      <div class="domain" id="dd-org">
+        <div class="domain-head"><h3 id="dd-org-h">8.8 AWS account and organization security</h3><div class="tags"><span class="tag">CIS 3.3, 4.1, 5.4, 6.8, 8.2</span><span class="tag">A.5.15, A.8.2, A.8.9, A.8.15, A.8.22</span><span class="tag">CIS AWS Foundations</span><span class="tag">WA SEC01, SEC03</span></div></div>
+        <div class="callout">
+          <h4>Short answer: it was only partly covered, and this section adds the full baseline</h4>
+          <p>Until now, the strategy gave account-level security three items: one work item in <a href="#d-foundations">7.1</a> listing four SCPs, the multi-account split in <a href="#ch-02">CH-02</a> and <a href="#sc-02">SC-02</a>, and root protection in <a href="#sc-03">SC-03</a>.</p>
+          <p>This section defines the rest:</p>
+          <ul>
+            <li>the organization structure</li>
+            <li>every guardrail policy, by type: service control policies (SCPs), resource control policies (RCPs), declarative policies, and the AI opt-out, backup and tag policies</li>
+            <li>the settings every account must have</li>
+            <li>how to protect the management account, which the guardrails don't reach</li>
+            <li>a safe rollout order</li>
+          </ul>
+          <p>It addresses <a href="#r08">R08</a> (dev and prd share one account) and <a href="#r20">R20</a> (root or break-glass misuse).</p>
+        </div>
+
+        <h4>Organization structure</h4>
+        <p>Keep the structure flat and purpose-based, following AWS's recommended OUs (<a href="https://docs.aws.amazon.com/whitepapers/latest/organizing-your-aws-environment/recommended-ous-and-accounts.html">AWS multi-account guidance</a>). Build it with Terraform in a separate organization pipeline that needs two-person approval.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>OU / account</th><th>Purpose</th><th>Key settings</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Management account</strong> (root of the organization)</td><td>Organizations, consolidated billing and the IAM Identity Center instance. No workloads, ever.</td><td>Every security service is delegated to the security-tooling account. Protected separately (see below), because SCPs and RCPs don't apply to it.</td></tr>
+            <tr><td><strong>Security OU</strong> › security-tooling</td><td>Delegated administrator for GuardDuty, Security Hub, Inspector, Config aggregation, IAM Access Analyzer and Macie</td><td>Only the security team and read-only auditors have access. Findings route from here (<a href="#dd-alerts">8.2</a>).</td></tr>
+            <tr><td><strong>Security OU</strong> › log-archive</td><td>Organization CloudTrail, Config history, VPC flow logs, WAF, Imperva and Verified Access logs</td><td>S3 Object Lock and a KMS key owned by this account. No human write access. Retention follows <a href="#ch-03">CH-03</a>.</td></tr>
+            <tr><td><strong>Security OU</strong> › backup</td><td>Cross-account copies of RDS and other backups</td><td>AWS Backup vault with Vault Lock in compliance mode (<a href="https://docs.aws.amazon.com/aws-backup/latest/devguide/vault-lock.html">AWS Backup Vault Lock</a>), so not even an administrator can delete copies early</td></tr>
+            <tr><td><strong>Workloads OU › Prod</strong> › prd</td><td>The production platform</td><td>Strictest SCPs. Humans are read-only, and changes go through the pipeline.</td></tr>
+            <tr><td><strong>Workloads OU › NonProd</strong> › dev</td><td>Development and testing</td><td>Same guardrails as prd, apart from the prd-only human-write deny. No production data.</td></tr>
+            <tr><td><strong>Suspended OU</strong></td><td>Accounts being closed or quarantined after an incident</td><td>A deny-all SCP</td></tr>
+          </tbody>
+        </table></div>
+
+        <h4>Guardrail policies</h4>
+        <ul>
+          <li><strong>SCPs</strong> limit what identities in member accounts can do. They don't affect the management account or service-linked roles (<a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html">AWS SCPs</a>).</li>
+          <li><strong>RCPs</strong> limit what can be done to resources, whoever the caller is. They cover S3, KMS, STS, Secrets Manager, SQS, CloudWatch Logs and ECR, among others, and also exclude the management account and service-linked roles (<a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_rcps.html">AWS RCPs</a>).</li>
+          <li><strong>Declarative policies</strong> are enforced in the service's control plane, so the setting holds even when AWS adds new APIs (<a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_declarative.html">AWS declarative policies</a>).</li>
+        </ul>
+        <div class="table-wrap"><table id="orgPolicyTable">
+          <thead><tr><th>ID</th><th>Type</th><th>Guardrail</th><th>Attached to</th><th>Detail and exceptions</th></tr></thead>
+          <tbody>
+            <tr id="gp-01"><td class="id">GP-01</td><td>SCP</td><td><strong>Deny leaving the organization</strong></td><td>Root</td><td>Deny <code>organizations:LeaveOrganization</code>. No exceptions.</td></tr>
+            <tr id="gp-02"><td class="id">GP-02</td><td>SCP</td><td><strong>Region deny</strong> <small>residency (B6)</small></td><td>Root</td><td>Deny every Region except the home Region (<code>us-east-1</code>), using <code>aws:RequestedRegion</code>. Global services such as IAM, Organizations, Route 53, CloudFront, ACM for CloudFront, Shield, Support and billing are exempted through <code>NotAction</code>, because their calls are made in us-east-1. Start from the AWS example (<a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps_examples_general.html">AWS SCP examples</a>). Also disable every other opt-in Region (<a href="https://docs.aws.amazon.com/accounts/latest/reference/manage-acct-regions.html">AWS Regions</a>).</td></tr>
+            <tr id="gp-03"><td class="id">GP-03</td><td>SCP</td><td><strong>Security services can't be disabled</strong></td><td>Root</td><td>Deny stopping or deleting CloudTrail, Config recorders and delivery channels, GuardDuty detectors, Security Hub, Inspector, Macie and Access Analyzer, and leaving their delegated administrator. Exempt only the security automation role. Alerted under <a href="#al-05">AL-05</a>.</td></tr>
+            <tr id="gp-04"><td class="id">GP-04</td><td>SCP</td><td><strong>No IAM users or long-lived keys</strong></td><td>Root</td><td>Deny <code>iam:CreateUser</code>, <code>CreateAccessKey</code> and <code>CreateLoginProfile</code>. People use Identity Center and pipelines use OIDC roles. Exempt only the documented break-glass process (<a href="#d-iam">7.2</a>).</td></tr>
+            <tr id="gp-05"><td class="id">GP-05</td><td>SCP</td><td><strong>Protect platform roles</strong></td><td>Root</td><td>Deny changes to <code>OrganizationAccountAccessRole</code>, the break-glass role, the Terraform deploy roles and the <code>AWSReservedSSO_*</code> roles, except by the organization pipeline role</td></tr>
+            <tr id="gp-06"><td class="id">GP-06</td><td>SCP</td><td><strong>Deny root user actions in member accounts</strong></td><td>Root</td><td>Deny all actions where the principal is the account root. This complements centralized root access, which removes member root credentials entirely (<a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html">AWS root user</a>).</td></tr>
+            <tr id="gp-07"><td class="id">GP-07</td><td>SCP</td><td><strong>Protect the log archive and its keys</strong></td><td>Security OU</td><td>Deny deleting log buckets and changing their bucket policy, lifecycle or Object Lock settings. Deny deleting security log groups, and disabling or scheduling deletion of security KMS keys. Exempt only the security role (<a href="#al-06">AL-06</a>).</td></tr>
+            <tr id="gp-08"><td class="id">GP-08</td><td>SCP</td><td><strong>Encryption and public-access settings can't be weakened</strong></td><td>Root</td><td>Deny <code>ec2:DisableEbsEncryptionByDefault</code>, and deny changes to S3 account-level Block Public Access. Deny creating an RDS instance or cluster when <code>rds:StorageEncrypted</code> is false.</td></tr>
+            <tr id="gp-09"><td class="id">GP-09</td><td>SCP</td><td><strong>Network changes only through the pipeline</strong></td><td>Workloads OU</td><td>Deny creating or attaching internet gateways, VPC peering, transit gateway attachments, and changes to route tables and NACLs, except by the platform pipeline role. This stops a stolen human session from opening a new path out.</td></tr>
+            <tr id="gp-10"><td class="id">GP-10</td><td>SCP</td><td><strong>Humans are read-only in prd</strong></td><td>Prod OU</td><td>Deny write actions to every <code>AWSReservedSSO_*</code> role except the Operator scaling actions and the break-glass permission set. All changes come through Terraform and Argo CD. This puts <a href="#d-iam">7.2</a> into practice.</td></tr>
+            <tr id="gp-11"><td class="id">GP-11</td><td>SCP</td><td><strong>Suspended OU: deny all</strong></td><td>Suspended OU</td><td>Deny <code>*</code> on <code>*</code>, for accounts being closed or quarantined</td></tr>
+            <tr id="gp-12"><td class="id">GP-12</td><td>RCP</td><td><strong>Data perimeter: only our organization</strong></td><td>Root</td><td>Deny access to S3, KMS, Secrets Manager, SQS, STS and CloudWatch Logs when <code>aws:PrincipalOrgID</code> isn't ours and the caller isn't an AWS service. List any third-party integration explicitly, for example a vendor log-delivery role. Find them first with Access Analyzer external-access findings.</td></tr>
+            <tr id="gp-13"><td class="id">GP-13</td><td>RCP</td><td><strong>TLS only</strong></td><td>Root</td><td>Deny S3, KMS, Secrets Manager and SQS requests where <code>aws:SecureTransport</code> is false</td></tr>
+            <tr id="gp-14"><td class="id">GP-14</td><td>RCP</td><td><strong>Confused-deputy protection</strong></td><td>Root</td><td>Deny AWS service principals acting on our resources on behalf of another organization (<code>aws:SourceOrgID</code>). This stops a service being tricked into using our bucket or key for someone else.</td></tr>
+            <tr id="gp-15"><td class="id">GP-15</td><td>Declarative</td><td><strong>Block public AMIs and snapshots</strong></td><td>Root</td><td>Image Block Public Access and Snapshot Block Public Access (<a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_declarative_syntax.html">declarative policy attributes</a>)</td></tr>
+            <tr id="gp-16"><td class="id">GP-16</td><td>Declarative</td><td><strong>VPC Block Public Access</strong></td><td>Root</td><td>Block in the security and dev accounts. In prd, exclude only the public ALB and NAT subnets, so no other subnet can ever get an internet path.</td></tr>
+            <tr id="gp-17"><td class="id">GP-17</td><td>Declarative</td><td><strong>Instance metadata, serial console, allowed images</strong></td><td>Root</td><td>Require IMDSv2 with a hop limit of 1, so pods can't reach node credentials. Pod Identity doesn't need IMDS, but validate the add-ons. Disable serial console access. Allow images only from Amazon, the CIS image publisher and our own accounts.</td></tr>
+            <tr id="gp-18"><td class="id">GP-18</td><td>AI opt-out</td><td><strong>Opt out of AI service content use</strong></td><td>Root</td><td>Opt out for all supported services. It applies in every Region, and AWS deletes historical content it doesn't need (<a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_ai-opt-out.html">AWS AI opt-out policies</a>). This supports privacy by design (<a href="#d-data">7.5</a>).</td></tr>
+            <tr id="gp-19"><td class="id">GP-19</td><td>Backup</td><td><strong>Organization backup policy</strong></td><td>Workloads OU</td><td>Daily and weekly RDS backup plans, with a copy to the backup account vault, applied by tag (<a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_backup.html">AWS backup policies</a>)</td></tr>
+            <tr id="gp-20"><td class="id">GP-20</td><td>Tag</td><td><strong>Required tags</strong></td><td>Root</td><td>Standardize <code>env</code>, <code>owner</code>, <code>data-class</code> and <code>component</code> (<a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_tag-policies.html">AWS tag policies</a>). These feed the backup policy, cost reports and the Pod Identity ABAC conditions (<a href="#dd-sa">8.4</a>).</td></tr>
+          </tbody>
+        </table></div>
+
+        <h4>Baseline settings in every account</h4>
+        <p>Apply these with the same Terraform module in every account, and check them with Security Hub CSPM.</p>
+        <div class="table-wrap"><table id="acctBaselineTable">
+          <thead><tr><th>ID</th><th>Setting</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr id="ab-01"><td class="id">AB-01</td><td><strong>Organization CloudTrail</strong></td><td>All accounts and Regions, management events, log file validation, and KMS encryption, delivered to log-archive (<a href="https://docs.aws.amazon.com/awscloudtrail/latest/userguide/creating-trail-organization.html">AWS organization trail</a>). Add data events on the buckets that hold personal data or exports.</td></tr>
+            <tr id="ab-02"><td class="id">AB-02</td><td><strong>AWS Config everywhere</strong></td><td>Record all resource types in the home Region, and global resources once. An organization aggregator in security-tooling (<a href="https://docs.aws.amazon.com/config/latest/developerguide/aggregate-data.html">AWS Config aggregation</a>). This unblocks the CIS standard (<a href="#ch-08">CH-08</a>).</td></tr>
+            <tr id="ab-03"><td class="id">AB-03</td><td><strong>GuardDuty for the whole organization</strong></td><td>Delegated administrator, with every account enrolled automatically (<a href="https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_organizations.html">GuardDuty with Organizations</a>). Protection plans: S3, EKS audit logs and runtime, RDS, and Malware Protection.</td></tr>
+            <tr id="ab-04"><td class="id">AB-04</td><td><strong>Security Hub central configuration</strong></td><td>One configuration policy for every account and Region, with the CIS AWS Foundations Benchmark and AWS Foundational Security Best Practices standards (<a href="https://docs.aws.amazon.com/securityhub/latest/userguide/central-configuration-intro.html">Security Hub central configuration</a>)</td></tr>
+            <tr id="ab-05"><td class="id">AB-05</td><td><strong>Inspector and IAM Access Analyzer</strong></td><td>Inspector for EC2, ECR and Lambda, enabled automatically for new accounts. An organization-wide external-access analyzer, plus an unused-access analyzer, which is billed per role analyzed (<a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-getting-started.html">IAM Access Analyzer</a>).</td></tr>
+            <tr id="ab-06"><td class="id">AB-06</td><td><strong>S3 account-level Block Public Access</strong></td><td>All four settings on, in every account (<a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html">S3 Block Public Access</a>). Locked by GP-08.</td></tr>
+            <tr id="ab-07"><td class="id">AB-07</td><td><strong>EBS encryption by default</strong></td><td>On, with a customer managed key, in the home Region (<a href="https://docs.aws.amazon.com/ebs/latest/userguide/encryption-by-default.html">EBS encryption by default</a>). Locked by GP-08.</td></tr>
+            <tr id="ab-08"><td class="id">AB-08</td><td><strong>Alternate contacts</strong></td><td>Security, operations and billing contacts set centrally to monitored team mailboxes and an on-call phone, not to individuals (<a href="https://docs.aws.amazon.com/accounts/latest/reference/manage-acct-update-contact-alternate.html">AWS alternate contacts</a>). Security Hub checks this.</td></tr>
+            <tr id="ab-09"><td class="id">AB-09</td><td><strong>No default VPCs</strong></td><td>Delete them in every Region of every account (<a href="#ch-08">CH-08</a>)</td></tr>
+            <tr id="ab-10"><td class="id">AB-10</td><td><strong>Cost guardrails as a security signal</strong></td><td>AWS Budgets per account, and Cost Anomaly Detection (<a href="https://docs.aws.amazon.com/cost-management/latest/userguide/manage-ad.html">Cost Anomaly Detection</a>), routed as P2. A sudden compute spike is often the first sign of crypto-mining after a credential leak.</td></tr>
+            <tr id="ab-11"><td class="id">AB-11</td><td><strong>Pipeline identity without keys</strong></td><td>GitHub Actions uses an IAM OIDC provider. Trust is scoped to repository, branch and environment, through the <code>sub</code> claim (<a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html">IAM OIDC</a>). Roles that the pipeline creates must carry a permission boundary (<a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html">permission boundaries</a>).</td></tr>
+            <tr id="ab-12"><td class="id">AB-12</td><td><strong>Centralized root access</strong></td><td>Delete root credentials in every member account. New accounts are created with none. Privileged root tasks, such as unlocking a bucket policy that denies everyone, run from the management account (<a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html">AWS root user</a>).</td></tr>
+          </tbody>
+        </table></div>
+
+        <h4>Protecting the management account</h4>
+        <p>SCPs and RCPs never apply to the management account (<a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html">AWS SCPs</a>). It must therefore be protected by process and detection (<a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_best-practices_mgmt-acct.html">AWS management account best practices</a>):</p>
+        <ul>
+          <li>No workloads, and no resources beyond Organizations, billing and Identity Center.</li>
+          <li>Two named administrators at most, through Identity Center with security keys.</li>
+          <li>The root user has two hardware MFA keys, kept in separate safes, with a sealed-envelope custodian process (<a href="#sc-03">SC-03</a>).</li>
+          <li>Any sign-in to the management account raises a P1 alert, extending <a href="#al-03">AL-03</a>.</li>
+          <li>Every security service is delegated out to security-tooling, so day-to-day work never needs the management account.</li>
+        </ul>
+
+        <h4>Safe rollout order</h4>
+        <ol>
+          <li><strong>Create the organization and accounts</strong> (<a href="#ch-02">CH-02</a>). Turn on the organization trail and log-archive first, so everything after this step is recorded.</li>
+          <li><strong>Delegate the security services</strong> to security-tooling, and apply the account baseline (AB-01 to AB-12).</li>
+          <li><strong>Attach SCPs to NonProd first.</strong> Test them in dev for a week with IAM policy simulation and Access Analyzer policy checks, then attach them to Prod.</li>
+          <li><strong>Inventory external access</strong> with Access Analyzer before attaching the RCPs (GP-12 to GP-14), so legitimate integrations are listed as exceptions rather than broken.</li>
+          <li><strong>Attach the declarative policies</strong> once the AMI and subnet exceptions are known.</li>
+          <li><strong>Centralize root access</strong> and delete member root credentials last, after break-glass has been tested.</li>
+        </ol>
       </div>
     </section>
 
@@ -820,7 +924,7 @@
         <thead><tr><th>ID</th><th>Current</th><th>Change to</th><th>Why</th><th>Owner</th><th>Pri</th></tr></thead>
         <tbody>
           <tr id="ch-01"><td class="id">CH-01</td><td>Public nginx proxies the whole <code>/api</code>. The devices route carries the whole controller.</td><td>Exact-match HTTPRoutes for public methods and paths only. Imperva and AWS WAF rules deny everything else, including Swagger and actuator.</td><td>Contains <a href="#r02">R02</a> now, without editing <code>app/</code></td><td>Platform team</td><td><span class="pri p0">P0</span></td></tr>
-          <tr id="ch-02"><td class="id">CH-02</td><td>D44: one account for dev and prd</td><td>AWS Organizations with prd, dev, log-archive, security-tooling and backup accounts. SCP guardrails. Move prd before go-live if possible, otherwise within 90 days.</td><td><a href="#r08">R08</a>, residency SCP, cost tags (payer)</td><td>Platform team + client (B25)</td><td><span class="pri p1">P1</span></td></tr>
+          <tr id="ch-02"><td class="id">CH-02</td><td>D44: one account for dev and prd</td><td>AWS Organizations with prd, dev, log-archive, security-tooling and backup accounts. SCP guardrails. Move prd before go-live if possible, otherwise within 90 days. Full design in <a href="#dd-org">8.8</a>.</td><td><a href="#r08">R08</a>, residency SCP, cost tags (payer)</td><td>Platform team + client (B25)</td><td><span class="pri p1">P1</span></td></tr>
           <tr id="ch-03"><td class="id">CH-03</td><td>D35: all logs 30 days, no archive</td><td>Security and audit logs: 1 year hot plus 6 years in Glacier, Object Lock. Operational logs: 30 to 90 days. Access logs: 1 year.</td><td><a href="#r13">R13</a>, CIS 8.10 (at least 90 days), A.8.15, legal holds</td><td>Platform team + client</td><td><span class="pri p0">P0</span></td></tr>
           <tr id="ch-04"><td class="id">CH-04</td><td>D34: location samples kept permanently. C15: email per device.</td><td>Raw samples deleted 30 days after the event closes (proposed, for legal review). Aggregates by area and time kept for planning. Email removed.</td><td><a href="#r06">R06</a>, GDPR Art. 5, data minimization</td><td>Client + app team</td><td><span class="pri p0">P0</span></td></tr>
           <tr id="ch-05"><td class="id">CH-05</td><td>D47: <code>alertingdb</code> is <code>rds_superuser</code> and owner. <code>ddl-auto: update</code>.</td><td>Owner, app and read-only roles created by the bootstrap Lambda. Migrations through Flyway as a Job. Runtime gets DML only.</td><td><a href="#r10">R10</a>, <a href="#r17">R17</a>, CIS PostgreSQL</td><td>Platform team + app team</td><td><span class="pri p1">P1</span></td></tr>
@@ -1034,6 +1138,30 @@
         <li>AWS — AWS CloudShell pricing. <a href="https://aws.amazon.com/cloudshell/pricing/">https://aws.amazon.com/cloudshell/pricing/</a></li>
         <li>AWS — Creating a CloudShell VPC environment. <a href="https://docs.aws.amazon.com/cloudshell/latest/userguide/creating-vpc-environment.html">https://docs.aws.amazon.com/cloudshell/latest/userguide/creating-vpc-environment.html</a></li>
         <li>AWS — CloudShell limits and restrictions. <a href="https://docs.aws.amazon.com/cloudshell/latest/userguide/limits.html">https://docs.aws.amazon.com/cloudshell/latest/userguide/limits.html</a></li>
+        <li>AWS — Organizing your AWS environment: recommended OUs and accounts. <a href="https://docs.aws.amazon.com/whitepapers/latest/organizing-your-aws-environment/recommended-ous-and-accounts.html">https://docs.aws.amazon.com/whitepapers/latest/organizing-your-aws-environment/recommended-ous-and-accounts.html</a></li>
+        <li>AWS — Service control policies (SCPs). <a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html">https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html</a></li>
+        <li>AWS — SCP examples (including Region deny). <a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps_examples_general.html">https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps_examples_general.html</a></li>
+        <li>AWS — Resource control policies (RCPs). <a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_rcps.html">https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_rcps.html</a></li>
+        <li>AWS — Declarative policies. <a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_declarative.html">https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_declarative.html</a></li>
+        <li>AWS — Declarative policy syntax and supported attributes. <a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_declarative_syntax.html">https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_declarative_syntax.html</a></li>
+        <li>AWS — AI services opt-out policies. <a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_ai-opt-out.html">https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_ai-opt-out.html</a></li>
+        <li>AWS — Backup policies. <a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_backup.html">https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_backup.html</a></li>
+        <li>AWS — Tag policies. <a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_tag-policies.html">https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_tag-policies.html</a></li>
+        <li>AWS — AWS account root user and centralized root access. <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html">https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html</a></li>
+        <li>AWS — Best practices for the management account. <a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_best-practices_mgmt-acct.html">https://docs.aws.amazon.com/organizations/latest/userguide/orgs_best-practices_mgmt-acct.html</a></li>
+        <li>AWS — Enable or disable Regions in your account. <a href="https://docs.aws.amazon.com/accounts/latest/reference/manage-acct-regions.html">https://docs.aws.amazon.com/accounts/latest/reference/manage-acct-regions.html</a></li>
+        <li>AWS — Update alternate contacts. <a href="https://docs.aws.amazon.com/accounts/latest/reference/manage-acct-update-contact-alternate.html">https://docs.aws.amazon.com/accounts/latest/reference/manage-acct-update-contact-alternate.html</a></li>
+        <li>AWS — Creating a trail for an organization. <a href="https://docs.aws.amazon.com/awscloudtrail/latest/userguide/creating-trail-organization.html">https://docs.aws.amazon.com/awscloudtrail/latest/userguide/creating-trail-organization.html</a></li>
+        <li>AWS — AWS Config multi-account aggregation. <a href="https://docs.aws.amazon.com/config/latest/developerguide/aggregate-data.html">https://docs.aws.amazon.com/config/latest/developerguide/aggregate-data.html</a></li>
+        <li>AWS — GuardDuty with AWS Organizations. <a href="https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_organizations.html">https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_organizations.html</a></li>
+        <li>AWS — Security Hub central configuration. <a href="https://docs.aws.amazon.com/securityhub/latest/userguide/central-configuration-intro.html">https://docs.aws.amazon.com/securityhub/latest/userguide/central-configuration-intro.html</a></li>
+        <li>AWS — Getting started with IAM Access Analyzer. <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-getting-started.html">https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-getting-started.html</a></li>
+        <li>AWS — S3 Block Public Access. <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html">https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html</a></li>
+        <li>AWS — EBS encryption by default. <a href="https://docs.aws.amazon.com/ebs/latest/userguide/encryption-by-default.html">https://docs.aws.amazon.com/ebs/latest/userguide/encryption-by-default.html</a></li>
+        <li>AWS — Cost Anomaly Detection. <a href="https://docs.aws.amazon.com/cost-management/latest/userguide/manage-ad.html">https://docs.aws.amazon.com/cost-management/latest/userguide/manage-ad.html</a></li>
+        <li>AWS — IAM OIDC identity providers. <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html">https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html</a></li>
+        <li>AWS — Permissions boundaries for IAM entities. <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html">https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html</a></li>
+        <li>AWS — AWS Backup Vault Lock. <a href="https://docs.aws.amazon.com/aws-backup/latest/devguide/vault-lock.html">https://docs.aws.amazon.com/aws-backup/latest/devguide/vault-lock.html</a></li>
       </ol>
     </section>
 
