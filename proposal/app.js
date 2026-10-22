@@ -57,10 +57,20 @@
     sidebar.classList.remove('open');
     $('#menuBtn').setAttribute('aria-expanded', 'false');
   }));
+  const moon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+  const sun='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+  function updateThemeButton(){
+    const dark=document.documentElement.dataset.theme==='dark';
+    $('#themeBtn').innerHTML=dark?sun:moon;
+    $('#themeBtn').setAttribute('aria-label',`Switch to ${dark?'light':'dark'} theme`);
+    $('#themeBtn').title=$('#themeBtn').getAttribute('aria-label');
+  }
   $('#themeBtn').onclick = () => {
     const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset.theme = theme;
+    updateThemeButton();
   };
+  updateThemeButton();
   const items = [...document.querySelectorAll('.item, .budget-block, .budget-summary')];
   $('#search').addEventListener('input', e => {
     const q = e.target.value.toLowerCase().trim();
@@ -94,7 +104,7 @@
       return;
     }
     try {
-      const r = await fetch(a.href); if(!r.ok) throw Error(r.status);
+      const r = await fetch(a.href,{cache:'no-store'}); if(!r.ok) throw Error(r.status);
       let blob;
       if(a.id==='mdBtn'){
         const md=await r.text(), start=md.indexOf('<a id="budget"></a>');
