@@ -11,6 +11,11 @@ An interactive security strategy for a public alerting-system website and its AW
 - `security-strategy.md`: the full document as Markdown, with anchored internal links and a Mermaid diagram
 - `AGENTS.md`: instructions for AI agents (this repo is generated, so don't edit it directly)
 - `styles.css`, `app.js`, `data.js`: the site's assets (static, with no build step)
+- `proposal/index.html`: the sibling management proposal, covering a common account foundation and three complete protection packages
+- `proposal/management-proposal.pdf` and `proposal/management-proposal.md`: proposal-only exports, built independently of the strategy
+
+Use the document menu to move between the strategy and proposal. Strategy citations from the proposal provide a return-to-item link, while external citations open a new tab.
+Keep the folder structure when using Markdown offline so relative citations into the separate strategy export keep working.
 
 ## Public edition
 

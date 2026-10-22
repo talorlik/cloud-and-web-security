@@ -301,5 +301,17 @@
   });
 
   /* ---------- Initial hash ---------- */
+  document.querySelectorAll('a[href^="https://"], a[href^="http://"]').forEach(a => {
+    a.target = '_blank'; a.rel = 'noopener noreferrer';
+  });
+  const params = new URLSearchParams(location.search);
+  if (params.get('from') === 'proposal') {
+    const back = document.querySelector('#proposalReturn');
+    const item = params.get('item') || 'top';
+    if (back && /^[a-z0-9-]+$/.test(item)) {
+      back.href = 'proposal/index.html#' + item;
+      back.hidden = false;
+    }
+  }
   if (location.hash.length > 1) setTimeout(() => reveal(decodeURIComponent(location.hash.slice(1)), false), 60);
 })();

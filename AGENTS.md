@@ -10,8 +10,8 @@ GitHub Pages serves it from the `main` branch, root directory (`/`): https://tal
 
 ## 2. This repo is generated. Do not edit it here
 
-- A CI workflow in a separate **private** source repository produces every file in this repo. That workflow builds the content, verifies all links, runs a leak check, and then pushes here.
-- **On each publish, the workflow deletes everything here except `.git` and replaces it.** Direct commits, PRs or edits here will be overwritten and lost.
+- Two directory-scoped workflows in a separate **private** source repository produce these documents, verify their links and check for private information before publishing.
+- **The strategy publisher replaces root files but preserves `proposal/`; the proposal publisher replaces only `proposal/`.** Direct edits to generated files will be overwritten.
 - Commits here are made by `github-actions[bot]` with the message `Publish public edition (build N)`. History was reset to a clean start on 2026-10-21. Don't rewrite it.
 - **To change content:** make the change in the private source repo (owner access needed), then push there. If you only have access to this repo, describe the change for the owner instead of editing files.
 
@@ -45,6 +45,12 @@ GitHub Pages serves it from the `main` branch, root directory (`/`): https://tal
 | `security-strategy.md` | Full document in GitHub-flavoured Markdown: explicit `<a id>` anchors for internal links, a GFM table for each data table, a task list for gates, and a Mermaid diagram |
 | `README.md` | Short human-facing overview |
 | `.nojekyll` | Turns off Jekyll on Pages |
+| `proposal/index.html` | Independent management proposal: common account foundation plus three complete options |
+| `proposal/management-proposal.pdf` | Proposal-only PDF with internal links and strategy citations to the public website |
+| `proposal/management-proposal.md` | Proposal-only Markdown with relative links to `../security-strategy.md` |
+
+Use the document menu to switch between siblings. Proposal citations into the strategy include a return-to-item link.
+External sources open in a new tab. Each source directory triggers only its own export build; the static Pages deployment subsequently serves both.
 
 The site is static, with no build step and no dependencies apart from web fonts loaded from Fontshare and Google Fonts. `index.html` loads its assets with a `?v=N` cache-busting query.
 
