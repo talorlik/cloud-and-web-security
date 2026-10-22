@@ -4,6 +4,9 @@ Instructions for any AI agent or model working with this repository. Read them b
 
 ## 1. What this repo is
 
+`DESIGN.md` is shared by both document toolbars and published independently.
+The strategy publisher must preserve it alongside `proposal/`; a design-only update must not rebuild either security document.
+
 This repo holds the **general (public) edition** of a security strategy for a public alerting-system website and its AWS account. The strategy is aligned to CIS Controls v8.1, CIS Benchmarks, ISO/IEC 27001:2022, the AWS Well-Architected Security Pillar, and the GDPR (with ISO/IEC 27701:2025) as the privacy baseline.
 
 GitHub Pages serves it from the `main` branch, root directory (`/`): https://talorlik.github.io/cloud-and-web-security/

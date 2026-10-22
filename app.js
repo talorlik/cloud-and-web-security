@@ -80,6 +80,9 @@
     root.setAttribute('data-theme', theme);
     themeBtn.innerHTML = theme === 'dark' ? sun : moon;
     themeBtn.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`);
+    themeBtn.title = themeBtn.getAttribute('aria-label');
+    themeBtn.querySelector('svg').setAttribute('aria-hidden', 'true');
+    themeBtn.querySelector('svg').setAttribute('focusable', 'false');
   };
   themeBtn.addEventListener('click', () => { theme = theme === 'dark' ? 'light' : 'dark'; applyTheme(); });
   window.addEventListener('beforeprint', () => root.setAttribute('data-theme', 'light'));
@@ -298,6 +301,9 @@
   wireExport($('#mdBtn'), 'Downloading the Markdown file. Internal and external links are included.', () => {
     toast('Opening the Markdown file in a new tab.');
     window.open($('#mdBtn').getAttribute('href'), '_blank', 'noopener');
+  });
+  wireExport($('#designBtn'), 'Downloading DESIGN.md: structure, typography and light/dark themes.', () => {
+    toast('Design download unavailable. Please retry shortly.');
   });
 
   /* ---------- Initial hash ---------- */

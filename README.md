@@ -6,6 +6,8 @@ An interactive security strategy for a public alerting-system website and its AW
 
 ## Contents
 
+- `DESIGN.md`: shared layout, typography, components and light/dark palettes, downloadable from both document toolbars
+
 - `index.html`: the interactive site, with sidebar navigation, search (Ctrl K), filterable risk and control tables, and a go-live checklist
 - `security-strategy.pdf`: the full document as a PDF, with bookmarks and working internal links
 - `security-strategy.md`: the full document as Markdown, with anchored internal links and a Mermaid diagram
