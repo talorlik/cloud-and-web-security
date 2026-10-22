@@ -8,8 +8,10 @@ This document describes the shared visual language and the current implementatio
 
 - **Security Strategy:** `site/index.html`, `site/styles.css`, `site/app.js` and `site/data.js` define the detailed document, controls and interactions.
 - **Management Proposal:** `proposal/content.mjs`, `proposal/styles.css`, `proposal/app.js` and `proposal/budget.js` define the short proposal and editable budget; `proposal-build/build.mjs` generates its HTML and exports.
-- **Design specification:** This root `DESIGN.md` is the canonical downloadable document. It records the actual styles, including deliberate differences between the two interfaces; it is not a shared runtime stylesheet.
+- **Design specification:** This root `DESIGN.md` is the canonical downloadable document. Both interfaces follow the Security Strategy visual system; document-specific content layouts remain appropriate to their different reading tasks.
+- **Shared toolbar:** `shared-ui/toolbar.mjs` and `shared-ui/toolbar.css` are the single source for header markup, icons and styling. Each builder outputs its own local copy, preventing the two headers from drifting apart.
 - **Publishing:** Each security document retains its own build and exports. A separate design-only workflow publishes `DESIGN.md` without rebuilding either PDF, and both document toolbars download that same file.
+- **Shared changes:** Editing `shared-ui/` intentionally rebuilds both documents because both consume it. Editing strategy-only or proposal-only content still runs only that document's workflow.
 
 ### Visual direction
 
@@ -23,7 +25,7 @@ This document describes the shared visual language and the current implementatio
 
 | Layer | Security Strategy | Management Proposal |
 |---|---|---|
-| Header | Sticky brand, search, theme, Design, Markdown and PDF controls | Sticky brand, mobile menu, theme, Design, Markdown and PDF controls |
+| Header | Sticky brand; mobile menu, Search, Theme, Design, Export Markdown and Export PDF | Same controls, icons, order, sizing, labels and theme styling |
 | Navigation | Document switcher and nested, scroll-tracked contents | Document switcher, section contents and item search |
 | Opening | Dark hero, concise summary, key metrics and framework labels | Editorial cover, short introduction and constraint badges |
 | Body | Executive summary, scope, frameworks, threats, risks, principles, security domains, deep dives, changes, control matrix, roadmap, metrics, decisions and references | Common foundation, three complete proposals, then a budget worksheet |
@@ -38,11 +40,11 @@ This document describes the shared visual language and the current implementatio
 
 | Role | Security Strategy | Management Proposal |
 |---|---|---|
-| Display | Zodiak, Georgia, serif | Libre Baskerville, Georgia, serif |
-| Body and controls | General Sans, Inter, system-ui, sans-serif | DM Sans, system-ui, sans-serif |
-| Code and identifiers | JetBrains Mono, ui-monospace, monospace | Generic monospace for item numbers |
-| Font loading | Zodiak and General Sans from Fontshare; JetBrains Mono from Google Fonts | DM Sans and Libre Baskerville from Google Fonts |
-| Body scale | Fluid 16–17px equivalent at a 16px root, line-height 1.62 | 16px base, line-height 1.6; item paragraphs use 1.75 |
+| Display | Zodiak, Georgia, serif | Same |
+| Body and controls | General Sans, Inter, system-ui, sans-serif | Same |
+| Code and identifiers | JetBrains Mono, ui-monospace, monospace | Same for item numbers and keyboard hints |
+| Font loading | Zodiak and General Sans from Fontshare; JetBrains Mono from Google Fonts | Same providers and font weights |
+| Body scale | Fluid 16–17px equivalent at a 16px root, line-height 1.62 | 16px base, line-height 1.62; item paragraphs use 1.75 |
 | Document title | Fluid 36–64px equivalent; weight 500, line-height 1.05 | Fluid 30–48px; weight 400, line-height 1.23; 32px at the mobile breakpoint |
 | Section heading | Fluid 24–34px equivalent, serif, weight 500 | 27px serif, line-height 1.4; 24px on mobile |
 | Item/subheading | Fluid 18–22px equivalent, weight 600 | 18px, line-height 1.35; 17px on mobile |
@@ -56,19 +58,20 @@ This document describes the shared visual language and the current implementatio
 
 | Property | Security Strategy | Management Proposal |
 |---|---|---|
-| Desktop columns | 288px sidebar + flexible main | 265px sidebar + flexible main; overall maximum 1550px |
-| Header | 64px high; translucent page-colored backdrop with 10px blur | Content-sized toolbar; desktop padding 14px 26px |
-| Sidebar | Sticky below header; independently scrollable | Sticky at 86px; independently scrollable |
+| Desktop columns | 288px sidebar + flexible main | Same |
+| Header | 64px high; translucent page-colored backdrop with 10px blur | Same, from the shared stylesheet |
+| Sidebar | Sticky below header; independently scrollable | Same 64px offset and remaining viewport height |
 | Main spacing | Horizontal padding fluid from 24px to 64px; sections 64px vertically | Main padding 42px 56px 72px; sections 45px top / 15px bottom |
-| Intermediate width | At 1200px, search and download actions use compact icons; at 1100px, three-column cards become two columns and complex comparisons stack | At 1050px, sidebar becomes 230px and main padding becomes 30px |
-| Mobile navigation | At 900px, sidebar becomes a sliding drawer, maximum 320px / 86vw | At 760px, sidebar becomes a full-width overlay below the header |
-| Small-screen layout | At 640px, card grids stack, brand text hides and header padding reduces | At 760px, main padding becomes 25px 22px; toolbar uses six compact grid columns |
+| Intermediate width | At 1200px, search and download actions use compact icons; at 1100px, three-column cards become two columns and complex comparisons stack | Same toolbar breakpoint; at 1050px, main padding becomes 30px |
+| Mobile navigation | At 900px, sidebar becomes a sliding drawer, maximum 320px / 86vw | At 900px, sidebar becomes a drawer with the same width and top offset |
+| Small-screen layout | At 640px, card grids stack, brand text hides and header padding reduces | Same header breakpoint; at 760px, main padding becomes 25px 22px |
 | Table overflow | Scroll within the table wrapper | Budget tables have a 590px minimum width and scroll within their wrapper |
 
 - **Spacing scale:** Strategy uses 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80 and 96px-equivalent spacing tokens. Proposal uses explicit spacing values with the same broad rhythm, not the same variable names.
 - **Radii:** Strategy uses 6px, 8px and 12px corners, plus fully rounded badges. Proposal uses mostly 3–7px corners, with 6px buttons and 7px budget panels.
-- **Layering:** Strategy header is at z-index 40 and mobile drawer at 50. Proposal header is at 10, mobile navigation at 15 and status messages at 20.
-- **Responsive controls:** Strategy search and download labels disappear at 1200px and below while their accessible names remain. Proposal keeps Markdown/PDF text, but its Design action becomes an icon below 760px.
+- **Layering:** Both headers use z-index 40 and mobile navigation uses 50. Proposal status messages remain at 20.
+- **Responsive controls:** Both headers hide search and download labels at 1200px and below while retaining accessible names. Both show the menu below 900px and hide brand text below 640px.
+- **Narrow phones:** At 360px and below, toolbar gaps reduce to 4px and side padding to 8px so all controls remain available without horizontal scrolling.
 
 ### Components and interactions
 
@@ -76,6 +79,8 @@ This document describes the shared visual language and the current implementatio
 - **Accessible theme name:** Use “Switch to dark theme” in light mode and “Switch to light theme” in dark mode, in both `aria-label` and tooltip. SVGs are decorative with `aria-hidden="true"` and `focusable="false"`; the button remains keyboard operable.
 - **Theme lifetime:** Both documents open in light mode. The selection stays in the current page only; it is not persisted in browser storage and is not automatically inherited across document navigation.
 - **Design download:** A document-outline icon with a “Design” label where space allows, an accessible name of “Download design theme document” and a `DESIGN.md` filename. Fetch the static file and download a Blob; show a visible status message if retrieval fails.
+- **PDF download:** A folded document outline with vector “PDF” lettering, not a generic download arrow. The proposal retains this icon when edited budget values change the label to “Print PDF”; reset restores “Export PDF” without removing the icon.
+- **Markdown download:** The same boxed Markdown mark and “Export Markdown” label in both headers. Search uses the same magnifier and focuses the relevant document search; on a small screen it opens that document's navigation.
 - **Buttons:** Primary actions use the accent fill; secondary actions use a border and neutral surface. Hover changes border or text emphasis without moving the control or hiding its label.
 - **Links and citations:** Accent-colored, with underlines offset by 3px. Proposal citation text is 12px on screen and wraps rather than being clipped.
 - **Strategy panels:** Cards use a neutral surface, divider border and 12px radius; callouts use a 4px accent edge. Risk and control badges pair the semantic foreground with its matching tinted background.
@@ -89,7 +94,7 @@ This document describes the shared visual language and the current implementatio
 
 - **Keyboard use:** Keep semantic buttons, links, labels and table headers. Preserve navigation expansion state, Ctrl/Cmd+K search, Escape dismissal and visible keyboard focus.
 - **Focus:** Strategy uses a 2px accent outline with 3px offset; proposal uses a 3px accent outline with 3px offset. Never remove the outline without an equally visible replacement.
-- **Icon targets:** Strategy theme controls are 40×40px; proposal theme controls are 40×40px on desktop and 36×40px on mobile. Keep sufficient gaps between neighboring controls.
+- **Icon targets:** Both documents use 40×40px menu/theme controls, 18px menu/theme icons and 16px search/export icons. Keep sufficient gaps between neighboring controls.
 - **Readability:** Use normal or muted text tokens for meaningful small text; faint tokens are decorative or low-priority, not a substitute for readable labels. Some legacy semantic colors require contrast review at small sizes: this document is not a blanket accessibility certification.
 - **Motion:** Both documents use smooth anchor scrolling unless reduced motion is requested. Strategy adds short 180ms hover transitions and a 250ms drawer transition; reduced-motion rules disable animation and transitions.
 - **Error styling:** Proposal invalid number fields use a `#b7392e` outline in addition to browser validity behavior. An error must still be understandable from the input and visible feedback, not color alone.
@@ -112,18 +117,18 @@ Light mode uses a warm gray-green page with dark blue-green text and white or ne
 | Role | Strategy token | Strategy value | Proposal token | Proposal value |
 |---|---|---|---|---|
 | Page | `--color-bg` | `#f4f5f2` | `--bg` | `#f4f5f2` |
-| Reading surface | `--color-surface` | `#fbfbf9` | `--surface` | `#ffffff` |
-| Raised/input surface | `--color-surface-2` | `#ffffff` | `--surface` | `#ffffff` |
+| Reading surface | `--color-surface` | `#fbfbf9` | `--surface` | `#fbfbf9` |
+| Raised/input surface | `--color-surface-2` | `#ffffff` | Header `--ui-surface` | `#ffffff` |
 | Offset surface | `--color-surface-offset` | `#eceee9` | No direct equivalent | Use surface or soft panel |
-| Divider | `--color-divider` | `#dde0da` | `--line` | `#d4dddc` |
-| Control border | `--color-border` | `#cfd3cc` | `--line` | `#d4dddc` |
-| Main text | `--color-text` | `#13222b` | `--text` | `#142b35` |
-| Secondary text | `--color-text-muted` | `#56636b` | `--muted` | `#556872` |
+| Divider | `--color-divider` | `#dde0da` | `--line` | `#dde0da` |
+| Control border | `--color-border` | `#cfd3cc` | Header `--ui-border` | `#cfd3cc` |
+| Main text | `--color-text` | `#13222b` | `--text` | `#13222b` |
+| Secondary text | `--color-text-muted` | `#56636b` | `--muted` | `#56636b` |
 | Faint detail | `--color-text-faint` | `#8f9a9f` | No equivalent | Use muted text |
 | Accent/link | `--color-primary` | `#0b5a73` | `--accent` | `#0b5a73` |
-| Accent hover | `--color-primary-hover` | `#08465a` | No separate token | Accent border/text emphasis |
-| Selected/soft panel | `--color-primary-highlight` | `#d4e5ea` | `--soft` | `#e0eef1` |
-| Primary-button text | `--color-text-inverse` | `#f4f7f6` | `--surface` | `#ffffff` |
+| Accent hover | `--color-primary-hover` | `#08465a` | Header `--ui-hover` | `#08465a` |
+| Selected/soft panel | `--color-primary-highlight` | `#d4e5ea` | `--soft` | `#d4e5ea` |
+| Primary-button text | `--color-text-inverse` | `#f4f7f6` | Header `--ui-inverse` | `#f4f7f6` |
 | Deep hero | `--color-deep` | `#0c2633` | No equivalent | Cover remains page-colored |
 
 ### Risk and status colors
@@ -154,19 +159,19 @@ Dark mode uses near-black blue-green pages with lighter raised surfaces, pale te
 
 | Role | Strategy token | Strategy value | Proposal token | Proposal value |
 |---|---|---|---|---|
-| Page | `--color-bg` | `#0b161c` | `--bg` | `#0c1b22` |
-| Reading surface | `--color-surface` | `#0f1d24` | `--surface` | `#122932` |
-| Raised/input surface | `--color-surface-2` | `#12232b` | `--surface` | `#122932` |
+| Page | `--color-bg` | `#0b161c` | `--bg` | `#0b161c` |
+| Reading surface | `--color-surface` | `#0f1d24` | `--surface` | `#0f1d24` |
+| Raised/input surface | `--color-surface-2` | `#12232b` | Header `--ui-surface` | `#12232b` |
 | Offset surface | `--color-surface-offset` | `#16282f` | No direct equivalent | Use surface or soft panel |
-| Divider | `--color-divider` | `#1f343d` | `--line` | `#35515b` |
-| Control border | `--color-border` | `#2a424c` | `--line` | `#35515b` |
-| Main text | `--color-text` | `#dbe5e7` | `--text` | `#edf4f5` |
-| Secondary text | `--color-text-muted` | `#94a6ad` | `--muted` | `#b0c2c8` |
+| Divider | `--color-divider` | `#1f343d` | `--line` | `#1f343d` |
+| Control border | `--color-border` | `#2a424c` | Header `--ui-border` | `#2a424c` |
+| Main text | `--color-text` | `#dbe5e7` | `--text` | `#dbe5e7` |
+| Secondary text | `--color-text-muted` | `#94a6ad` | `--muted` | `#94a6ad` |
 | Faint detail | `--color-text-faint` | `#5f7279` | No equivalent | Use muted text |
-| Accent/link | `--color-primary` | `#5fb3cc` | `--accent` | `#89d0e0` |
-| Accent hover | `--color-primary-hover` | `#86c8db` | No separate token | Accent border/text emphasis |
-| Selected/soft panel | `--color-primary-highlight` | `#163a47` | `--soft` | `#203e49` |
-| Primary-button text | `--color-text-inverse` | `#0b161c` | `--surface` | `#122932` |
+| Accent/link | `--color-primary` | `#5fb3cc` | `--accent` | `#5fb3cc` |
+| Accent hover | `--color-primary-hover` | `#86c8db` | Header `--ui-hover` | `#86c8db` |
+| Selected/soft panel | `--color-primary-highlight` | `#163a47` | `--soft` | `#163a47` |
+| Primary-button text | `--color-text-inverse` | `#0b161c` | Header `--ui-inverse` | `#0b161c` |
 | Deep hero | `--color-deep` | `#061015` | No equivalent | Cover remains page-colored |
 
 ### Risk and status colors
