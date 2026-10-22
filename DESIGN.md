@@ -60,7 +60,7 @@ This document describes the shared visual language and the current implementatio
 | Header | 64px high; translucent page-colored backdrop with 10px blur | Content-sized toolbar; desktop padding 14px 26px |
 | Sidebar | Sticky below header; independently scrollable | Sticky at 86px; independently scrollable |
 | Main spacing | Horizontal padding fluid from 24px to 64px; sections 64px vertically | Main padding 42px 56px 72px; sections 45px top / 15px bottom |
-| Intermediate width | At 1100px, three-column cards become two columns and complex comparisons stack | At 1050px, sidebar becomes 230px and main padding becomes 30px |
+| Intermediate width | At 1200px, search and download actions use compact icons; at 1100px, three-column cards become two columns and complex comparisons stack | At 1050px, sidebar becomes 230px and main padding becomes 30px |
 | Mobile navigation | At 900px, sidebar becomes a sliding drawer, maximum 320px / 86vw | At 760px, sidebar becomes a full-width overlay below the header |
 | Small-screen layout | At 640px, card grids stack, brand text hides and header padding reduces | At 760px, main padding becomes 25px 22px; toolbar uses six compact grid columns |
 | Table overflow | Scroll within the table wrapper | Budget tables have a 590px minimum width and scroll within their wrapper |
@@ -68,7 +68,7 @@ This document describes the shared visual language and the current implementatio
 - **Spacing scale:** Strategy uses 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80 and 96px-equivalent spacing tokens. Proposal uses explicit spacing values with the same broad rhythm, not the same variable names.
 - **Radii:** Strategy uses 6px, 8px and 12px corners, plus fully rounded badges. Proposal uses mostly 3–7px corners, with 6px buttons and 7px budget panels.
 - **Layering:** Strategy header is at z-index 40 and mobile drawer at 50. Proposal header is at 10, mobile navigation at 15 and status messages at 20.
-- **Responsive controls:** Strategy action labels disappear below 900px while their accessible names remain. Proposal keeps Markdown/PDF text, but its Design action becomes an icon below 760px.
+- **Responsive controls:** Strategy search and download labels disappear at 1200px and below while their accessible names remain. Proposal keeps Markdown/PDF text, but its Design action becomes an icon below 760px.
 
 ### Components and interactions
 
