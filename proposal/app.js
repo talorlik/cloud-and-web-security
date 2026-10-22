@@ -24,7 +24,9 @@
     const chosen=c.options[budgetState.selected];
     $('#budget-selected').textContent=`Common + Proposal ${budgetState.selected}: ${amount(chosen.monthly,chosen.missing)} per month. First year, including one-time costs: ${amount(chosen.firstYear,chosen.missing+chosen.oneTimeMissing)}.`;
     budgetDirty=JSON.stringify(budgetState)!==JSON.stringify(budget.defaults);
-    $('#pdfBtn').textContent=budgetDirty?'Print PDF':'PDF';
+    $('#pdfBtn .label').textContent=budgetDirty?'Print PDF':'Export PDF';
+    $('#pdfBtn').setAttribute('aria-label',budgetDirty?'Print PDF with current budget':'Export PDF');
+    $('#pdfBtn').title=$('#pdfBtn').getAttribute('aria-label');
   }
   document.querySelectorAll('[data-budget]').forEach(input=>input.addEventListener('input',updateBudget));
   $('#budget-option').addEventListener('change',updateBudget);
@@ -49,6 +51,15 @@
     printRefs.splice(0).forEach(([a,url])=>a.href=url);
   });
   const sidebar = $('.sidebar');
+  function openSearch(){
+    if(matchMedia('(max-width:900px)').matches){
+      sidebar.classList.add('open');
+      $('#menuBtn').setAttribute('aria-expanded','true');
+    }
+    $('#search').focus();
+    $('#search').scrollIntoView({block:'nearest'});
+  }
+  $('#searchBtn').onclick=openSearch;
   $('#menuBtn').onclick = () => {
     sidebar.classList.toggle('open');
     $('#menuBtn').setAttribute('aria-expanded', sidebar.classList.contains('open'));
@@ -86,7 +97,7 @@
   });
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-      e.preventDefault(); sidebar.classList.add('open'); $('#menuBtn').setAttribute('aria-expanded','true'); $('#search').focus();
+      e.preventDefault(); openSearch();
     }
     if(e.key === 'Escape') { sidebar.classList.remove('open'); $('#menuBtn').setAttribute('aria-expanded','false'); }
   });
