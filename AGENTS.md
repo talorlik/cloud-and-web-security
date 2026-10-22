@@ -47,7 +47,7 @@ GitHub Pages serves it from the `main` branch, root directory (`/`): https://tal
 | `.nojekyll` | Turns off Jekyll on Pages |
 | `proposal/index.html` | Independent management proposal: common account foundation plus three complete options |
 | `proposal/management-proposal.pdf` | Proposal-only PDF with internal links and strategy citations to the public website |
-| `proposal/management-proposal.md` | Proposal-only Markdown with relative links to `../security-strategy.md` |
+| `proposal/management-proposal.md` | Proposal-only Markdown with local contents anchors and portable web citations to the strategy |
 
 Use the document menu to switch between siblings. Proposal citations into the strategy include a return-to-item link.
 External sources open in a new tab. Each source directory triggers only its own export build; the static Pages deployment subsequently serves both.

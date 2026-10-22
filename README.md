@@ -15,7 +15,7 @@ An interactive security strategy for a public alerting-system website and its AW
 - `proposal/management-proposal.pdf` and `proposal/management-proposal.md`: proposal-only exports, built independently of the strategy
 
 Use the document menu to move between the strategy and proposal. Strategy citations from the proposal provide a return-to-item link, while external citations open a new tab.
-Keep the folder structure when using Markdown offline so relative citations into the separate strategy export keep working.
+Proposal exports link to the online general strategy so citations work even when a downloaded file is moved elsewhere.
 
 ## Public edition
 
