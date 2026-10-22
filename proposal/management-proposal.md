@@ -21,55 +21,55 @@ General edition. Choose the common foundation plus one proposal. Maximum 100 adm
 
 <a id="common-decision"></a>
 
-- **Decision and scope:** Approve the common foundation plus one of the three complete proposals below for a system with at most 100 administrators. ([Strategy: Administrator access](https://talorlik.github.io/cloud-and-web-security/#dd-access-rec)) Choose the lowest total cost that passes the security and emergency-load tests, without adding a server for the team to operate. ([Strategy: Launch tests](https://talorlik.github.io/cloud-and-web-security/#gates))
+- **Named owners and time-limited exceptions:** Assign named owners for AWS administration, security incidents and billing, and require someone other than the author to approve production changes. ([Strategy: Ownership and approvals](https://talorlik.github.io/cloud-and-web-security/#d-foundations)) Keep a control register showing who is responsible, evidence that each control works, and an approver and expiry date for every exception. ([Strategy: Incident alerts](https://talorlik.github.io/cloud-and-web-security/#dd-alerts))
 
 <a id="common-accounts"></a>
 
-- **Separate production from experiments:** Use separate AWS accounts for production, development, security tools, logs and backups so a development mistake cannot easily damage the live service. ([Strategy: Account security](https://talorlik.github.io/cloud-and-web-security/#dd-org)) Keep the organization management account free of application workloads and restrict it to a very small administration team. ([Strategy: Account security](https://talorlik.github.io/cloud-and-web-security/#dd-org))
+- **Separate accounts for production, security and recovery:** Create separate AWS accounts for management, production, development, security tools, logs and backups, keeping application workloads out of the management account. ([Strategy: Account security](https://talorlik.github.io/cloud-and-web-security/#dd-org)) Keep production data out of development and deny application roles permission to alter the separate log and backup stores, limiting the damage from a compromised application. ([Strategy: Account security](https://talorlik.github.io/cloud-and-web-security/#dd-org))
 
 <a id="common-guardrails"></a>
 
-- **Rules nobody can casually switch off:** Use AWS Organizations service control policies to block leaving the organization, disabling security checks and using unapproved regions. ([AWS account safeguards](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html)) Test exceptions for essential AWS services and recovery access in development before applying these restrictions to production. ([Strategy: Region safeguards](https://talorlik.github.io/cloud-and-web-security/#gp-02))
+- **Block dangerous account actions with SCPs:** Apply AWS Organizations service control policies (SCPs) to stop member-account administrators from disabling security monitoring, creating permanent access keys, leaving the organization or deploying outside approved regions. ([Strategy: Account security](https://talorlik.github.io/cloud-and-web-security/#dd-org)) Test narrowly defined exceptions for essential AWS services and approved security automation before enforcement, so these restrictions do not block normal operation or recovery. ([Strategy: Region safeguards](https://talorlik.github.io/cloud-and-web-security/#gp-02))
 
 <a id="common-perimeter"></a>
 
-- **Keep company data inside approved boundaries:** Use resource control policies to limit outside access to supported storage, encryption and secret-management services. ([AWS resource policies](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_rcps.html)) List approved partners and AWS service exceptions explicitly so the protection does not interrupt legitimate work. ([Strategy: Data boundaries](https://talorlik.github.io/cloud-and-web-security/#gp-12))
+- **Reject unauthorized access from outside the organization:** Use resource control policies (RCPs) to reject access to supported S3 storage, encryption keys and secrets from identities outside our AWS organization. ([Strategy: Data boundaries](https://talorlik.github.io/cloud-and-web-security/#gp-12)) Inventory external access first and explicitly allow approved partner and AWS service integrations, so legitimate log delivery and backups continue while unapproved outsiders are blocked. ([Strategy: Account security](https://talorlik.github.io/cloud-and-web-security/#dd-org))
 
 <a id="common-defaults"></a>
 
-- **Secure settings from the start:** Block public storage, turn on disk encryption and permit only approved machine images when new resources are created. ([Strategy: Secure defaults](https://talorlik.github.io/cloud-and-web-security/#gp-15)) Use organization policies and repeatable configuration to keep these settings consistent, with reviewed exceptions for the public website. ([Strategy: Storage protection](https://talorlik.github.io/cloud-and-web-security/#ab-06))
+- **Make storage private and encrypted by default:** Enable account-wide S3 Block Public Access and default disk encryption, and prohibit public sharing of machine images and disk snapshots. ([Strategy: Account security](https://talorlik.github.io/cloud-and-web-security/#dd-org)) Apply these settings through centrally controlled policies and repeatable Terraform configuration, so new resources receive the same protections without relying on someone remembering each setting. ([Strategy: Account security](https://talorlik.github.io/cloud-and-web-security/#dd-org))
 
 <a id="common-identity"></a>
 
-- **One identity per person, with two-factor sign-in:** Give every administrator a named account, require two-factor authentication and reserve security keys or passkeys for the most powerful roles. ([Strategy: Identity controls](https://talorlik.github.io/cloud-and-web-security/#d-iam)) Use short-lived access, review permissions quarterly and remove access promptly when someone leaves. ([Strategy: Mandatory 2FA](https://talorlik.github.io/cloud-and-web-security/#hc-01))
+- **Named logins, mandatory 2FA and limited privileges:** Use IAM Identity Center for named AWS logins and require two-factor authentication for every administrator, with security keys or passkeys for the most powerful roles. ([Strategy: Identity controls](https://talorlik.github.io/cloud-and-web-security/#d-iam)) Make production access read-only by default, limit elevated AWS sessions to one hour, review permissions quarterly and remove access when someone leaves. ([Strategy: Account security](https://talorlik.github.io/cloud-and-web-security/#dd-org))
 
 <a id="common-root"></a>
 
-- **Protect the master keys:** Protect the management account root user with hardware authentication and remove ordinary root credentials from member accounts where centralized root management is enabled. ([AWS root guidance](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html)) Keep an independently authenticated emergency route and test that the organization policies do not block authorized recovery tasks. ([Strategy: Root protection](https://talorlik.github.io/cloud-and-web-security/#ab-12))
+- **Protect the AWS owner accounts and emergency access:** Limit management-account access to two named administrators and protect its root user, the unrestricted account owner, with two hardware authentication keys stored separately. ([Strategy: Account security](https://talorlik.github.io/cloud-and-web-security/#dd-org)) Remove standing root credentials from member accounts through centralized root management, and maintain tested emergency identities that alert the security owner whenever used. ([Strategy: Identity controls](https://talorlik.github.io/cloud-and-web-security/#d-iam))
 
 <a id="common-records"></a>
 
-- **Keep evidence that an attacker cannot quietly erase:** Send account activity and configuration history into a separate log account, with encryption and protected retention. ([Strategy: Audit trail](https://talorlik.github.io/cloud-and-web-security/#ab-01)) Record who changed security settings or sensitive guidance while keeping passwords, tokens and unnecessary personal data out of logs. ([Strategy: Logging](https://talorlik.github.io/cloud-and-web-security/#d-detect))
+- **Keep a protected record of who changed what:** Use CloudTrail to record who changed AWS resources and AWS Config to record their settings, sending both to the separate log account. ([Strategy: Audit trail](https://talorlik.github.io/cloud-and-web-security/#ab-01)) Protect security logs against early deletion with S3 Object Lock, retain one year readily accessible plus six years archived, and exclude passwords and tokens. ([Strategy: Logging](https://talorlik.github.io/cloud-and-web-security/#d-detect))
 
 <a id="common-detection"></a>
 
-- **Alerts instead of a staffed monitoring room:** Use GuardDuty and Security Hub to collect security findings, with Inspector checking vulnerable software and Config checking account settings. ([Strategy: Incident alerts](https://talorlik.github.io/cloud-and-web-security/#dd-alerts)) Page an assigned responder for likely compromise, send less urgent problems to a work queue and review routine findings weekly. ([Strategy: Threat detection](https://talorlik.github.io/cloud-and-web-security/#ab-03))
+- **24/7 alerts with a 15-minute acknowledgement target:** Use GuardDuty to flag suspected attacks, Inspector to find vulnerable software, and Config with Security Hub to report unsafe settings across accounts. ([Strategy: Logging](https://talorlik.github.io/cloud-and-web-security/#d-detect)) Route suspected compromise to an on-call responder 24/7, with a 15-minute acknowledgement target and a named owner for lower-priority fixes. ([Strategy: Incident alerts](https://talorlik.github.io/cloud-and-web-security/#dd-alerts))
 
 <a id="common-recovery"></a>
 
-- **Backups that survive an account incident:** Keep protected backup copies in a separate account and limit who can delete or change them. ([Strategy: Recovery](https://talorlik.github.io/cloud-and-web-security/#d-ir)) Test restoration and approve the acceptable recovery time and data loss before launch rather than assuming a backup guarantees recovery. ([AWS backup protection](https://docs.aws.amazon.com/aws-backup/latest/devguide/vault-lock.html))
+- **Keep 35 days of backups and test recovery quarterly:** Use AWS Backup for daily database snapshots retained for 35 days, with copies in the separate backup account protected against early deletion by Vault Lock. ([Strategy: Data protection](https://talorlik.github.io/cloud-and-web-security/#d-data)) Restore a backup every quarter, record the recovery time and potential data loss, and have the business approve whether those results meet the service requirements. ([Strategy: Recovery](https://talorlik.github.io/cloud-and-web-security/#d-ir))
 
 <a id="common-delivery"></a>
 
-- **Approved changes, without stored cloud passwords:** Use reviewed infrastructure code and deployment pipelines with temporary AWS credentials rather than permanent access keys. ([Strategy: Deployment identity](https://talorlik.github.io/cloud-and-web-security/#ab-11)) Require a second person to approve high-risk account changes and alert when security controls are altered outside that process. ([Strategy: Control-change alerts](https://talorlik.github.io/cloud-and-web-security/#al-05))
+- **Deploy reviewed changes without permanent access keys:** Deploy account and network changes from reviewed Terraform code through GitHub Actions, using temporary AWS credentials instead of stored access keys. ([Strategy: Deployment identity](https://talorlik.github.io/cloud-and-web-security/#ab-11)) Require a second approver for changes to account policies, network routes or administrative access, and alert security if these controls change outside the approved process. ([Strategy: Account security](https://talorlik.github.io/cloud-and-web-security/#dd-org))
 
 <a id="common-budget"></a>
 
-- **Make the full bill visible:** Include security-service usage, log storage, identity licences, support and implementation time in each proposal budget instead of treating the access-service price as the total. ([Strategy: Cost alerts](https://talorlik.github.io/cloud-and-web-security/#ab-10)) Set cost alerts and named owners, noting that a budget notification does not itself stop spending. ([AWS WAF pricing](https://aws.amazon.com/waf/pricing/))
+- **Alert on unexpected spending and review the full bill:** Set AWS Budgets for each account and use Cost Anomaly Detection to notify billing and security owners about unexpected spending, including possible misuse of stolen credentials. ([Strategy: Cost alerts](https://talorlik.github.io/cloud-and-web-security/#ab-10)) Review actual monthly costs against the worksheet, including logs, backups, licences and staff time; budget alerts warn people but do not automatically cap spending. ([Strategy: Cost alerts](https://talorlik.github.io/cloud-and-web-security/#ab-10))
 
 <a id="common-approval"></a>
 
-- **Evidence before approval:** Use the CIS controls and benchmarks, ISO 27001 and AWS security guidance as checklists for ownership, testing and evidence rather than as a claim of certification. ([Strategy: Security frameworks](https://talorlik.github.io/cloud-and-web-security/#frameworks)) Management should approve an option only after a penetration test, recovery exercise and peak-traffic test resolve the launch-blocking risks. ([Strategy: Launch tests](https://talorlik.github.io/cloud-and-web-security/#gates))
+- **Require test results before approving launch:** Require a penetration test and retest of serious findings, a backup-restore exercise and a peak-traffic test that includes the emergency fallback page. ([Strategy: Launch tests](https://talorlik.github.io/cloud-and-web-security/#gates)) Reject launch if unauthorized users can change guidance, backups cannot be restored or the emergency fallback fails, and present management with the test evidence. ([Strategy: Launch tests](https://talorlik.github.io/cloud-and-web-security/#gates))
 
 [Back to contents](#top)
 
@@ -251,7 +251,7 @@ General edition. Choose the common foundation plus one proposal. Maximum 100 adm
 
 ## Budget worksheet
 
-Common + one option, not all three options added together. USD; 730 hours per month; maximum 100 administrators. Rates checked 22 October 2026; confirm deployment-region prices. Blank amounts mean not priced, not zero.
+Common + one option, not all three options added together. USD; 730 hours per month; maximum 100 administrators. Rates checked 22 October 2026; confirm deployment-region prices. All fields start with editable planning estimates, not approved budgets or vendor quotes; clearing a field means not priced, not zero.
 
 Public requests: 10 million per month (illustrative input, not a traffic forecast). WAF example: one ACL and ten billable rule entries per inspected layer, plus one million administrator requests.
 
@@ -262,14 +262,23 @@ Public requests: 10 million per month (illustrative input, not a traffic forecas
 | Cost item | Monthly USD |
 |---|---:|
 | Account safeguards | USD 0.00 ([AWS Organizations](https://docs.aws.amazon.com/organizations/latest/userguide/pricing.html)) |
-| Threat detection and security checks | Not priced |
-| Logs, backups and other security usage | Not priced |
-| Ongoing security operations | Not priced |
-| Additional identity licences | USD 0.00 ([IAM Identity Center](https://aws.amazon.com/iam/identity-center/faqs/)) |
+| Threat detection and security checks | USD 300.00 |
+| Logs, backups and other security usage | USD 250.00 |
+| Ongoing security operations | USD 1,200.00 |
+| Additional identity licences | USD 300.00 ([IAM Identity Center](https://aws.amazon.com/iam/identity-center/faqs/)) |
 
-Common priced subtotal: USD 0.00 + unpriced items per month.
+Starting-estimate basis (these notes do not change when fields are edited):
 
-Shared setup and assessment, one-time: Not priced.
+- **Threat detection and security checks:** Planning allowance: GuardDuty 100 + Security Hub 100 + Inspector 50 + Config 50 per month; validate against actual account and workload usage.
+- **Logs, backups and other security usage:** Planning allowance: logs and retention 75 + backups 125 + keys, secrets and access usage 50 per month; validate storage growth and restore costs.
+- **Ongoing security operations:** Planning allowance: 12 hours per month × USD 100 for reviews, patching and routine response; assumes an existing on-call team, not new 24/7 staffing.
+- **Additional identity licences:** Planning allowance: 100 administrators × USD 3 per month for any additional identity licences; not a vendor price, and removable if existing licences suffice.
+
+Common priced subtotal: USD 2,050.00 (estimate) per month.
+
+Shared setup and assessment, one-time: USD 8,000.00.
+
+Planning allowance: 40 hours × USD 100 for shared controls, plus USD 4,000 for penetration testing and retesting; replace with scoped estimates.
 
 <a id="budget-1"></a>
 
@@ -284,7 +293,9 @@ Shared setup and assessment, one-time: Not priced.
 
 Option-only priced subtotal: USD 525.70 (estimate) per month, before Common.
 
-Implementation and testing, one-time: Not priced.
+Implementation and testing, one-time: USD 2,000.00.
+
+Planning allowance: 20 hours × USD 100 for access, firewall configuration and testing.
 
 <a id="budget-2"></a>
 
@@ -299,7 +310,9 @@ Implementation and testing, one-time: Not priced.
 
 Option-only priced subtotal: USD 704.70 (estimate) per month, before Common.
 
-Implementation and testing, one-time: Not priced.
+Implementation and testing, one-time: USD 3,000.00.
+
+Planning allowance: 30 hours × USD 100 for access, edge configuration and testing.
 
 <a id="budget-3"></a>
 
@@ -311,25 +324,37 @@ Implementation and testing, one-time: Not priced.
 | Two technical access endpoints | USD 292.00 ([AWS pricing](https://aws.amazon.com/verified-access/pricing/)) |
 | Administrator web firewall | USD 15.60 ([WAF pricing](https://aws.amazon.com/waf/pricing/)) |
 | AWS firewall at the public origin | USD 21.00 ([WAF pricing](https://aws.amazon.com/waf/pricing/)) |
-| Imperva service and support | Not priced |
+| Imperva service and support | USD 1,000.00 |
 
-Option-only priced subtotal: USD 525.70 + unpriced items per month, before Common.
+Option-only priced subtotal: USD 1,525.70 (estimate) per month, before Common.
 
-Implementation and testing, one-time: Not priced.
+Implementation and testing, one-time: USD 3,000.00.
 
-CloudFront starts with an illustrative Business plan at USD 200, not a confirmed fit for emergency traffic; if using pay-as-you-go, enter CDN plus public WAF together without double counting. The Imperva price must come from a quote.
+Planning allowance: 30 hours × USD 100 for access, vendor integration and testing.
+
+Planning placeholder: USD 1,000 per month for service and support, not an Imperva quote; replace with the actual contract cost.
+
+CloudFront starts with an illustrative Business plan at USD 200, not a confirmed fit for emergency traffic; if using pay-as-you-go, enter CDN plus public WAF together without double counting. Replace the Imperva placeholder with a contract quote before approval.
 
 <a id="budget-total"></a>
 
 ### Decision total
 
-Selected: Proposal 1. Monthly: USD 525.70 + unpriced items; yearly recurring: USD 6,308.40 + unpriced items; one-time: USD 0.00 + unpriced items.
+Selected: Proposal 1. Monthly: USD 2,575.70 (estimate); yearly recurring: USD 30,908.40 (estimate); one-time: USD 10,000.00 (estimate).
 
 | Common + option | Monthly | Yearly recurring | One-time |
 |---|---:|---:|---:|
-| Proposal 1 | USD 525.70 + unpriced items | USD 6,308.40 + unpriced items | USD 0.00 + unpriced items |
-| Proposal 2 | USD 704.70 + unpriced items | USD 8,456.40 + unpriced items | USD 0.00 + unpriced items |
-| Proposal 3 | USD 525.70 + unpriced items | USD 6,308.40 + unpriced items | USD 0.00 + unpriced items |
+| Proposal 1 | USD 2,575.70 (estimate) | USD 30,908.40 (estimate) | USD 10,000.00 (estimate) |
+| Proposal 2 | USD 2,754.70 (estimate) | USD 33,056.40 (estimate) | USD 11,000.00 (estimate) |
+| Proposal 3 | USD 3,575.70 (estimate) | USD 42,908.40 (estimate) | USD 11,000.00 (estimate) |
+
+First year, including Common and option setup costs:
+
+- **Proposal 1:** USD 40,908.40 (estimate).
+- **Proposal 2:** USD 44,056.40 (estimate).
+- **Proposal 3:** USD 53,908.40 (estimate).
+
+Labour uses a USD 100 hourly planning rate; routine operations assume existing on-call coverage. No contingency or separately purchased 24/7 response service is included.
 
 Include detection, logging, backups, keys, secrets, access usage and operations in the Common allowances. Existing hosting, load balancers, cluster/database capacity, taxes and general internet delivery are excluded unless explicitly included; confirm licence, support, peak-traffic and migration costs before approval.
 
