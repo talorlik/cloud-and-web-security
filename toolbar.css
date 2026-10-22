@@ -1,0 +1,51 @@
+/* Canonical toolbar: the Security Strategy's visual system, used by both documents. */
+header.document-toolbar{
+  --ui-bg:#f4f5f2;--ui-text:#13222b;--ui-muted:#56636b;--ui-surface:#fff;
+  --ui-border:#cfd3cc;--ui-divider:#dde0da;--ui-accent:#0b5a73;--ui-hover:#08465a;--ui-inverse:#f4f7f6;
+  position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:16px;height:64px;
+  padding:0 24px;border-bottom:1px solid var(--ui-divider);
+  background:color-mix(in oklab,var(--ui-bg) 86%,transparent);backdrop-filter:blur(10px);
+  color:var(--ui-text);font-family:'General Sans','Inter',system-ui,sans-serif;
+  font-size:clamp(.875rem,.8rem + .35vw,1rem);line-height:1.62;
+}
+[data-theme=dark] header.document-toolbar{
+  --ui-bg:#0b161c;--ui-text:#dbe5e7;--ui-muted:#94a6ad;--ui-surface:#12232b;
+  --ui-border:#2a424c;--ui-divider:#1f343d;--ui-accent:#5fb3cc;--ui-hover:#86c8db;--ui-inverse:#0b161c;
+}
+header.document-toolbar button,header.document-toolbar a{font:inherit;box-sizing:border-box}
+header.document-toolbar button{cursor:pointer;background:none;color:inherit}
+header.document-toolbar svg{display:block;flex-shrink:0}
+header.document-toolbar .brand{display:flex;align-items:center;gap:12px;margin:0;max-width:none;text-decoration:none;color:var(--ui-text);font-weight:600;white-space:nowrap;line-height:1.62}
+header.document-toolbar .brand>svg{width:28px;height:28px;color:var(--ui-accent)}
+header.document-toolbar .brand small{display:block;font-weight:400;color:var(--ui-muted);font-size:clamp(.75rem,.7rem + .25vw,.875rem);line-height:1.2}
+header.document-toolbar .spacer{flex:1}
+header.document-toolbar .search-trigger{display:flex;align-items:center;gap:12px;min-width:280px;margin:0;padding:8px 12px;border:1px solid var(--ui-border);border-radius:8px;background:var(--ui-surface);color:var(--ui-muted);transition:border-color .18s;white-space:nowrap}
+header.document-toolbar .search-trigger>svg{width:16px;height:16px}
+header.document-toolbar .kbd{margin-left:auto;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.72rem;padding:2px 6px;border:1px solid var(--ui-border);border-radius:4px;color:var(--ui-muted)}
+header.document-toolbar .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:500;transition:background .18s,color .18s,border-color .18s;white-space:nowrap}
+header.document-toolbar .btn>svg{width:16px;height:16px}
+header.document-toolbar .btn-ghost{border:1px solid var(--ui-border);background:none;color:var(--ui-text)}
+header.document-toolbar .btn-primary{border:0;background:var(--ui-accent);color:var(--ui-inverse)}
+header.document-toolbar .btn-primary:hover{background:var(--ui-hover);color:var(--ui-inverse)}
+header.document-toolbar .icon-btn{display:grid;place-items:center;flex-shrink:0;width:40px;height:40px;margin:0;padding:0;border:1px solid var(--ui-border);border-radius:8px}
+header.document-toolbar .icon-btn>svg{width:18px;height:18px}
+header.document-toolbar .search-trigger:hover,header.document-toolbar .btn-ghost:hover,header.document-toolbar .icon-btn:hover{border-color:var(--ui-accent);color:var(--ui-accent)}
+header.document-toolbar :focus-visible{outline:2px solid var(--ui-accent);outline-offset:3px;border-radius:6px}
+header.document-toolbar #menuBtn{display:none}
+header.document-toolbar #menuBtn,header.document-toolbar #themeBtn{font:inherit}
+@media(max-width:1200px){
+  header.document-toolbar .search-trigger{min-width:0}
+  header.document-toolbar .search-trigger .label,header.document-toolbar .kbd,header.document-toolbar .export-btn .label{display:none}
+}
+@media(max-width:900px){
+  header.document-toolbar #menuBtn{display:grid}
+  header.document-toolbar .brand small{display:none}
+}
+@media(max-width:640px){
+  header.document-toolbar{padding:0 12px;gap:8px}
+  header.document-toolbar .brand .name{display:none}
+  header.document-toolbar .export-btn{padding:8px 12px}
+}
+@media(prefers-reduced-motion:reduce){header.document-toolbar *{transition:none!important}}
+@media(max-width:360px){header.document-toolbar{padding:0 8px;gap:4px}}
+@media print{header.document-toolbar{display:none!important}}
