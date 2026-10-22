@@ -13,6 +13,8 @@ General edition. Choose the common foundation plus one proposal. Maximum 100 adm
 - [Proposal 2 · AWS edge](#proposal-2)
 - [Proposal 3 · Existing edge](#proposal-3)
 
+- [Budget worksheet](#budget)
+
 <a id="common"></a>
 
 ## Common foundation
@@ -245,3 +247,92 @@ General edition. Choose the common foundation plus one proposal. Maximum 100 adm
 
 [Back to contents](#top)
 
+<a id="budget"></a>
+
+## Budget worksheet
+
+Common + one option, not all three options added together. USD; 730 hours per month; maximum 100 administrators. Rates checked 22 October 2026; confirm deployment-region prices. Blank amounts mean not priced, not zero.
+
+Public requests: 10 million per month (illustrative input, not a traffic forecast). WAF example: one ACL and ten billable rule entries per inspected layer, plus one million administrator requests.
+
+<a id="budget-common"></a>
+
+### Common
+
+| Cost item | Monthly USD |
+|---|---:|
+| Account safeguards | USD 0.00 ([AWS Organizations](https://docs.aws.amazon.com/organizations/latest/userguide/pricing.html)) |
+| Threat detection and security checks | Not priced |
+| Logs, backups and other security usage | Not priced |
+| Ongoing security operations | Not priced |
+| Additional identity licences | USD 0.00 ([IAM Identity Center](https://aws.amazon.com/iam/identity-center/faqs/)) |
+
+Common priced subtotal: USD 0.00 + unpriced items per month.
+
+Shared setup and assessment, one-time: Not priced.
+
+<a id="budget-1"></a>
+
+### Proposal 1 · Lean AWS
+
+| Cost item | Monthly USD |
+|---|---:|
+| Verified Access web application | USD 197.10 ([AWS pricing](https://aws.amazon.com/verified-access/pricing/)) |
+| Two technical access endpoints | USD 292.00 ([AWS pricing](https://aws.amazon.com/verified-access/pricing/)) |
+| Administrator web firewall | USD 15.60 ([WAF pricing](https://aws.amazon.com/waf/pricing/)) |
+| Public web firewall | USD 21.00 ([WAF pricing](https://aws.amazon.com/waf/pricing/)) |
+
+Option-only priced subtotal: USD 525.70 (estimate) per month, before Common.
+
+Implementation and testing, one-time: Not priced.
+
+<a id="budget-2"></a>
+
+### Proposal 2 · AWS edge
+
+| Cost item | Monthly USD |
+|---|---:|
+| Verified Access web application | USD 197.10 ([AWS pricing](https://aws.amazon.com/verified-access/pricing/)) |
+| Two technical access endpoints | USD 292.00 ([AWS pricing](https://aws.amazon.com/verified-access/pricing/)) |
+| Administrator web firewall | USD 15.60 ([WAF pricing](https://aws.amazon.com/waf/pricing/)) |
+| CloudFront including public WAF | USD 200.00 ([CloudFront pricing](https://aws.amazon.com/cloudfront/pricing/)) |
+
+Option-only priced subtotal: USD 704.70 (estimate) per month, before Common.
+
+Implementation and testing, one-time: Not priced.
+
+<a id="budget-3"></a>
+
+### Proposal 3 · Existing edge
+
+| Cost item | Monthly USD |
+|---|---:|
+| Verified Access web application | USD 197.10 ([AWS pricing](https://aws.amazon.com/verified-access/pricing/)) |
+| Two technical access endpoints | USD 292.00 ([AWS pricing](https://aws.amazon.com/verified-access/pricing/)) |
+| Administrator web firewall | USD 15.60 ([WAF pricing](https://aws.amazon.com/waf/pricing/)) |
+| AWS firewall at the public origin | USD 21.00 ([WAF pricing](https://aws.amazon.com/waf/pricing/)) |
+| Imperva service and support | Not priced |
+
+Option-only priced subtotal: USD 525.70 + unpriced items per month, before Common.
+
+Implementation and testing, one-time: Not priced.
+
+CloudFront starts with an illustrative Business plan at USD 200, not a confirmed fit for emergency traffic; if using pay-as-you-go, enter CDN plus public WAF together without double counting. The Imperva price must come from a quote.
+
+<a id="budget-total"></a>
+
+### Decision total
+
+Selected: Proposal 1. Monthly: USD 525.70 + unpriced items; yearly recurring: USD 6,308.40 + unpriced items; one-time: USD 0.00 + unpriced items.
+
+| Common + option | Monthly | Yearly recurring | One-time |
+|---|---:|---:|---:|
+| Proposal 1 | USD 525.70 + unpriced items | USD 6,308.40 + unpriced items | USD 0.00 + unpriced items |
+| Proposal 2 | USD 704.70 + unpriced items | USD 8,456.40 + unpriced items | USD 0.00 + unpriced items |
+| Proposal 3 | USD 525.70 + unpriced items | USD 6,308.40 + unpriced items | USD 0.00 + unpriced items |
+
+Include detection, logging, backups, keys, secrets, access usage and operations in the Common allowances. Existing hosting, load balancers, cluster/database capacity, taxes and general internet delivery are excluded unless explicitly included; confirm licence, support, peak-traffic and migration costs before approval.
+
+Prices: [Verified Access](https://aws.amazon.com/verified-access/pricing/), [AWS WAF](https://aws.amazon.com/waf/pricing/), [CloudFront](https://aws.amazon.com/cloudfront/pricing/), [IAM Identity Center](https://aws.amazon.com/iam/identity-center/faqs/), [Organizations](https://docs.aws.amazon.com/organizations/latest/userguide/pricing.html), [GuardDuty](https://aws.amazon.com/guardduty/pricing/), [CloudWatch](https://aws.amazon.com/cloudwatch/pricing/).
+
+[Back to contents](#top)
