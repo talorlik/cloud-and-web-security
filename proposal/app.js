@@ -9,11 +9,9 @@
     sidebar.classList.remove('open');
     $('#menuBtn').setAttribute('aria-expanded', 'false');
   }));
-  try { document.documentElement.dataset.theme = localStorage.getItem('proposal-theme') || 'light'; } catch {}
   $('#themeBtn').onclick = () => {
     const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset.theme = theme;
-    try { localStorage.setItem('proposal-theme', theme); } catch {}
   };
   const items = [...document.querySelectorAll('.item')];
   $('#search').addEventListener('input', e => {
