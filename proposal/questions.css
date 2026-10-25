@@ -1,0 +1,29 @@
+.qa-card{border-top:1px solid var(--line);padding:24px 0;scroll-margin-top:84px;position:relative}
+.qa-card h3{font-size:20px;line-height:1.4;margin:0 0 14px;max-width:900px}
+.qa-number{font:12px 'JetBrains Mono',monospace;color:var(--accent);margin-bottom:8px}
+.qa-answer{padding-left:22px;margin:0;max-width:960px}
+.qa-answer li{margin:0 0 12px;line-height:1.7}
+.qa-answer li::marker{color:var(--accent)}
+.qa-card:target{background:var(--soft)}
+.qa-caution{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:6px;padding:16px 20px;font-size:14px;max-width:940px;background:var(--soft)}
+.qa-card .back-top{font-size:12px;margin-top:8px}
+@media(max-width:760px){.qa-card h3{font-size:18px}.qa-answer{padding-left:18px}.qa-caution{padding:14px}}
+@media print{
+ main>.cover{padding:4mm 0 3mm}
+ .cover h1{font-size:28pt;max-width:100%}
+ .cover .lede{font-size:12pt;line-height:1.5}
+ .cover .facts{margin:12px 0}
+ .cover .export-note{font-size:9pt;line-height:1.5}
+ #contents{padding-top:4mm;columns:2;column-gap:24px}
+ #contents h2{column-span:all}
+ #contents a{font-size:10pt;margin:6px 0;line-height:1.4}
+ .qa-group{break-before:page}
+ .qa-card{break-inside:avoid;padding:13px 0}
+ .qa-card h3{font-size:12pt;line-height:1.35;margin:0 0 8px}
+ .qa-number{font-size:8pt;margin-bottom:4px}
+ .qa-answer li{font-size:10pt;line-height:1.5;margin-bottom:7px}
+ .qa-answer .citations{font-size:8pt}
+ .qa-caution{font-size:9pt;padding:12px}
+ .qa-card:target{background:transparent}
+ footer{display:none}
+}

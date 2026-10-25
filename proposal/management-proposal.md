@@ -15,6 +15,8 @@ General edition. Choose the common foundation plus one proposal. Maximum 100 adm
 
 - [Budget worksheet](#budget)
 
+- [Q&A worksheet](#questions)
+
 <a id="common"></a>
 
 ## Common foundation
@@ -678,3 +680,13 @@ Include detection, logging, backups, keys, secrets, access usage and operations 
 Prices: [Verified Access](https://aws.amazon.com/verified-access/pricing/), [AWS WAF](https://aws.amazon.com/waf/pricing/), [CloudFront](https://aws.amazon.com/cloudfront/pricing/), [IAM Identity Center](https://aws.amazon.com/iam/identity-center/faqs/), [Organizations](https://docs.aws.amazon.com/organizations/latest/userguide/pricing.html), [GuardDuty](https://aws.amazon.com/guardduty/pricing/), [CloudWatch](https://aws.amazon.com/cloudwatch/pricing/).
 
 [Back to contents](#top)
+
+<a id="questions"></a>
+
+## Questions and answers worksheet
+
+A separate worksheet contains 50 detailed Q&As on Common controls, administrator access, the three options, internal protection and cost assumptions. Its cost answers use the saved starting estimates, not unsaved browser edits.
+
+- [Open the worksheet](https://talorlik.github.io/cloud-and-web-security/proposal/questions.html)
+- [Download the standalone Q&A Markdown](https://talorlik.github.io/cloud-and-web-security/proposal/management-qa.md)
+- [Download the standalone Q&A PDF](https://talorlik.github.io/cloud-and-web-security/proposal/management-qa.pdf)

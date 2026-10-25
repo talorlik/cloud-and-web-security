@@ -7,6 +7,9 @@
 @media(max-width:1050px){main{padding:30px}.layout{grid-template-columns:230px minmax(0,1fr)}.toolbar{gap:8px;padding:10px 16px}.toolbar .brand small{display:none}.toolbar .button,button{padding:9px 10px}}
 @media(max-width:760px){.layout{display:block}.sidebar{display:none;position:fixed;inset:65px 0 0 0;z-index:15;height:auto;background:var(--surface);border:0}.sidebar.open{display:block}.toolbar{padding:10px 12px;gap:7px}.brand{font-size:13px;line-height:1.25;max-width:100px}.toolbar .button{font-size:12px;padding:8px}#menuBtn{display:block;font-size:15px}#themeBtn{font-size:13px}main{padding:25px 22px}.section h2{font-size:24px}.item{padding-left:34px}.item h3{font-size:17px}.item p{font-size:15px}h1{font-size:32px}.lede{font-size:17px}}
 @page{size:A4;margin:16mm 15mm 18mm}
+.worksheet-entry>p{max-width:880px}
+.worksheet-actions{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0}
+.worksheet-actions .button{display:inline-flex;align-items:center;justify-content:center}
 .layout{grid-template-columns:288px minmax(0,1fr);max-width:none}
 .sidebar{top:64px;height:calc(100dvh - 64px)}
 .item:before{font-family:'JetBrains Mono',ui-monospace,monospace}

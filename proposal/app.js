@@ -82,14 +82,14 @@
     updateThemeButton();
   };
   updateThemeButton();
-  const items = [...document.querySelectorAll('.item, .budget-block, .budget-summary')];
+  const items = [...document.querySelectorAll('.item, .budget-block, .budget-summary, .worksheet-entry')];
   $('#search').addEventListener('input', e => {
     const q = e.target.value.toLowerCase().trim();
     const matches = q ? items.filter(el => q.split(/\s+/).every(w => el.textContent.toLowerCase().includes(w))) : [];
     $('#results').replaceChildren();
     for (const el of matches.slice(0, 12)) {
       const li = document.createElement('li'), a = document.createElement('a');
-      a.href = '#' + el.id; a.textContent = el.querySelector('h3').textContent;
+      a.href = '#' + el.id; a.textContent = el.querySelector('h3,h2').textContent;
       a.onclick = () => { sidebar.classList.remove('open'); $('#menuBtn').setAttribute('aria-expanded','false'); };
       li.append(a); $('#results').append(li);
     }
@@ -120,7 +120,9 @@
       if(a.id==='mdBtn'){
         const md=await r.text(), start=md.indexOf('<a id="budget"></a>');
         if(start<0)throw Error('Worksheet export missing');
-        blob=new Blob([md.slice(0,start)+budget.budgetMarkdown(budgetState)],{type:'text/markdown;charset=utf-8'});
+        const questions=md.indexOf('<a id="questions"></a>',start);
+        const suffix=questions>=0?'\n'+md.slice(questions):'';
+        blob=new Blob([md.slice(0,start)+budget.budgetMarkdown(budgetState)+suffix],{type:'text/markdown;charset=utf-8'});
       }else blob=await r.blob();
       const url = URL.createObjectURL(blob), link = document.createElement('a');
       link.href=url; link.download=a.download; link.click(); setTimeout(()=>URL.revokeObjectURL(url),3000);
