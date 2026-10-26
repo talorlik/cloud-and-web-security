@@ -43,7 +43,8 @@
     try{
       const response=await fetch(a.href,{cache:'no-store'});
       if(!response.ok)throw Error(response.status);
-      const url=URL.createObjectURL(await response.blob()),link=document.createElement('a');
+      const blob=a.id==='pdfBtn'?await DocumentLinks.pdf(await response.arrayBuffer()):a.id==='mdBtn'?new Blob([DocumentLinks.markdown(await response.text())],{type:'text/markdown;charset=utf-8'}):await response.blob();
+      const url=URL.createObjectURL(blob),link=document.createElement('a');
       link.href=url;link.download=a.download;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
       $('#status').textContent='Download ready';
     }catch{

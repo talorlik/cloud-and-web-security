@@ -41,9 +41,10 @@
   addEventListener('beforeprint',()=>{
     themeBeforePrint=document.documentElement.dataset.theme;
     document.documentElement.dataset.theme='light';
-    document.querySelectorAll('a[data-strategy]').forEach(a=>{
+    if(location.protocol==='file:')return;
+    document.querySelectorAll('a[data-source-path]').forEach(a=>{
       printRefs.push([a,a.href]);
-      a.href='https://talorlik.github.io/cloud-and-web-security/#'+a.dataset.strategy;
+      a.href=DocumentLinks.source(a.dataset.sourcePath);
     });
   });
   addEventListener('afterprint',()=>{
@@ -122,8 +123,10 @@
         if(start<0)throw Error('Worksheet export missing');
         const questions=md.indexOf('<a id="questions"></a>',start);
         const suffix=questions>=0?'\n'+md.slice(questions):'';
-        blob=new Blob([md.slice(0,start)+budget.budgetMarkdown(budgetState)+suffix],{type:'text/markdown;charset=utf-8'});
-      }else blob=await r.blob();
+        blob=new Blob([DocumentLinks.markdown(md.slice(0,start)+budget.budgetMarkdown(budgetState)+suffix)],{type:'text/markdown;charset=utf-8'});
+      }else if(a.download.endsWith('.pdf'))blob=await DocumentLinks.pdf(await r.arrayBuffer());
+      else if(a.download==='management-qa.md')blob=new Blob([DocumentLinks.markdown(await r.text())],{type:'text/markdown;charset=utf-8'});
+      else blob=await r.blob();
       const url = URL.createObjectURL(blob), link = document.createElement('a');
       link.href=url; link.download=a.download; link.click(); setTimeout(()=>URL.revokeObjectURL(url),3000);
       $('#status').textContent = 'Download ready';
