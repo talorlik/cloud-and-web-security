@@ -50,6 +50,8 @@
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();searchFocus();}
     if(e.key==='Escape'){closeMenu();$('#search').blur();}
   });
+  // Small screens stack table rows, so each cell carries its column header for the stacked layout.
+  document.querySelectorAll('table').forEach(t=>{const heads=[...t.querySelectorAll('thead th')].map(th=>th.textContent.trim());if(!heads.length)return;t.querySelectorAll('tbody tr').forEach(tr=>{let i=0;for(const cell of tr.children){if(cell.tagName==='TD'&&heads[i]&&!cell.dataset.label)cell.dataset.label=heads[i];i+=cell.colSpan||1;}});});
   const observer=new IntersectionObserver(entries=>{
     for(const e of entries)if(e.isIntersecting)$$('.contents a').forEach(a=>a.classList.toggle('active',a.hash==='#'+e.target.id));
   },{rootMargin:'-12% 0px -70% 0px'});

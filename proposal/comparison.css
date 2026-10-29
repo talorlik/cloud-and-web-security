@@ -11,27 +11,28 @@
 .comparison .finding .k{font:600 .75rem/1.6 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
 .comparison .finding h4{margin:4px 0 6px;font-size:1rem;line-height:1.3}
 .comparison .finding p{font-size:.875rem;margin:0}
-.comparison .tbl{overflow-x:auto;margin:12px 0 18px;border:1px solid var(--line);border-radius:6px;background:var(--surface);max-width:1120px}
-.comparison table{border-collapse:collapse;width:100%;min-width:760px;font-size:.875rem}
+.comparison .tbl{margin:12px 0 18px;border:1px solid var(--line);border-radius:6px;background:var(--surface);max-width:1120px}
+.comparison table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:.875rem}
+.comparison th,.comparison td{overflow-wrap:anywhere;box-sizing:border-box}
 .comparison th,.comparison td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
 .comparison thead th{background:var(--soft);font-weight:600;font-size:.8125rem;position:sticky;top:0}
 .comparison tbody tr:last-child td,.comparison tbody tr:last-child th{border-bottom:0}
-.comparison tbody th[scope=row]{font-weight:600;width:19%}
+.comparison tbody th[scope=row]{font-weight:600}
 .comparison .sub{display:block;font-weight:400;font-size:.78125rem;color:var(--muted);margin-top:2px;white-space:normal}
-.comparison .num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.comparison .num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+@media (min-width:1200px){.comparison .cite{white-space:nowrap}}
 .comparison thead th.num{white-space:normal}
 .comparison .tot th,.comparison .tot td{background:var(--soft);font-weight:600}
-.comparison .planes{table-layout:fixed}.comparison .planes col.aspect{width:19%}.comparison .planes col.plane{width:40.5%}.comparison .planes .sum{white-space:normal;text-align:left}
+.comparison .sum{white-space:normal;text-align:left}
 .comparison .o2h{color:var(--opt2)}.comparison .o3h{color:var(--opt3)}
 .comparison .optbar{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
 .comparison .optbar.o2{background:var(--opt2)}.comparison .optbar.o3{background:var(--opt3)}
-.comparison .pill{display:inline-block;font-size:.75rem;font-weight:600;padding:1px 8px;border-radius:999px;white-space:nowrap;line-height:1.6}
+.comparison .pill{display:inline-block;font-size:.75rem;font-weight:600;padding:1px 8px;border-radius:999px;line-height:1.6}
 .comparison .pill.ok{color:var(--ok);background:var(--ok-soft)}.comparison .pill.warn{color:var(--warn);background:var(--warn-soft)}.comparison .pill.bad{color:var(--bad);background:var(--bad-soft)}.comparison .pill.na{color:var(--muted);background:var(--soft)}
-.comparison .cite{font-size:.75rem;white-space:nowrap}
+.comparison .cite{font-size:.75rem}
 .comparison figure{margin:18px 0 26px;background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:14px 14px 10px;max-width:1120px}
 .comparison .fh{display:flex;align-items:center;gap:10px;margin:0 0 6px;font-weight:600;font-size:.9375rem}
-.comparison .diag{overflow-x:auto}
-.comparison .diag svg{display:block;width:100%;min-width:760px;height:auto;color:var(--text)}
+.comparison .diag svg{display:block;width:100%;height:auto;color:var(--text)}
 .comparison figcaption{font-size:.84375rem;color:var(--muted);margin-top:8px;max-width:90ch}
 .comparison svg .box{fill:var(--surface);stroke:currentColor;stroke-width:1}
 .comparison svg .box.edge2{fill:var(--opt2-soft);stroke:var(--opt2);stroke-width:1.6}
@@ -52,7 +53,20 @@
 .comparison ol.src{padding-left:22px;font-size:.875rem;max-width:100ch}
 .comparison ol.src li{margin-bottom:4px;overflow-wrap:anywhere}
 .comparison .callout{border-left:4px solid var(--accent);background:var(--surface);padding:10px 14px;margin:14px 0;border-radius:0 6px 6px 0;max-width:90ch;font-size:.90625rem}
-@media(max-width:760px){.comparison table{font-size:.8125rem}.comparison th,.comparison td{padding:8px 9px}.comparison .lede{font-size:1rem}}
+@media screen and (max-width:760px){
+  .comparison .lede{font-size:1rem}
+  /* Stacked tables: each row becomes a block headed by its row label; each cell shows its column header. */
+  .comparison table,.comparison tbody,.comparison tr,.comparison th,.comparison td{display:block;width:auto!important}
+  .comparison thead{display:none}
+  .comparison tr{padding:6px 0 10px;border-bottom:1px solid var(--line)}
+  .comparison tbody tr:last-child{border-bottom:0}
+  .comparison tbody th[scope=row]{padding:10px 12px 2px;border:0;font-size:.9375rem}
+  .comparison td{padding:4px 12px;border:0}
+  .comparison td[data-label]::before{content:attr(data-label);display:block;font-size:.75rem;font-weight:600;color:var(--muted);margin-bottom:2px}
+  .comparison .num{white-space:normal;text-align:left}
+  .comparison .tot th,.comparison .tot td{background:transparent}
+  .comparison .tot{background:var(--soft)}
+}
 @media print{
   .comparison .lede{font-size:12pt;line-height:1.5}.comparison .basis{font-size:9pt}
   .comparison h3{font-size:13pt;break-after:avoid;margin:14px 0 6px}

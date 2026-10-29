@@ -34,8 +34,8 @@
 .budget-section h3{font-size:1.125rem;margin:0 0 14px}
 .budget-assumptions,.budget-summary{padding:22px;background:var(--soft);border:1px solid var(--line);border-radius:7px;margin:24px 0}
 .budget-block{margin:32px 0 24px;scroll-margin-top:100px}
-.budget-table-wrap{overflow-x:auto}
-.budget-table{width:100%;border-collapse:collapse;background:var(--surface);font-size:.875rem;table-layout:fixed;min-width:590px}
+.budget-table-wrap{margin:0}
+.budget-table{width:100%;border-collapse:collapse;background:var(--surface);font-size:.875rem;table-layout:fixed}
 .budget-table th,.budget-table td{padding:12px;border:1px solid var(--line);text-align:left;vertical-align:top}
 .budget-table th{font-weight:600}.budget-table thead{background:var(--soft)}
 .budget-table th:first-child{width:31%}.budget-table th:nth-child(2){width:24%}
@@ -50,6 +50,15 @@
 #budget-selected{font-size:1.0625rem;font-weight:600;padding:14px 0}
 .comparison th:first-child{width:23%}.comparison th:nth-child(2){width:26%}
 @media(max-width:760px){.budget-assumptions,.budget-summary{padding:14px}.budget-upfront{align-items:flex-start;flex-direction:column}.budget-upfront input{max-width:100%}}
+/* Stacked budget tables on small screens: rows become blocks, cells carry their column header. */
+@media screen and (max-width:760px){
+  .budget-table,.budget-table tbody,.budget-table tr,.budget-table th,.budget-table td{display:block;width:auto!important}
+  .budget-table thead{display:none}
+  .budget-table tr{border-bottom:1px solid var(--line);padding:4px 0 8px}
+  .budget-table th,.budget-table td{border:0;padding:6px 10px}
+  .budget-table td[data-label]::before{content:attr(data-label);display:block;font-size:.75rem;font-weight:600;color:var(--muted);margin-bottom:2px}
+  .budget-table tbody th{padding-top:10px}
+}
 @media print{
   .budget-section .budget-block,.budget-section .budget-summary{break-inside:avoid;margin-top:16px}
   #budget-1,#budget-3{break-before:page}
