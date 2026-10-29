@@ -33,7 +33,7 @@ This document describes the shared visual language and the current implementatio
 | Components | Tables, cards, callouts, architecture diagram, risk heat map, filters, disclosure panels and launch checklist | Numbered two-sentence items, inline citations and editable budget tables |
 | Footer | Document metadata and export information | Edition and pricing-assumption note |
 
-- **Document switcher:** Every page lists the same four documents in the same order: Security strategy, Management proposal, Q&A worksheet, Proposal 2 vs 3. A new page is added to the strategy sidebar and to all three proposal builders.
+- **Document switcher:** Every page lists the same four documents in the same order: Security strategy, Management proposal, Q&A worksheet, Proposal 2 vs 3. It is the `.doc-menu` block, styled once in `shared-ui/toolbar.css` with the same fluid 14–16px size as the toolbar text and the soft accent highlight on the current document in both themes. A new page is added to the strategy sidebar and to all three proposal builders.
 - **Stable anchors:** Preserve section and item IDs so direct links, search results and citations continue to work. A strategy citation from the proposal carries a return link to its originating item.
 - **External navigation:** External citations open a new tab with `noopener noreferrer`. Document-to-document navigation remains in the same tab.
 - **Edition-aware internal sources:** Strategy, proposal, budget, Q&A and comparison source links must stay inside the preview when viewed in preview; only the GitHub-deployed edition uses the public GitHub Pages base URL. Q&A and comparison evidence may open a new tab, but it still uses the same edition.
@@ -48,12 +48,13 @@ This document describes the shared visual language and the current implementatio
 | Body and controls | General Sans, Inter, system-ui, sans-serif | Same |
 | Code and identifiers | JetBrains Mono, ui-monospace, monospace | Same for item numbers and keyboard hints |
 | Font loading | Zodiak and General Sans self-hosted from `shared-ui/fonts` (Zodiak Regular serves weights 400 to 500, as Fontshare delivered it; General Sans 400, 500 and 600); JetBrains Mono from Google Fonts | Same files, copied by the proposal build |
-| Body scale | Fluid 16–17px equivalent at a 16px root, line-height 1.62 | 16px base, line-height 1.62; item paragraphs use 1.75 |
+| Body scale | Fluid 16–17px equivalent at the browser's root size, line-height 1.62 | 1rem base (the root follows the browser's font-size setting), line-height 1.62; item paragraphs use 1.75 |
 | Document title | Fluid 36–64px equivalent; weight 500, line-height 1.05 | Fluid 30–48px; weight 400, line-height 1.23; 32px at the mobile breakpoint |
 | Section heading | Fluid 24–34px equivalent, serif, weight 500 | 27px serif, line-height 1.4; 24px on mobile |
 | Item/subheading | Fluid 18–22px equivalent, weight 600 | 18px, line-height 1.35; 17px on mobile |
-| Supporting text | Fluid 12–14px and 14–16px scales | Usually 12–14px; section labels 12px, sidebar labels 11px |
+| Supporting text | Fluid 12–14px and 14–16px scales | 0.75–0.875rem (12–14px); section and sidebar labels 0.75rem |
 
+- **Minimum size and scaling:** No running text on screen is smaller than 0.75rem (12px at default settings). Sizes are rem-based or fluid clamps, never fixed pixels, so browser zoom and the user's font-size preference scale them; print sizes stay in points, and diagram labels are SVG units that scale with the figure.
 - **Fallbacks:** Preserve the named fallback stacks so a blocked font provider does not make text disappear. Do not assume that identical font sizes create identical line breaks across fallback fonts.
 - **Line length:** Strategy paragraphs are capped around 72 characters and list items around 70; its primary content width token is 880px. Proposal item paragraphs are capped at 880px, with narrower limits for titles and introductory text.
 - **Weight and spacing:** Use 400 for normal copy, 500–600 for strategy emphasis, and 600–700 for proposal controls and labels. Strategy labels use about `0.08em` tracking; proposal section labels use `0.13em`.
