@@ -34,7 +34,8 @@ This document describes the shared visual language and the current implementatio
 
 - **Stable anchors:** Preserve section and item IDs so direct links, search results and citations continue to work. A strategy citation from the proposal carries a return link to its originating item.
 - **External navigation:** External citations open a new tab with `noopener noreferrer`. Document-to-document navigation remains in the same tab.
-- **Edition-aware internal sources:** Strategy, proposal, budget and Q&A source links must stay inside the preview when viewed in preview; only the GitHub-deployed edition uses the public GitHub Pages base URL. Q&A evidence may open a new tab, but it still uses the same edition.
+- **Edition-aware internal sources:** Strategy, proposal, budget, Q&A and comparison source links must stay inside the preview when viewed in preview; only the GitHub-deployed edition uses the public GitHub Pages base URL. Q&A and comparison evidence may open a new tab, but it still uses the same edition.
+- **Standalone proposal pages:** The Q&A worksheet and the Proposal 2 vs 3 comparison reuse the proposal shell: the same header, sidebar, cover, tokens and print rules, plus a page-specific stylesheet for their own components (Q&A cards; comparison tables, finding cards, status pills and inline SVG flow diagrams coloured from the status pairs below).
 - **Separation:** Neither security document includes the other in its PDF or Markdown export. The design download is separate from both exports.
 
 ### Typography
@@ -108,7 +109,7 @@ This document describes the shared visual language and the current implementatio
 - **Proposal PDF:** A4 with 16mm top, 15mm sides and 18mm bottom margins; a serif cover and contents lead into the sections. Items avoid page splits; budget inputs become printed values.
 - **Proposal values:** Unchanged budgets download the prebuilt PDF; edited budgets use the browser print dialog to include the current values. Markdown exports also capture current worksheet values.
 - **Markdown:** Retains hierarchy, tables, citations and explicit anchors, but does not embed the screen color theme. `DESIGN.md` is downloaded separately and is not appended to either security document.
-- **Export source links:** Proposal/Q&A toolbar exports rebase internal Markdown links and PDF URI annotations to the current hosting environment. Preview downloads therefore retain preview source links and require access to that preview; General exports use GitHub Pages. Raw Specific files use sibling-relative links without embedding preview tokens or public-edition fallback URLs.
+- **Export source links:** Proposal, Q&A and comparison toolbar exports rebase internal Markdown links and PDF URI annotations to the current hosting environment. Preview downloads therefore retain preview source links and require access to that preview; General exports use GitHub Pages. Raw Specific files use sibling-relative links without embedding preview tokens or public-edition fallback URLs.
 
 ## Light
 
