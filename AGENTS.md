@@ -55,7 +55,7 @@ GitHub Pages serves it from the `main` branch, root directory (`/`): https://tal
 Use the document menu to switch between siblings. Proposal citations into the strategy include a return-to-item link.
 External sources open in a new tab. Each source directory triggers only its own export build; the static Pages deployment subsequently serves both.
 
-The site is static, with no build step and no dependencies apart from web fonts loaded from Fontshare and Google Fonts. `index.html` loads its assets with a `?v=N` cache-busting query.
+The site is static, with no build step and no dependencies apart from JetBrains Mono from Google Fonts; Zodiak and General Sans are served from `fonts/` as unmodified Fontshare web files under the ITF Free Font License in `fonts/FFL.txt`. `index.html` loads its assets with a `?v=N` cache-busting query.
 
 ## 5. Reading and using the content
 
