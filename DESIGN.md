@@ -33,6 +33,7 @@ This document describes the shared visual language and the current implementatio
 | Components | Tables, cards, callouts, architecture diagram, risk heat map, filters, disclosure panels and launch checklist | Numbered two-sentence items, inline citations and editable budget tables |
 | Footer | Document metadata and export information | Edition and pricing-assumption note |
 
+- **Document switcher:** Every page lists the same four documents in the same order: Security strategy, Management proposal, Q&A worksheet, Proposal 2 vs 3. A new page is added to the strategy sidebar and to all three proposal builders.
 - **Stable anchors:** Preserve section and item IDs so direct links, search results and citations continue to work. A strategy citation from the proposal carries a return link to its originating item.
 - **External navigation:** External citations open a new tab with `noopener noreferrer`. Document-to-document navigation remains in the same tab.
 - **Edition-aware internal sources:** Strategy, proposal, budget, Q&A and comparison source links must stay inside the preview when viewed in preview; only the GitHub-deployed edition uses the public GitHub Pages base URL. Q&A and comparison evidence may open a new tab, but it still uses the same edition.
@@ -80,7 +81,7 @@ This document describes the shared visual language and the current implementatio
 
 - **Theme control:** An 18px inline SVG inside a 40px-high button, with a 24×24 viewBox and a 2px `currentColor` stroke. Show the moon in light mode and the sun in dark mode: the icon always indicates the theme the next click will activate.
 - **Accessible theme name:** Use “Switch to dark theme” in light mode and “Switch to light theme” in dark mode, in both `aria-label` and tooltip. SVGs are decorative with `aria-hidden="true"` and `focusable="false"`; the button remains keyboard operable.
-- **Theme lifetime:** Both documents open in light mode. The selection stays in the current page only; it is not persisted in browser storage and is not automatically inherited across document navigation.
+- **Theme lifetime:** Both documents open in light mode until a theme is chosen. The choice is stored in browser storage under `theme` and applied before first paint by the shared `theme-boot` script (`shared-ui/toolbar.mjs`) on every page, so it is kept when moving between the strategy, the proposal, the Q&A worksheet and the comparison. Printing uses light temporarily without storing it.
 - **Design download:** A document-outline icon with a “Design” label where space allows, an accessible name of “Download design theme document” and a `DESIGN.md` filename. Fetch the static file and download a Blob; show a visible status message if retrieval fails.
 - **PDF download:** A folded document outline with vector “PDF” lettering, not a generic download arrow. The proposal retains this icon when edited budget values change the label to “Print PDF”; reset restores “Export PDF” without removing the icon.
 - **Markdown download:** The same boxed Markdown mark and “Export Markdown” label in both headers. Search uses the same magnifier and focuses the relevant document search; on a small screen it opens that document's navigation.
