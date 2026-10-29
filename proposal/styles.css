@@ -1,4 +1,4 @@
-@import url('https://api.fontshare.com/v2/css?f[]=zodiak@400,500&f[]=general-sans@400,500,600&display=swap');
+@import url('fonts.css?v=1');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap');
 :root{--bg:#f4f5f2;--surface:#fbfbf9;--text:#13222b;--muted:#56636b;--line:#dde0da;--accent:#0b5a73;--soft:#d4e5ea;--serif:'Zodiak',Georgia,serif;font-family:'General Sans','Inter',system-ui,sans-serif;color:var(--text);background:var(--bg);font-size:16px;line-height:1.62;scroll-behavior:smooth;scroll-padding-top:84px}
 :root[data-theme=dark]{--bg:#0b161c;--surface:#0f1d24;--text:#dbe5e7;--muted:#94a6ad;--line:#1f343d;--accent:#5fb3cc;--soft:#163a47}
