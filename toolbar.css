@@ -21,7 +21,7 @@ header.document-toolbar .brand small{display:block;font-weight:400;color:var(--u
 header.document-toolbar .spacer{flex:1}
 header.document-toolbar .search-trigger{display:flex;align-items:center;gap:12px;min-width:280px;margin:0;padding:8px 12px;border:1px solid var(--ui-border);border-radius:8px;background:var(--ui-surface);color:var(--ui-muted);transition:border-color .18s;white-space:nowrap}
 header.document-toolbar .search-trigger>svg{width:16px;height:16px}
-header.document-toolbar .kbd{margin-left:auto;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.72rem;padding:2px 6px;border:1px solid var(--ui-border);border-radius:4px;color:var(--ui-muted)}
+header.document-toolbar .kbd{margin-left:auto;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.75rem;padding:2px 6px;border:1px solid var(--ui-border);border-radius:4px;color:var(--ui-muted)}
 header.document-toolbar .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:500;transition:background .18s,color .18s,border-color .18s;white-space:nowrap}
 header.document-toolbar .btn>svg{width:16px;height:16px}
 header.document-toolbar .btn-ghost{border:1px solid var(--ui-border);background:none;color:var(--ui-text)}
@@ -49,3 +49,11 @@ header.document-toolbar #menuBtn,header.document-toolbar #themeBtn{font:inherit}
 @media(prefers-reduced-motion:reduce){header.document-toolbar *{transition:none!important}}
 @media(max-width:360px){header.document-toolbar{padding:0 8px;gap:4px}}
 @media print{header.document-toolbar{display:none!important}}
+
+/* Document switcher: the same four links on every page, styled once. Tokens mirror DESIGN.md's light and dark palettes. */
+.doc-menu{--menu-accent:#0b5a73;--menu-soft:#d4e5ea;--menu-divider:#dde0da;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--menu-divider)}
+[data-theme=dark] .doc-menu{--menu-accent:#5fb3cc;--menu-soft:#163a47;--menu-divider:#1f343d}
+.doc-menu a{display:block;padding:.5rem .625rem;border-radius:6px;text-decoration:none;color:var(--menu-accent);font-family:'General Sans','Inter',system-ui,sans-serif;font-size:clamp(.875rem,.8rem + .35vw,1rem);line-height:1.35}
+.doc-menu a:hover{background:var(--menu-soft)}
+.doc-menu a[aria-current]{background:var(--menu-soft);font-weight:600}
+.doc-menu a[hidden]{display:none}
