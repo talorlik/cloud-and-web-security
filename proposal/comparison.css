@@ -1,0 +1,75 @@
+/* Standalone edge comparison: proposal tokens, the status pairs from DESIGN.md for option and inclusion colours, A4 print rules. */
+.comparison{--surface-2:#ffffff;--opt2:#0b5a73;--opt2-soft:#d4e5ea;--opt3:#4c6470;--opt3-soft:#dfe6e8;--ok:#2f6b2a;--ok-soft:#dbe8d6;--warn:#b2620a;--warn-soft:#f4e3cc;--bad:#b4321f;--bad-soft:#f6dcd5;--mono:'JetBrains Mono',ui-monospace,monospace}
+:root[data-theme=dark] .comparison{--surface-2:#12232b;--opt2:#5fb3cc;--opt2-soft:#163a47;--opt3:#9fb6c0;--opt3-soft:#1c2a30;--ok:#8fcf86;--ok-soft:#183018;--warn:#e9a659;--warn-soft:#36260f;--bad:#f08a76;--bad-soft:#3b1d17}
+.comparison .lede{font-size:18px;color:var(--text);max-width:900px}
+.comparison .basis{font-size:14px;color:var(--muted);max-width:900px;margin:0 0 18px}
+.comparison h3{font-size:18px;line-height:1.35;margin:28px 0 10px}
+.comparison .prose{max-width:72ch}
+.comparison .note{font-size:13.5px;color:var(--muted);max-width:90ch}
+.comparison .findings{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:18px 0 8px;max-width:1120px}
+.comparison .finding{background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:14px 16px;min-width:0}
+.comparison .finding .k{font:600 11px/1.6 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.comparison .finding h4{margin:4px 0 6px;font-size:16px;line-height:1.3}
+.comparison .finding p{font-size:14px;margin:0}
+.comparison .tbl{overflow-x:auto;margin:12px 0 18px;border:1px solid var(--line);border-radius:6px;background:var(--surface);max-width:1120px}
+.comparison table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}
+.comparison th,.comparison td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+.comparison thead th{background:var(--soft);font-weight:600;font-size:13px;position:sticky;top:0}
+.comparison tbody tr:last-child td,.comparison tbody tr:last-child th{border-bottom:0}
+.comparison tbody th[scope=row]{font-weight:600;width:19%}
+.comparison .sub{display:block;font-weight:400;font-size:12.5px;color:var(--muted);margin-top:2px;white-space:normal}
+.comparison .num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.comparison thead th.num{white-space:normal}
+.comparison .tot th,.comparison .tot td{background:var(--soft);font-weight:600}
+.comparison .planes{table-layout:fixed}.comparison .planes col.aspect{width:19%}.comparison .planes col.plane{width:40.5%}.comparison .planes .sum{white-space:normal;text-align:left}
+.comparison .o2h{color:var(--opt2)}.comparison .o3h{color:var(--opt3)}
+.comparison .optbar{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.comparison .optbar.o2{background:var(--opt2)}.comparison .optbar.o3{background:var(--opt3)}
+.comparison .pill{display:inline-block;font-size:11.5px;font-weight:600;padding:1px 8px;border-radius:999px;white-space:nowrap;line-height:1.6}
+.comparison .pill.ok{color:var(--ok);background:var(--ok-soft)}.comparison .pill.warn{color:var(--warn);background:var(--warn-soft)}.comparison .pill.bad{color:var(--bad);background:var(--bad-soft)}.comparison .pill.na{color:var(--muted);background:var(--soft)}
+.comparison .cite{font-size:12px;white-space:nowrap}
+.comparison figure{margin:18px 0 26px;background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:14px 14px 10px;max-width:1120px}
+.comparison .fh{display:flex;align-items:center;gap:10px;margin:0 0 6px;font-weight:600;font-size:15px}
+.comparison .diag{overflow-x:auto}
+.comparison .diag svg{display:block;width:100%;min-width:760px;height:auto;color:var(--text)}
+.comparison figcaption{font-size:13.5px;color:var(--muted);margin-top:8px;max-width:90ch}
+.comparison svg .box{fill:var(--surface);stroke:currentColor;stroke-width:1}
+.comparison svg .box.edge2{fill:var(--opt2-soft);stroke:var(--opt2);stroke-width:1.6}
+.comparison svg .box.edge3{fill:var(--opt3-soft);stroke:var(--opt3);stroke-width:1.6}
+.comparison svg .box.va{fill:var(--soft);stroke:var(--accent);stroke-width:1.6}
+.comparison svg .box.ghost{fill:none;stroke:currentColor;stroke-dasharray:4 3;opacity:.55}
+.comparison svg .box.plain{fill:var(--soft)}
+.comparison svg .ln{stroke:currentColor;stroke-width:1.3;fill:none}
+.comparison svg .bad{stroke:var(--bad);stroke-width:1.4;stroke-dasharray:5 3;fill:none}
+.comparison svg .badfill{fill:var(--bad)}
+.comparison svg .t{font-size:12px;fill:currentColor}
+.comparison svg .t.b{font-weight:600}
+.comparison svg .s{font-size:10.5px;fill:currentColor;opacity:.88}
+.comparison svg .c{font-size:10.5px;font-weight:600;fill:var(--accent)}
+.comparison svg .c3{fill:var(--opt3)}
+.comparison svg .bad-t{fill:var(--bad);opacity:1}
+.comparison svg .mid{text-anchor:middle}
+.comparison ol.src{padding-left:22px;font-size:14px;max-width:100ch}
+.comparison ol.src li{margin-bottom:4px;overflow-wrap:anywhere}
+.comparison .callout{border-left:4px solid var(--accent);background:var(--surface);padding:10px 14px;margin:14px 0;border-radius:0 6px 6px 0;max-width:90ch;font-size:14.5px}
+@media(max-width:760px){.comparison table{font-size:13px}.comparison th,.comparison td{padding:8px 9px}.comparison .lede{font-size:16px}}
+@media print{
+  .comparison .lede{font-size:12pt;line-height:1.5}.comparison .basis{font-size:9pt}
+  .comparison h3{font-size:13pt;break-after:avoid;margin:14px 0 6px}
+  .comparison .findings{display:block;max-width:none}.comparison .finding{break-inside:avoid;margin:0 0 8px;padding:8px 10px}
+  .comparison .finding h4{font-size:11pt}.comparison .finding p{font-size:9.5pt}
+  .comparison .tbl{overflow:visible;border:0;max-width:none}
+  .comparison table{min-width:0;font-size:8.5pt}
+  .comparison th,.comparison td{padding:5px 6px}
+  .comparison thead th{position:static}
+  .comparison tr{break-inside:avoid}
+  .comparison .sub{font-size:7.5pt}
+  .comparison .pill{font-size:7.5pt;border:1px solid currentColor}
+  .comparison figure{break-inside:avoid;padding:8px;margin:8px 0 12px;max-width:none}
+  .comparison .section h2{font-size:20pt}
+  .comparison #contents{columns:2;column-gap:24px}.comparison #contents h2{column-span:all}.comparison #contents a{padding:6px 0;font-size:10pt}
+  .comparison .diag{overflow:visible}.comparison .diag svg{min-width:0}
+  .comparison figcaption,.comparison .note,.comparison ol.src{font-size:9pt}
+  .comparison .callout{font-size:10pt}
+  .comparison .cite{white-space:normal}
+}

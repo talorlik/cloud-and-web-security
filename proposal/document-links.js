@@ -10,7 +10,7 @@
       const suffix=value.slice(publicRoot.length);
       return new URL(suffix.startsWith('#')?'index.html'+suffix:suffix.startsWith('proposal/#')?suffix.replace('proposal/#','proposal/index.html#'):suffix,root).href;
     }
-    if(/^(?:\.\.\/index\.html|index\.html|questions\.html|management-(?:proposal|qa)\.(?:pdf|md))(?:[?#]|$)/.test(value))return new URL(value,location.href).href;
+    if(/^(?:\.\.\/index\.html|index\.html|questions\.html|comparison\.html|management-(?:proposal|qa|comparison)\.(?:pdf|md))(?:[?#]|$)/.test(value))return new URL(value,location.href).href;
     return value;
   }
   function markdown(text){return text.replace(/(\]\()([^\s)]+)(\))/g,(all,open,url,close)=>open+resolve(url)+close);}

@@ -1,0 +1,675 @@
+<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Proposal 2 vs Proposal 3</title><meta name="description" content="Edge option comparison"><link rel="stylesheet" href="styles.css?v=8"><link rel="stylesheet" href="comparison.css?v=1"><link rel="stylesheet" href="toolbar.css?v=2"></head><body><header class="topbar document-toolbar">
+  <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a href="#top" class="brand" aria-label="Proposal 2 vs 3 home"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7z" fill="currentColor"/><path d="M8 18c2.5-2 5-2 8 0s5.5 2 8 0" stroke="#fff" stroke-width="2" fill="none"/></svg><span class="name">Proposal 2 vs 3<small>Edge option comparison</small></span></a>
+  <div class="spacer"></div>
+  <button class="search-trigger" id="searchBtn" aria-label="Search document" title="Search document (Ctrl K)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="label">Search this document…</span><span class="kbd">Ctrl K</span></button>
+  <button class="icon-btn" id="themeBtn" aria-label="Switch to dark theme" title="Switch to dark theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <a class="btn btn-ghost export-btn download" id="designBtn" href="../DESIGN.md" download="DESIGN.md" aria-label="Download design theme document" title="Download DESIGN.md"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 12h8M8 16h6"/></svg><span class="label">Design</span></a>
+  <a class="btn btn-ghost export-btn download" id="mdBtn" href="management-comparison.md" download="management-comparison.md" aria-label="Export Markdown" title="Export Markdown"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M6 15V9l2.5 3L11 9v6M15.5 9v6m0 0-2-2m2 2 2-2"/></svg><span class="label">Export Markdown</span></a>
+  <a class="btn btn-primary export-btn download" id="pdfBtn" href="management-comparison.pdf" download="management-comparison.pdf" aria-label="Export PDF" title="Export PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6"/><path stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" d="M5.5 17v-5h1.4a1.25 1.25 0 0 1 0 2.5H5.5M10.5 17v-5h1a2.5 2.5 0 0 1 0 5h-1M16 17v-5h3M16 14.5h2.5"/></svg><span class="label">Export PDF</span></a>
+</header><div class="layout"><nav id="sidebar" class="sidebar" aria-label="Comparison navigation"><div class="doc-menu"><a href="../index.html">Security strategy</a><a href="index.html">Management proposal</a><a href="questions.html">Q&amp;A worksheet</a><a href="comparison.html" aria-current="page">Proposal 2 vs 3</a></div><div class="small-label">In this document</div><div class="contents"><a href="#glance">At a glance</a><a href="#findings">What the comparison shows</a><a href="#flows">Flow diagrams</a><a href="#public">Public path</a><a href="#admin">Admin path</a><a href="#split">Public vs admin per option</a><a href="#services">AWS services vs Imperva</a><a href="#cost">Cost</a><a href="#approve">Before approval</a><a href="#sources">Sources</a></div><div class="small-label">Find a row · Ctrl K</div><input id="search" type="search" aria-label="Search comparison" placeholder="Search tables and findings…"><div id="searchStatus" role="status"></div><ul id="results" class="search-results"></ul></nav><main id="top" class="comparison"><section class="cover"><div class="eyebrow">Security proposal for management · option comparison · General edition</div><h1>Proposal 2 vs Proposal 3</h1><p class="lede"><span class="optbar o2"></span><strong>Proposal 2, AWS edge:</strong> Amazon CloudFront with AWS WAF at the edge in front of the origin load balancer. <span class="optbar o3"></span><strong>Proposal 3, existing edge:</strong> the Imperva Cloud WAF site stays as the first filter, with AWS WAF at the origin. Both keep the same administrator path: AWS Verified Access, IAM Identity Center with mandatory MFA, an administrator web ACL and CloudShell for break-glass.</p><p class="basis">Basis: the management proposal items p2-* and p3-*, the strategy deep dives 8.1 and 8.7, the budget worksheet defaults (10 million public requests a month, 730 hours, up to 100 administrators), us-east-1 data transfer prices, and official AWS and Imperva documentation re-checked on 29 October 2026. Amounts are USD list prices or the worksheet’s planning placeholders, never vendor quotes.</p><div class="facts"><span>Home Region us-east-1</span><span>One administrator path in both options</span><span>Independent PDF and Markdown</span></div><p class="export-note">Supporting evidence opens in a new tab. Internal citations and exports refer to this GitHub-deployed edition; external documentation remains unchanged.</p></section><section class="print-only" id="contents"><h2>Contents</h2><a href="#glance">At a glance</a><a href="#findings">What the comparison shows</a><a href="#flows">Flow diagrams</a><a href="#public">Public path</a><a href="#admin">Admin path</a><a href="#split">Public vs admin per option</a><a href="#services">AWS services vs Imperva</a><a href="#cost">Cost</a><a href="#approve">Before approval</a><a href="#sources">Sources</a></section>
+<section class="section" id="glance">
+  <div class="eyebrow">01 · AT A GLANCE</div>
+  <h2>The decision in one table</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Factor</th><th class="o2h">Proposal 2 · AWS edge</th><th class="o3h">Proposal 3 · Existing edge (Imperva)</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Public edge</th><td>One CloudFront distribution on a flat-rate plan, with an AWS WAF web ACL, Shield Standard and the Anti-DDoS managed rules that the Business and Premium plans bundle. <a class="cite" href="https://aws.amazon.com/cloudfront/pricing/" target="_blank" rel="noopener noreferrer">CloudFront plans</a></td><td>The existing Imperva Cloud WAF site: CDN, DDoS mitigation, WAF rules policy, bot access control and load balancing in one service, on the tier the contract specifies (open decision B22). <a class="cite" href="https://www.imperva.com/resources/datasheets/cloud-web-application-firewall.pdf" target="_blank" rel="noopener noreferrer">Imperva datasheet</a></td></tr>
+      <tr><th scope="row">Who sees the real visitor</th><td>CloudFront and the edge web ACL see the client address, so the AWS IP reputation and anonymous IP lists work at the edge. The origin reads the client from X-Forwarded-For. <a class="cite" href="https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-ip-rep.html" target="_blank" rel="noopener noreferrer">AWS WAF IP reputation</a></td><td>Only Imperva sees the client. The origin sees Imperva addresses and reads the visitor from the Incap-Client-IP header, so the AWS reputation lists stay off at the origin and Imperva's own reputation features are used. <a class="cite" href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/onboarding/setup-checklist.htm" target="_blank" rel="noopener noreferrer">Imperva checklist</a></td></tr>
+      <tr><th scope="row">Where the public WAF runs</th><td>Twice in AWS WAF: the edge web ACL on CloudFront (managed rules, route allow-list, rate rules, country labels) and the origin web ACL in BLOCK as a second layer.</td><td>Two engines: Imperva's WAF Rules policy, ACL and custom rules at the edge, then the AWS WAF origin web ACL in BLOCK with the same managed rule groups and route allow-list.</td></tr>
+      <tr><th scope="row">Origin lock</th><td>Security group admits only the AWS-managed CloudFront origin-facing prefix list, plus a secret origin header checked by a listener rule or the origin web ACL. The Business and Premium plans also include VPC origins and CloudFront-to-origin mTLS if a stronger lock is wanted. <a class="cite" href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/restrict-access-to-load-balancer.html" target="_blank" rel="noopener noreferrer">restrict to ALB</a></td><td>Security group admits Imperva's published IP ranges (a list the team maintains), plus mandatory mutual TLS: the ALB trust store validates the client certificate Imperva presents. <a class="cite" href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/certificate-mtls.htm" target="_blank" rel="noopener noreferrer">Imperva-to-origin mTLS</a></td></tr>
+      <tr><th scope="row">Emergency-page failover</th><td>A CloudFront origin group fails GET requests over to the S3 page when the ALB errors or times out. Origin failover is listed only on the Premium plan (USD 1,000) or pay-as-you-go. <a class="cite" href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/flat-rate-pricing-plan.html" target="_blank" rel="noopener noreferrer">plan features</a></td><td>Imperva Load Balancing and Site Failover with health monitoring sends traffic to the S3 page. Imperva states the feature's availability depends on the subscription. <a class="cite" href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/introducing/load-balancing-failover.htm" target="_blank" rel="noopener noreferrer">Imperva failover</a></td></tr>
+      <tr><th scope="row">Logs into the home-Region archive</th><td>CloudFront standard logs and WAF logs to S3; CloudWatch Logs ingestion is included from the Pro plan.</td><td>Imperva pushes logs to S3 or SFTP; the feature depends on the subscription, and Imperva buffers logs for at most 48 hours or 500 MB. <a class="cite" href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/settings/log-integration.htm" target="_blank" rel="noopener noreferrer">Imperva log integration</a></td></tr>
+      <tr><th scope="row">Administrator path</th><td colspan="2">Identical in both: one Verified Access HTTP endpoint for the console, two TCP endpoints for the EKS API and RDS Proxy, IAM Identity Center with mandatory MFA, an AWS WAF web ACL on the Verified Access instance, CloudShell VPC environments for break-glass. Administrators never pass through the public edge in either option. <a class="cite" href="https://talorlik.github.io/cloud-and-web-security/index.html#dd-access-rec" data-source-path="index.html#dd-access-rec" target="_blank" rel="noopener noreferrer">strategy 8.7</a></td></tr>
+      <tr><th scope="row">Vendors and residency</th><td>AWS only. Cached public content is served from edge locations worldwide, and CloudFront's control plane is a us-east-1 exemption in the Region guardrail (decision B6).</td><td>Two vendors. Imperva points of presence and any log data held outside the approved territory are the residency-drift risk R18; the DPA and residency clauses sit in the supplier register.</td></tr>
+      <tr><th scope="row">Worksheet monthly total (defaults, corrected 29 October 2026)</th><td class="num">USD 3,575.70<span class="sub">Premium plan 1,000 + origin web ACL 21</span></td><td class="num">USD 3,579.35<span class="sub">placeholder 1,000 + origin web ACL 21 + trust store 3.65</span></td></tr>
+      <tr><th scope="row">Worksheet total before the correction</th><td class="num">USD 2,754.70<span class="sub">Business plan 200, origin web ACL unpriced</span></td><td class="num">USD 3,575.70<span class="sub">trust store unpriced</span></td></tr>
+      <tr><th scope="row">What moves the price</th><td>Plan tier against measured traffic. Flat-rate plans have no overage charges, even in a surge or an attack, and origin fetches are free.</td><td>The real Imperva quote, its traffic allowance and overage terms, and regional data transfer out of the ALB toward Imperva, which the worksheet excludes.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="section" id="findings">
+  <div class="eyebrow">02 · WHAT THE COMPARISON SHOWS</div>
+  <h2>Five things the totals alone do not say</h2>
+  <div class="findings">
+    <div class="finding"><div class="k">Cost</div><h4>With failover priced in, the two options cost the same</h4><p>The worksheet used to start Proposal 2 at the USD 200 Business plan, but that plan has no origin failover and the edge-served emergency page needs one. It now starts at Premium (USD 1,000) plus the origin web ACL, so Proposal 2 lands at USD 3,575.70, USD 3.65 below Proposal 3. The decision turns on the Imperva quote, not on the AWS lines.</p></div>
+    <div class="finding"><div class="k">Omissions</div><h4>Each option was missing a small AWS line, now priced</h4><p>Proposal 2 describes an origin web ACL in BLOCK as a second layer, but the worksheet priced only the CloudFront package: about USD 21 a month at 10 million origin-bound requests. Proposal 3 makes ALB mutual TLS mandatory, and a trust store costs USD 0.005 an hour, about USD 3.65 a month. Both lines are in the worksheet since 29 October 2026.</p></div>
+    <div class="finding"><div class="k">Traffic</div><h4>Proposal 3 keeps paying AWS for every byte sent to Imperva</h4><p>The ALB answers Imperva over the internet, so us-east-1 bills data transfer out at USD 0.09 per GB for the first 10 TB. CloudFront origin fetches are free and the flat-rate plan covers delivery with no overage. This is an existing cost that Proposal 2 removes and the worksheet leaves out of both options.</p></div>
+    <div class="finding"><div class="k">Contract</div><h4>Two Imperva features the design relies on are subscription-dependent</h4><p>Imperva's documentation says both site failover and log integration depend on the subscription. The S3 emergency-page failover (CH-12) and the home-Region log push (B22) only exist in Proposal 3 if the contract includes them. The written scope confirmation that p3-cost asks for must name both.</p></div>
+    <div class="finding"><div class="k">Admin</div><h4>The administrator path is identical, so it does not decide anything</h4><p>Both options spend USD 504.70 a month on Verified Access and the administrator web ACL, and both keep the console off the public edge. The only difference is which edge the admin plane bypasses. Public and admin planes differ sharply inside each option, which section 06 shows.</p></div>
+  </div>
+</section>
+
+<section class="section" id="flows">
+  <div class="eyebrow">03 · FLOW DIAGRAMS</div>
+  <h2>One request through each option, public and admin</h2>
+  <p class="prose">Solid boxes are services the team configures. The tinted box is the public edge the option is choosing. Dashed red is a direct connection that must be refused. Dollar lines are monthly list prices or worksheet placeholders.</p>
+
+  <figure>
+    <div class="fh"><span class="optbar o2"></span>Proposal 2 · public path</div>
+    <div class="diag">
+    <svg viewBox="0 0 1040 400" role="img" aria-label="Proposal 2 public path: users reach CloudFront, which filters with the edge web ACL and caches, fetches from the origin ALB locked by prefix list and secret header, fails over to the S3 emergency page, and sends logs to the home-Region archive. A direct connection to the ALB is refused.">
+      <defs>
+        <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker>
+        <marker id="a1x" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="badfill"/></marker>
+      </defs>
+      <rect x="460" y="6" width="240" height="34" rx="6" class="box ghost"/>
+      <text x="580" y="27" class="t mid">Direct connection from the internet</text>
+      <line x1="580" y1="40" x2="580" y2="57" class="bad" marker-end="url(#a1x)"/>
+      <text x="590" y="54" class="s bad-t">refused: not on the prefix list, no secret header</text>
+
+      <rect x="16" y="106" width="120" height="56" rx="6" class="box"/>
+      <text x="76" y="130" class="t mid">Public users</text>
+      <text x="76" y="146" class="s mid">browser · QR link</text>
+      <line x1="136" y1="134" x2="174" y2="134" class="ln" marker-end="url(#a1)"/>
+      <text x="155" y="126" class="s mid">HTTPS</text>
+
+      <rect x="176" y="60" width="236" height="166" rx="6" class="box edge2"/>
+      <text x="188" y="82" class="t b">Amazon CloudFront · edge</text>
+      <text x="188" y="100" class="s">Route 53 DNS · ACM cert · Shield Std</text>
+      <text x="188" y="116" class="s">AWS WAF edge web ACL: Core, KBI, SQLi,</text>
+      <text x="188" y="132" class="s">Linux, Admin Protection, allow-list</text>
+      <text x="188" y="148" class="s">rate rules · country label · reputation</text>
+      <text x="188" y="164" class="s">anonymizer block (writes) · challenge</text>
+      <text x="188" y="180" class="s">cache: assets, tiles, emergency page</text>
+      <text x="188" y="196" class="s">origin group: ALB primary, S3 secondary</text>
+      <text x="188" y="214" class="c">Business USD 200 · Premium USD 1,000</text>
+
+      <line x1="412" y1="120" x2="470" y2="120" class="ln" marker-end="url(#a1)"/>
+      <text x="442" y="112" class="s mid">fetch</text>
+      <text x="442" y="134" class="s mid">free egress</text>
+
+      <rect x="472" y="60" width="216" height="166" rx="6" class="box"/>
+      <text x="484" y="82" class="t b">Origin ALB · internet-facing</text>
+      <text x="484" y="100" class="s">SG: CloudFront origin prefix list</text>
+      <text x="484" y="116" class="s">listener rule checks secret header</text>
+      <text x="484" y="132" class="s">AWS WAF origin web ACL · BLOCK</text>
+      <text x="484" y="148" class="s">rate/geo rules read X-Forwarded-For</text>
+      <text x="484" y="164" class="s">blocked admin path reached → P1</text>
+      <text x="484" y="180" class="s">Shield Standard · ACM certificate</text>
+      <text x="484" y="214" class="c">web ACL USD 21 · second layer</text>
+
+      <line x1="688" y1="120" x2="750" y2="120" class="ln" marker-end="url(#a1)"/>
+      <text x="719" y="112" class="s mid">allowed</text>
+
+      <rect x="752" y="60" width="130" height="166" rx="6" class="box"/>
+      <text x="764" y="82" class="t b">Inside the VPC</text>
+      <text x="764" y="100" class="s">Envoy Gateway</text>
+      <text x="764" y="116" class="s">exact-match routes</text>
+      <text x="764" y="132" class="s">nginx · public gw</text>
+      <text x="764" y="148" class="s">devices · geometry</text>
+      <text x="764" y="164" class="s">OSRM routing</text>
+      <text x="764" y="180" class="s">PSA restricted</text>
+      <text x="764" y="196" class="s">default-deny NetPol</text>
+
+      <line x1="882" y1="135" x2="920" y2="135" class="ln" marker-end="url(#a1)"/>
+      <rect x="922" y="100" width="102" height="70" rx="6" class="box"/>
+      <text x="973" y="126" class="t mid">RDS Proxy</text>
+      <text x="973" y="142" class="s mid">PostgreSQL 17</text>
+      <text x="973" y="158" class="s mid">per-service logins</text>
+
+      <polyline points="412,200 440,200 440,278 470,278" class="ln" marker-end="url(#a1)"/>
+      <text x="446" y="236" class="s">fails over on</text>
+      <text x="446" y="250" class="s">5xx or timeout</text>
+      <rect x="472" y="250" width="216" height="56" rx="6" class="box"/>
+      <text x="580" y="272" class="t mid">S3 emergency page</text>
+      <text x="580" y="290" class="s mid">signed static · 2nd origin · GET only</text>
+
+      <line x1="290" y1="226" x2="290" y2="334" class="ln" marker-end="url(#a1)"/>
+      <text x="298" y="290" class="s">standard logs</text>
+      <polyline points="688,200 712,200 712,360 690,360" class="ln" marker-end="url(#a1)"/>
+      <text x="718" y="300" class="s">WAF + ALB logs</text>
+      <rect x="176" y="336" width="512" height="48" rx="6" class="box plain"/>
+      <text x="188" y="356" class="t b">Log archive · S3 in the home Region · Object Lock</text>
+      <text x="188" y="374" class="s">CloudFront standard logs · WAF logs · ALB logs · canaries watch via CloudFront</text>
+    </svg>
+    </div>
+    <script type="text/x-mermaid">
+flowchart LR
+  subgraph cf["Amazon CloudFront · edge · Premium USD 1,000 (Business USD 200 has no failover)"]
+    direction TB
+    waf["AWS WAF edge web ACL: Core, KBI, SQLi, Linux, Admin Protection, allow-list · rate rules · country label · reputation · anonymizer block on writes · challenge"]
+    cache["Route 53 DNS · ACM cert · Shield Standard · cache: assets, tiles, emergency page · origin group: ALB primary, S3 secondary"]
+  end
+  users["Public users · browser · QR link"] -->|HTTPS| cf
+  cf -->|fetch · free egress| alb["Origin ALB · internet-facing · SG: CloudFront origin prefix list · listener rule checks the secret header · AWS WAF origin web ACL in BLOCK · rate and geo rules read X-Forwarded-For · blocked admin path reached → P1 · web ACL USD 21, second layer"]
+  alb -->|allowed| vpc["Inside the VPC · Envoy Gateway · exact-match routes · nginx · public gateway · devices · geometry · OSRM routing · PSA restricted · default-deny NetPol"]
+  vpc --> rds["RDS Proxy · PostgreSQL 17 · per-service logins"]
+  cf -->|fails over on 5xx or timeout · GET only| s3["S3 emergency page · signed static · second origin"]
+  cf -->|standard logs| logs["Log archive · S3 in the home Region · Object Lock · canaries watch via CloudFront"]
+  alb -->|WAF and ALB logs| logs
+  direct["Direct connection from the internet"] -.->|refused: not on the prefix list, no secret header| alb
+    </script>
+    <figcaption>Proposal 2: every public request is filtered and cached at CloudFront before an origin fetch. The origin ALB accepts only the CloudFront prefix list plus the secret header and inspects again with AWS WAF. When the ALB fails, the origin group serves the S3 emergency page for GET requests without a DNS change.</figcaption>
+  </figure>
+
+  <figure>
+    <div class="fh"><span class="optbar o2"></span>Proposal 2 · administrator path</div>
+    <div class="diag">
+    <svg viewBox="0 0 1040 420" role="img" aria-label="Proposal 2 administrator path: administrators sign in through IAM Identity Center with MFA, reach the console through a Verified Access HTTP endpoint with an admin web ACL and Cedar policy, which forwards to the internal admin ALB. Super admins use two Verified Access TCP endpoints for the EKS API and RDS Proxy. Break-glass uses a CloudShell VPC environment. The CloudFront distribution is not in the admin path.">
+      <defs>
+        <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker>
+      </defs>
+      <rect x="16" y="70" width="120" height="56" rx="6" class="box"/>
+      <text x="76" y="94" class="t mid">Administrators</text>
+      <text x="76" y="110" class="s mid">up to 100 · 3 groups</text>
+      <line x1="136" y1="98" x2="174" y2="98" class="ln" marker-end="url(#a2)"/>
+      <text x="155" y="90" class="s mid">sign in</text>
+
+      <rect x="176" y="50" width="190" height="96" rx="6" class="box"/>
+      <text x="188" y="72" class="t b">IAM Identity Center</text>
+      <text x="188" y="90" class="s">MFA on every sign-in</text>
+      <text x="188" y="106" class="s">passkeys: super + governing</text>
+      <text x="188" y="122" class="s">8-hour sessions</text>
+      <text x="188" y="140" class="c">USD 0 / mo</text>
+      <line x1="366" y1="98" x2="414" y2="98" class="ln" marker-end="url(#a2)"/>
+      <text x="390" y="90" class="s mid">OIDC trust</text>
+
+      <rect x="416" y="40" width="262" height="150" rx="6" class="box va"/>
+      <text x="428" y="62" class="t b">AWS Verified Access · HTTP endpoint</text>
+      <text x="428" y="80" class="s">console on a low-visibility domain, ACM cert</text>
+      <text x="428" y="96" class="s">admin web ACL: Core, KBI, IP reputation,</text>
+      <text x="428" y="112" class="s">anonymous IP, geo = service country, rate</text>
+      <text x="428" y="128" class="s">Cedar: group → endpoint · signs user JWT</text>
+      <text x="428" y="144" class="s">logs with trust context → archive</text>
+      <text x="428" y="164" class="c">USD 197.10 app + USD 15.60 web ACL / mo</text>
+      <line x1="678" y1="90" x2="750" y2="90" class="ln" marker-end="url(#a2)"/>
+      <text x="714" y="82" class="s mid">allowed + JWT</text>
+
+      <rect x="752" y="50" width="140" height="80" rx="6" class="box"/>
+      <text x="764" y="72" class="t b">Internal admin ALB</text>
+      <text x="764" y="90" class="s">private DNS name</text>
+      <text x="764" y="106" class="s">private CA cert</text>
+      <line x1="892" y1="90" x2="928" y2="90" class="ln" marker-end="url(#a2)"/>
+
+      <rect x="930" y="40" width="94" height="150" rx="6" class="box"/>
+      <text x="942" y="62" class="t b">Admin Envoy</text>
+      <text x="942" y="80" class="s">Console</text>
+      <text x="942" y="96" class="s">admin gateway</text>
+      <text x="942" y="112" class="s">verifies JWT</text>
+      <text x="942" y="128" class="s">OIDC + RBAC</text>
+      <text x="942" y="144" class="s">backend → RDS</text>
+
+      <rect x="16" y="236" width="120" height="56" rx="6" class="box"/>
+      <text x="76" y="260" class="t mid">Super admins</text>
+      <text x="76" y="276" class="s mid">Connectivity Client</text>
+      <line x1="136" y1="264" x2="414" y2="264" class="ln" marker-end="url(#a2)"/>
+      <text x="275" y="256" class="s mid">Connectivity Client · Identity Center MFA</text>
+
+      <rect x="416" y="216" width="262" height="96" rx="6" class="box va"/>
+      <text x="428" y="238" class="t b">Verified Access · TCP endpoints ×2</text>
+      <text x="428" y="256" class="s">CIDR endpoint: EKS API on port 443</text>
+      <text x="428" y="272" class="s">RDS endpoint: RDS Proxy only</text>
+      <text x="428" y="288" class="s">100 free connections per endpoint-hour</text>
+      <text x="428" y="305" class="c">USD 292.00 / mo</text>
+      <line x1="678" y1="264" x2="750" y2="264" class="ln" marker-end="url(#a2)"/>
+      <text x="714" y="256" class="s mid">TCP</text>
+
+      <rect x="752" y="216" width="272" height="96" rx="6" class="box"/>
+      <text x="764" y="238" class="t b">Private targets</text>
+      <text x="764" y="256" class="s">Private EKS API · Argo CD by port-forward</text>
+      <text x="764" y="272" class="s">RDS Proxy → PostgreSQL · IAM auth for DBAs</text>
+      <text x="764" y="288" class="s">security groups admit only the VA endpoint</text>
+
+      <rect x="16" y="338" width="120" height="56" rx="6" class="box"/>
+      <text x="76" y="362" class="t mid">Break-glass role</text>
+      <text x="76" y="378" class="s mid">if VA or IdP fails</text>
+      <line x1="136" y1="366" x2="414" y2="366" class="ln" marker-end="url(#a2)"/>
+      <text x="275" y="358" class="s mid">opens</text>
+      <rect x="416" y="336" width="262" height="60" rx="6" class="box"/>
+      <text x="428" y="358" class="t b">CloudShell VPC environment</text>
+      <text x="428" y="376" class="s">inside a VPC subnet · no server · USD 0 / mo</text>
+      <polyline points="678,366 712,366 712,314" class="ln" marker-end="url(#a2)"/>
+      <text x="718" y="330" class="s">from inside the VPC</text>
+
+      <rect x="752" y="336" width="272" height="60" rx="6" class="box ghost"/>
+      <text x="888" y="358" class="t mid">Amazon CloudFront distribution</text>
+      <text x="888" y="376" class="s mid">public plane only · not in the admin path</text>
+    </svg>
+    </div>
+    <script type="text/x-mermaid">
+flowchart LR
+  admins["Administrators · up to 100 · 3 groups"] -->|sign in| idc["IAM Identity Center · MFA on every sign-in · passkeys for super and governing · 8-hour sessions · USD 0 per month"]
+  idc -->|OIDC trust| va["AWS Verified Access · HTTP endpoint · console on a low-visibility domain, ACM cert · admin web ACL: Core, KBI, IP reputation, anonymous IP, geo = service country, rate · Cedar: group → endpoint · signs user JWT · logs with trust context → archive · USD 197.10 app + USD 15.60 web ACL per month"]
+  va -->|allowed + JWT| ialb["Internal admin ALB · private DNS name · private CA cert"]
+  ialb --> envoy["Admin Envoy · console · admin gateway verifies JWT · OIDC + RBAC · backend → RDS"]
+  supers["Super admins · Connectivity Client"] -->|Connectivity Client · Identity Center MFA| tcp["Verified Access · TCP endpoints ×2 · CIDR endpoint: EKS API on port 443 · RDS endpoint: RDS Proxy only · 100 free connections per endpoint-hour · USD 292.00 per month"]
+  tcp -->|TCP| targets["Private targets · private EKS API · Argo CD by port-forward · RDS Proxy → PostgreSQL · IAM auth for DBAs · security groups admit only the VA endpoint"]
+  breakglass["Break-glass role · if VA or IdP fails"] -->|opens| shell["CloudShell VPC environment · inside a VPC subnet · no server · USD 0 per month"]
+  shell -->|from inside the VPC| targets
+  cfx["Amazon CloudFront distribution · public plane only · not in the admin path"]
+    </script>
+    <figcaption>Proposal 2: the console is reached through Verified Access on its own domain, never through the CloudFront distribution. Identity Center enforces MFA, the admin web ACL can use the AWS reputation lists because no proxy sits in front, and the admin gateway verifies the signed user-context token on every request.</figcaption>
+  </figure>
+
+  <figure>
+    <div class="fh"><span class="optbar o3"></span>Proposal 3 · public path</div>
+    <div class="diag">
+    <svg viewBox="0 0 1040 400" role="img" aria-label="Proposal 3 public path: users reach the Imperva point of presence, which mitigates DDoS, applies the WAF rules policy, bot control, ACL allow-list and cache, then fetches from the origin ALB over the internet with mutual TLS and the Incap-Client-IP header. The ALB inspects again with AWS WAF. Imperva site failover and log push to S3 depend on the subscription. A direct connection without Imperva's certificate is refused.">
+      <defs>
+        <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker>
+        <marker id="a3x" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="badfill"/></marker>
+      </defs>
+      <rect x="460" y="6" width="240" height="34" rx="6" class="box ghost"/>
+      <text x="580" y="27" class="t mid">Direct connection from the internet</text>
+      <line x1="580" y1="40" x2="580" y2="57" class="bad" marker-end="url(#a3x)"/>
+      <text x="590" y="54" class="s bad-t">refused: no Imperva client certificate (mTLS)</text>
+
+      <rect x="16" y="106" width="120" height="56" rx="6" class="box"/>
+      <text x="76" y="130" class="t mid">Public users</text>
+      <text x="76" y="146" class="s mid">browser · QR link</text>
+      <line x1="136" y1="134" x2="174" y2="134" class="ln" marker-end="url(#a3)"/>
+      <text x="155" y="126" class="s mid">HTTPS</text>
+
+      <rect x="176" y="60" width="236" height="166" rx="6" class="box edge3"/>
+      <text x="188" y="82" class="t b">Imperva Cloud WAF · edge PoP</text>
+      <text x="188" y="100" class="s">CNAME to Imperva · Imperva-managed TLS</text>
+      <text x="188" y="116" class="s">WAF Rules: SQLi, XSS, RFI, illegal URLs</text>
+      <text x="188" y="132" class="s">backdoor quarantine · ACL allow-list</text>
+      <text x="188" y="148" class="s">custom rules: rate limits, country tag</text>
+      <text x="188" y="164" class="s">bot control · reputation · anonymizers</text>
+      <text x="188" y="180" class="s">DDoS mitigation tuned for 500k users</text>
+      <text x="188" y="196" class="s">CDN cache · Cache Shield · purge</text>
+      <text x="188" y="214" class="c c3">contract quote · placeholder USD 1,000</text>
+
+      <line x1="412" y1="120" x2="470" y2="120" class="ln" marker-end="url(#a3)"/>
+      <text x="442" y="112" class="s mid">fetch · mTLS</text>
+      <text x="442" y="134" class="s mid">egress billed</text>
+
+      <rect x="472" y="60" width="216" height="166" rx="6" class="box"/>
+      <text x="484" y="82" class="t b">Origin ALB · internet-facing</text>
+      <text x="484" y="100" class="s">SG: Imperva IP ranges, kept by hand</text>
+      <text x="484" y="116" class="s">mTLS trust store: Imperva's cert</text>
+      <text x="484" y="132" class="s">AWS WAF origin web ACL · BLOCK</text>
+      <text x="484" y="148" class="s">rate/geo rules read Incap-Client-IP</text>
+      <text x="484" y="164" class="s">AWS IP reputation groups stay off</text>
+      <text x="484" y="180" class="s">blocked admin path reached → P1</text>
+      <text x="484" y="214" class="c c3">web ACL USD 21 + trust store 3.65</text>
+
+      <line x1="688" y1="120" x2="750" y2="120" class="ln" marker-end="url(#a3)"/>
+      <text x="719" y="112" class="s mid">allowed</text>
+
+      <rect x="752" y="60" width="130" height="166" rx="6" class="box"/>
+      <text x="764" y="82" class="t b">Inside the VPC</text>
+      <text x="764" y="100" class="s">Envoy Gateway</text>
+      <text x="764" y="116" class="s">exact-match routes</text>
+      <text x="764" y="132" class="s">nginx · public gw</text>
+      <text x="764" y="148" class="s">devices · geometry</text>
+      <text x="764" y="164" class="s">OSRM routing</text>
+      <text x="764" y="180" class="s">PSA restricted</text>
+      <text x="764" y="196" class="s">default-deny NetPol</text>
+
+      <line x1="882" y1="135" x2="920" y2="135" class="ln" marker-end="url(#a3)"/>
+      <rect x="922" y="100" width="102" height="70" rx="6" class="box"/>
+      <text x="973" y="126" class="t mid">RDS Proxy</text>
+      <text x="973" y="142" class="s mid">PostgreSQL 17</text>
+      <text x="973" y="158" class="s mid">per-service logins</text>
+
+      <polyline points="412,200 440,200 440,278 470,278" class="ln" marker-end="url(#a3)"/>
+      <text x="446" y="236" class="s">site failover</text>
+      <text x="446" y="250" class="s">(subscription)</text>
+      <rect x="472" y="250" width="216" height="56" rx="6" class="box"/>
+      <text x="580" y="272" class="t mid">S3 emergency page</text>
+      <text x="580" y="290" class="s mid">cached at Imperva · failover target</text>
+
+      <line x1="290" y1="226" x2="290" y2="334" class="ln" marker-end="url(#a3)"/>
+      <text x="298" y="290" class="s">log push (add-on)</text>
+      <polyline points="688,200 712,200 712,360 690,360" class="ln" marker-end="url(#a3)"/>
+      <text x="718" y="300" class="s">WAF + ALB logs</text>
+      <rect x="176" y="336" width="512" height="48" rx="6" class="box plain"/>
+      <text x="188" y="356" class="t b">Log archive · S3 in the home Region · Object Lock</text>
+      <text x="188" y="374" class="s">Imperva log push to S3 (subscription-dependent, 48 h buffer) · WAF logs · ALB logs</text>
+    </svg>
+    </div>
+    <script type="text/x-mermaid">
+flowchart LR
+  subgraph imp["Imperva Cloud WAF · edge PoP · contract quote, placeholder USD 1,000"]
+    direction TB
+    rules["CNAME to Imperva · Imperva-managed TLS · WAF Rules: SQLi, XSS, RFI, illegal URLs · backdoor quarantine · ACL allow-list · custom rules: rate limits, country tag"]
+    more["Bot control · reputation · anonymizers · DDoS mitigation tuned for 500k users · CDN cache · Cache Shield · purge"]
+  end
+  users["Public users · browser · QR link"] -->|HTTPS| imp
+  imp -->|fetch · mTLS · egress billed| alb["Origin ALB · internet-facing · SG: Imperva IP ranges, kept by hand · mTLS trust store: Imperva's cert · AWS WAF origin web ACL in BLOCK · rate and geo rules read Incap-Client-IP · AWS IP reputation groups stay off · blocked admin path reached → P1 · web ACL USD 21 + trust store 3.65"]
+  alb -->|allowed| vpc["Inside the VPC · Envoy Gateway · exact-match routes · nginx · public gateway · devices · geometry · OSRM routing · PSA restricted · default-deny NetPol"]
+  vpc --> rds["RDS Proxy · PostgreSQL 17 · per-service logins"]
+  imp -->|site failover, subscription-dependent| s3["S3 emergency page · cached at Imperva · failover target"]
+  imp -->|log push, subscription-dependent, 48 h buffer| logs["Log archive · S3 in the home Region · Object Lock"]
+  alb -->|WAF and ALB logs| logs
+  direct["Direct connection from the internet"] -.->|refused: no Imperva client certificate, mTLS| alb
+    </script>
+    <figcaption>Proposal 3: Imperva is the only layer that sees the real visitor, so reputation, anonymizer and country checks happen there. The origin accepts only Imperva's IP ranges with a valid client certificate and inspects again with AWS WAF reading Incap-Client-IP. Failover to the S3 page and the log push to the home Region are Imperva features whose availability depends on the subscription.</figcaption>
+  </figure>
+
+  <figure>
+    <div class="fh"><span class="optbar o3"></span>Proposal 3 · administrator path</div>
+    <div class="diag">
+    <svg viewBox="0 0 1040 420" role="img" aria-label="Proposal 3 administrator path: identical to Proposal 2. Administrators sign in through IAM Identity Center with MFA and reach the console through a Verified Access HTTP endpoint with an admin web ACL and Cedar policy, forwarded to the internal admin ALB. Super admins use two Verified Access TCP endpoints. Break-glass uses CloudShell. The Imperva site is not in the admin path.">
+      <defs>
+        <marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker>
+      </defs>
+      <rect x="16" y="70" width="120" height="56" rx="6" class="box"/>
+      <text x="76" y="94" class="t mid">Administrators</text>
+      <text x="76" y="110" class="s mid">up to 100 · 3 groups</text>
+      <line x1="136" y1="98" x2="174" y2="98" class="ln" marker-end="url(#a4)"/>
+      <text x="155" y="90" class="s mid">sign in</text>
+
+      <rect x="176" y="50" width="190" height="96" rx="6" class="box"/>
+      <text x="188" y="72" class="t b">IAM Identity Center</text>
+      <text x="188" y="90" class="s">MFA on every sign-in</text>
+      <text x="188" y="106" class="s">passkeys: super + governing</text>
+      <text x="188" y="122" class="s">8-hour sessions</text>
+      <text x="188" y="140" class="c">USD 0 / mo</text>
+      <line x1="366" y1="98" x2="414" y2="98" class="ln" marker-end="url(#a4)"/>
+      <text x="390" y="90" class="s mid">OIDC trust</text>
+
+      <rect x="416" y="40" width="262" height="150" rx="6" class="box va"/>
+      <text x="428" y="62" class="t b">AWS Verified Access · HTTP endpoint</text>
+      <text x="428" y="80" class="s">console on a low-visibility domain, ACM cert</text>
+      <text x="428" y="96" class="s">admin web ACL: Core, KBI, IP reputation,</text>
+      <text x="428" y="112" class="s">anonymous IP, geo = service country, rate</text>
+      <text x="428" y="128" class="s">Cedar: group → endpoint · signs user JWT</text>
+      <text x="428" y="144" class="s">logs with trust context → archive</text>
+      <text x="428" y="164" class="c">USD 197.10 app + USD 15.60 web ACL / mo</text>
+      <line x1="678" y1="90" x2="750" y2="90" class="ln" marker-end="url(#a4)"/>
+      <text x="714" y="82" class="s mid">allowed + JWT</text>
+
+      <rect x="752" y="50" width="140" height="80" rx="6" class="box"/>
+      <text x="764" y="72" class="t b">Internal admin ALB</text>
+      <text x="764" y="90" class="s">private DNS name</text>
+      <text x="764" y="106" class="s">private CA cert</text>
+      <line x1="892" y1="90" x2="928" y2="90" class="ln" marker-end="url(#a4)"/>
+
+      <rect x="930" y="40" width="94" height="150" rx="6" class="box"/>
+      <text x="942" y="62" class="t b">Admin Envoy</text>
+      <text x="942" y="80" class="s">Console</text>
+      <text x="942" y="96" class="s">admin gateway</text>
+      <text x="942" y="112" class="s">verifies JWT</text>
+      <text x="942" y="128" class="s">OIDC + RBAC</text>
+      <text x="942" y="144" class="s">backend → RDS</text>
+
+      <rect x="16" y="236" width="120" height="56" rx="6" class="box"/>
+      <text x="76" y="260" class="t mid">Super admins</text>
+      <text x="76" y="276" class="s mid">Connectivity Client</text>
+      <line x1="136" y1="264" x2="414" y2="264" class="ln" marker-end="url(#a4)"/>
+      <text x="275" y="256" class="s mid">Connectivity Client · Identity Center MFA</text>
+
+      <rect x="416" y="216" width="262" height="96" rx="6" class="box va"/>
+      <text x="428" y="238" class="t b">Verified Access · TCP endpoints ×2</text>
+      <text x="428" y="256" class="s">CIDR endpoint: EKS API on port 443</text>
+      <text x="428" y="272" class="s">RDS endpoint: RDS Proxy only</text>
+      <text x="428" y="288" class="s">100 free connections per endpoint-hour</text>
+      <text x="428" y="305" class="c">USD 292.00 / mo</text>
+      <line x1="678" y1="264" x2="750" y2="264" class="ln" marker-end="url(#a4)"/>
+      <text x="714" y="256" class="s mid">TCP</text>
+
+      <rect x="752" y="216" width="272" height="96" rx="6" class="box"/>
+      <text x="764" y="238" class="t b">Private targets</text>
+      <text x="764" y="256" class="s">Private EKS API · Argo CD by port-forward</text>
+      <text x="764" y="272" class="s">RDS Proxy → PostgreSQL · IAM auth for DBAs</text>
+      <text x="764" y="288" class="s">security groups admit only the VA endpoint</text>
+
+      <rect x="16" y="338" width="120" height="56" rx="6" class="box"/>
+      <text x="76" y="362" class="t mid">Break-glass role</text>
+      <text x="76" y="378" class="s mid">if VA or IdP fails</text>
+      <line x1="136" y1="366" x2="414" y2="366" class="ln" marker-end="url(#a4)"/>
+      <text x="275" y="358" class="s mid">opens</text>
+      <rect x="416" y="336" width="262" height="60" rx="6" class="box"/>
+      <text x="428" y="358" class="t b">CloudShell VPC environment</text>
+      <text x="428" y="376" class="s">inside a VPC subnet · no server · USD 0 / mo</text>
+      <polyline points="678,366 712,366 712,314" class="ln" marker-end="url(#a4)"/>
+      <text x="718" y="330" class="s">from inside the VPC</text>
+
+      <rect x="752" y="336" width="272" height="60" rx="6" class="box ghost"/>
+      <text x="888" y="358" class="t mid">Imperva Cloud WAF site</text>
+      <text x="888" y="376" class="s mid">public plane only · not in the admin path</text>
+    </svg>
+    </div>
+    <script type="text/x-mermaid">
+flowchart LR
+  admins["Administrators · up to 100 · 3 groups"] -->|sign in| idc["IAM Identity Center · MFA on every sign-in · passkeys for super and governing · 8-hour sessions · USD 0 per month"]
+  idc -->|OIDC trust| va["AWS Verified Access · HTTP endpoint · console on a low-visibility domain, ACM cert · admin web ACL: Core, KBI, IP reputation, anonymous IP, geo = service country, rate · Cedar: group → endpoint · signs user JWT · logs with trust context → archive · USD 197.10 app + USD 15.60 web ACL per month"]
+  va -->|allowed + JWT| ialb["Internal admin ALB · private DNS name · private CA cert"]
+  ialb --> envoy["Admin Envoy · console · admin gateway verifies JWT · OIDC + RBAC · backend → RDS"]
+  supers["Super admins · Connectivity Client"] -->|Connectivity Client · Identity Center MFA| tcp["Verified Access · TCP endpoints ×2 · CIDR endpoint: EKS API on port 443 · RDS endpoint: RDS Proxy only · 100 free connections per endpoint-hour · USD 292.00 per month"]
+  tcp -->|TCP| targets["Private targets · private EKS API · Argo CD by port-forward · RDS Proxy → PostgreSQL · IAM auth for DBAs · security groups admit only the VA endpoint"]
+  breakglass["Break-glass role · if VA or IdP fails"] -->|opens| shell["CloudShell VPC environment · inside a VPC subnet · no server · USD 0 per month"]
+  shell -->|from inside the VPC| targets
+  impx["Imperva Cloud WAF site · public plane only · not in the admin path"]
+    </script>
+    <figcaption>Proposal 3: the same administrator mechanism as Proposal 2. Administrators never pass through Imperva, so the two-vendor question does not reach the admin plane, and the admin web ACL's reputation lists work because no proxy is in front.</figcaption>
+  </figure>
+</section>
+
+<section class="section" id="public">
+  <div class="eyebrow">04 · PUBLIC PATH</div>
+  <h2>Public solution, layer by layer</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Layer</th><th class="o2h">Proposal 2 · AWS edge</th><th class="o3h">Proposal 3 · Imperva</th><th>What differs</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">DNS and TLS at the edge</th><td>Route 53 record to the distribution; public ACM certificate, free and auto-renewed; both included in every flat-rate plan.</td><td>DNS CNAME to the Imperva site; Imperva manages the edge certificate or a custom one is uploaded. The Route 53 hosted zone is billed as today.</td><td>Only where the certificate lives. The public domain stays separate from any corporate domain in both (CH-14).</td></tr>
+      <tr><th scope="row">DDoS absorption</th><td>Shield Standard on CloudFront and the ALB at no charge. Business and Premium add the Anti-DDoS managed rule group and an uptime SLA. Shield Advanced (USD 3,000 a month, one-year term) is not assumed and is incompatible with flat-rate plans. <a class="cite" href="https://aws.amazon.com/shield/pricing/" target="_blank" rel="noopener noreferrer">Shield pricing</a></td><td>Imperva DDoS protection for the site, with the detection threshold tuned for 500,000 concurrent users so a real event is not treated as an attack (WAF-04). The SLA depends on the tier the contract buys (B22). Shield Standard still covers the ALB.</td><td>Proposal 3's SLA is contractual; Proposal 2's comes with the Business plan and above.</td></tr>
+      <tr><th scope="row">Application WAF</th><td>Edge web ACL with the Core, Known Bad Inputs, SQL database, Linux and Admin Protection managed groups, the positive route allow-list and rate rules. Plans allow 50 (Business) or 75 (Premium) rules including AWS managed rules. Customer rule groups and partner rules are not supported on plans. <a class="cite" href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/flat-rate-pricing-plan.html" target="_blank" rel="noopener noreferrer">plan guide</a></td><td>Imperva's default WAF Rules policy blocks SQL injection, cross-site scripting, illegal resource access and remote file inclusion; backdoor protection auto-quarantines; an ACL allow-list and custom rules carry the route list and rate criteria. <a class="cite" href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/policies.htm" target="_blank" rel="noopener noreferrer">Imperva policies</a></td><td>Both options keep the AWS managed groups at the origin, so Proposal 3 runs two different engines and Proposal 2 runs AWS WAF twice.</td></tr>
+      <tr><th scope="row">IP reputation and anonymizers</th><td>AWS IP reputation and Anonymous IP lists on the edge web ACL, where the request source is the real client; hosting providers and anonymizers blocked on the write path only.</td><td>Imperva's reputation and client classification at the edge. The AWS lists stay off at the origin because they would only see Imperva's addresses (WAF-12). <a class="cite" href="https://talorlik.github.io/cloud-and-web-security/index.html#waf-12" data-source-path="index.html#waf-12" target="_blank" rel="noopener noreferrer">WAF-12</a></td><td>Same outcome, different vendor. Proposal 3 is the architecture the strategy was written against.</td></tr>
+      <tr><th scope="row">Bots and challenges</th><td>The plan's bot management covers self-identifying (common) bots; targeted bots need pay-as-you-go. JavaScript challenge is included from Business; no CAPTCHA on public pages.</td><td>Bot access control denies bad bots and allows good ones by default; a JavaScript challenge only on the position write path and only under attack (WAF-03). Imperva's Advanced Bot Protection is a separate product.</td><td>Neither option buys an advanced bot product in release one.</td></tr>
+      <tr><th scope="row">Country checks</th><td>Count rule labels by country; stricter rate limits outside the service country; no geo-block on reads; CloudFront geographic restrictions not used.</td><td>Same policy at Imperva; hard blocking, if ever wanted, only on the write path through ACL Block Countries.</td><td>No difference in policy.</td></tr>
+      <tr><th scope="row">Caching</th><td>Cache policies control the key; custom caching rules from Business; invalidations included in plans (pay-as-you-go: first 1,000 paths free, then USD 0.005 each). Writes, admin and personal data stay out of the cache. <a class="cite" href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html" target="_blank" rel="noopener noreferrer">cache key</a></td><td>Imperva cache modes (standard or custom), Cache Shield between PoPs and the origin, and manual purge. Imperva warns that caching HTML can expose personal data, so the same exclusions apply. <a class="cite" href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/settings/caching-settings.htm" target="_blank" rel="noopener noreferrer">Imperva cache</a></td><td>Equivalent capability; Proposal 2's publishing procedure uses CloudFront invalidations, Proposal 3's uses Imperva purge.</td></tr>
+      <tr><th scope="row">Origin lock</th><td>Security group admits only the AWS-managed CloudFront origin-facing prefix list, and a secret origin header is checked. VPC origins and CloudFront-to-origin mTLS are included from Business if the team wants to take the ALB off the internet entirely.</td><td>Security group admits Imperva's published IP ranges, which the team keeps current, and the ALB trust store validates Imperva's client certificate (mandatory mTLS, gate G6). <a class="cite" href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/mutual-authentication.html" target="_blank" rel="noopener noreferrer">ALB mTLS</a></td><td>Proposal 3 needs a maintained IP list and a trust store (USD 3.65 a month); Proposal 2's list is AWS-managed.</td></tr>
+      <tr><th scope="row">Origin WAF (second layer)</th><td>Origin web ACL in BLOCK reads the client from X-Forwarded-For; blocked admin or device-list paths reached at the origin alert at P1. In the worksheet at USD 21.</td><td>Origin web ACL in BLOCK reads Incap-Client-IP, which is stripped if it arrives from anywhere else; same P1 alert. In the worksheet at USD 21.</td><td>Same control and the same price for both options in the worksheet.</td></tr>
+      <tr><th scope="row">Emergency-page failover</th><td>Origin group: ALB primary, S3 page secondary; fails over only after a failed request to the primary and never for POST. Premium plan or pay-as-you-go. <a class="cite" href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/high_availability_origin_failover.html" target="_blank" rel="noopener noreferrer">origin failover</a></td><td>Imperva health monitoring and site failover to the S3 page, calibrated by the customer; availability depends on the subscription.</td><td>Both need a specific tier or add-on; neither is in the cheapest configuration.</td></tr>
+      <tr><th scope="row">Logs and evidence</th><td>CloudFront standard logs and WAF logs to the log-archive bucket; CloudWatch Logs ingestion included from Pro. Real-time logs are not supported on plans.</td><td>Imperva log integration pushes security and access logs to S3, SFTP or Splunk; subscription-dependent; Imperva keeps at most 48 hours or 500 MB in its repository. Near-real-time SIEM integration is a separate mode.</td><td>Proposal 3 must confirm the log feature in the contract and set the S3 push before go-live (B22).</td></tr>
+      <tr><th scope="row">Data transfer</th><td>Origin fetches from the ALB to CloudFront are free; viewer delivery is inside the plan allowance (50 TB on Business and Premium) with no overage. <a class="cite" href="https://aws.amazon.com/cloudfront/pricing/pay-as-you-go/" target="_blank" rel="noopener noreferrer">pay-as-you-go</a></td><td>The ALB answers Imperva over the internet, so AWS bills Regional data transfer out (USD 0.09 per GB for the first 10 TB at the us-east-1 list price), and Imperva's own bandwidth allowance and overages apply. <a class="cite" href="https://aws.amazon.com/ec2/pricing/on-demand/" target="_blank" rel="noopener noreferrer">EC2 data transfer</a></td><td>An existing metered cost that Proposal 2 removes.</td></tr>
+      <tr><th scope="row">Residency</th><td>Public content served from edge locations worldwide; CloudFront control plane in us-east-1, listed as an SCP exemption (GP-02); logs delivered to the home Region.</td><td>Imperva points of presence and logs outside the approved territory are R18; the DPA, residency commitment and security clauses must be in the supplier register.</td><td>Both need a B6 decision; Proposal 3 also needs vendor evidence.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="section" id="admin">
+  <div class="eyebrow">05 · ADMIN PATH</div>
+  <h2>Administrator solution, shared by both options</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Component</th><th>Mechanism</th><th class="num">Monthly USD</th><th>Differs between options?</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">IAM Identity Center</th><td>Trust provider with MFA on every sign-in; security keys or passkeys for super and governing-organization administrators; SMS and email codes off; 8-hour sessions (HC-01, HC-07). <a class="cite" href="https://aws.amazon.com/iam/identity-center/faqs/" target="_blank" rel="noopener noreferrer">no extra charge</a></td><td class="num">0.00</td><td>No</td></tr>
+      <tr><th scope="row">Verified Access HTTP endpoint</th><td>Fronts the existing internal administrator ALB on a low-visibility domain with a public ACM certificate; group-based Cedar policies; the admin gateway verifies the signed user-context token (HC-03, HC-08, HC-09). <a class="cite" href="https://aws.amazon.com/verified-access/pricing/" target="_blank" rel="noopener noreferrer">USD 0.27 per hour</a></td><td class="num">197.10</td><td>No</td></tr>
+      <tr><th scope="row">Administrator web ACL</th><td>Attached to the Verified Access instance: Core, Known Bad Inputs, the IP reputation and anonymous IP lists, a geo match for the service country, a per-IP rate limit and an admin route allow-list (HC-04, HC-05). One ACL, ten rule entries, one million requests.</td><td class="num">15.60</td><td>No. The reputation lists work in both because no proxy sits in front.</td></tr>
+      <tr><th scope="row">Verified Access TCP endpoints</th><td>Network CIDR endpoint for the EKS API on port 443 and an RDS endpoint targeting RDS Proxy, used through the Connectivity Client on Windows and macOS; 100 free connections per endpoint-hour (HC-10). <a class="cite" href="https://aws.amazon.com/verified-access/pricing/" target="_blank" rel="noopener noreferrer">USD 0.20 per hour each</a></td><td class="num">292.00</td><td>No</td></tr>
+      <tr><th scope="row">CloudShell VPC environments</th><td>Break-glass and Linux path when Verified Access or the identity provider fails; reaches the EKS API, RDS Proxy and the admin gateway from inside the VPC (HC-12).</td><td class="num">0.00</td><td>No</td></tr>
+      <tr><th scope="row">Internal admin ALB, admin Envoy, console, admin gateway, backend</th><td>Existing components; private DNS name, private CA certificate; application OIDC login and role-based authorization still enforced (R01).</td><td class="num">existing</td><td>No</td></tr>
+      <tr><th scope="row">Client VPN</th><td>Runs in parallel for two weeks with a written rollback, then the endpoint is removed (CH-15).</td><td class="num">removed</td><td>No</td></tr>
+      <tr class="tot"><th scope="row">Admin plane, priced lines</th><td>Same services, same configuration, same evidence in both options.</td><td class="num">504.70</td><td>Only the edge it bypasses: CloudFront in Proposal 2, Imperva in Proposal 3.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Cost basis: 730 hours a month and the rates on the Verified Access and AWS WAF pricing pages, as the worksheet assumes. Verified Access data processing at USD 0.02 per GB sits inside the Common usage allowance.</p>
+</section>
+
+<section class="section" id="split">
+  <div class="eyebrow">06 · PUBLIC VS ADMIN, PER OPTION</div>
+  <h2>Inside each option, how the two planes differ</h2>
+
+  <h3 id="proposal-2-aws-edge"><span class="optbar o2"></span>Proposal 2 · AWS edge</h3>
+  <div class="tbl"><table class="planes"><colgroup><col class="aspect"><col class="plane"><col class="plane"></colgroup>
+    <thead><tr><th>Aspect</th><th>Public plane</th><th>Admin plane</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Entry point</th><td>CloudFront distribution on the public domain, reachable by anyone.</td><td>Verified Access HTTP endpoint on a separate low-visibility domain; the console stays entirely off the distribution.</td></tr>
+      <tr><th scope="row">Identity</th><td>Anonymous visitors; device checks and PostGIS validation happen in the application.</td><td>Identity Center with mandatory MFA, Cedar group policies, then the application's own OIDC login and RBAC.</td></tr>
+      <tr><th scope="row">Web firewall</th><td>Edge web ACL in the plan (managed rules, allow-list, rate, country label, reputation) plus the origin web ACL in BLOCK.</td><td>One administrator web ACL on the Verified Access instance with reputation lists, geo match and a short admin route allow-list.</td></tr>
+      <tr><th scope="row">Location</th><td>Labelled, never blocked on reads; stricter rate limits abroad; anonymizers blocked on writes.</td><td>Allowed only from the service country, enforced at the identity provider and in Cedar, with a time-boxed exception ticket.</td></tr>
+      <tr><th scope="row">Caching and challenges</th><td>Assets, tiles and the emergency page cached; JavaScript challenge available on the write path.</td><td>Nothing cached; no challenge; every request re-evaluated against the policy.</td></tr>
+      <tr><th scope="row">Load balancer</th><td>Internet-facing origin ALB locked to the CloudFront prefix list and secret header.</td><td>Internal admin ALB with a private name and private CA certificate; security groups admit only the Verified Access endpoint.</td></tr>
+      <tr><th scope="row">Failure path</th><td>Origin group serves the S3 emergency page for GET requests.</td><td>Break-glass role opens a CloudShell VPC environment.</td></tr>
+      <tr><th scope="row">Logs and alerts</th><td>CloudFront and WAF logs; P1 when a blocked path reaches the origin; canaries through CloudFront.</td><td>Verified Access logs with trust context; P1 on policy, trust-provider or web ACL changes, MFA resets and out-of-inventory administrators; P2 on unexpected countries or hours.</td></tr>
+      <tr class="tot"><th scope="row">Monthly USD (list or worksheet)</th><td class="num sum">1,000.00 Premium (200.00 Business has no failover) + origin web ACL 21.00</td><td class="num sum">504.70</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="proposal-3-existing-edge"><span class="optbar o3"></span>Proposal 3 · Existing edge</h3>
+  <div class="tbl"><table class="planes"><colgroup><col class="aspect"><col class="plane"><col class="plane"></colgroup>
+    <thead><tr><th>Aspect</th><th>Public plane</th><th>Admin plane</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Entry point</th><td>Imperva site on the public domain; Imperva terminates TLS and proxies to the origin.</td><td>Verified Access HTTP endpoint on a separate domain; administrators never pass through Imperva.</td></tr>
+      <tr><th scope="row">Identity</th><td>Anonymous visitors; application-side validation of every coordinate.</td><td>Identity Center with mandatory MFA, Cedar policies, application OIDC and RBAC.</td></tr>
+      <tr><th scope="row">Web firewall</th><td>Imperva WAF Rules policy, ACL and custom rules at the edge, then the AWS WAF origin web ACL in BLOCK.</td><td>One administrator web ACL on the Verified Access instance.</td></tr>
+      <tr><th scope="row">Who sees the visitor</th><td>Imperva only; the origin reads Incap-Client-IP and strips it from any other source.</td><td>Verified Access sees the administrator directly, so the AWS reputation lists work here.</td></tr>
+      <tr><th scope="row">Load balancer</th><td>Internet-facing origin ALB admitting Imperva IP ranges with mandatory mutual TLS (trust store).</td><td>Internal admin ALB, private name, private CA; only the Verified Access endpoint admitted.</td></tr>
+      <tr><th scope="row">Failure path</th><td>Imperva site failover to the S3 emergency page (subscription-dependent).</td><td>Break-glass role opens CloudShell.</td></tr>
+      <tr><th scope="row">Logs and alerts</th><td>Imperva push to S3 (subscription-dependent) plus WAF and ALB logs; Imperva alerts are P2 and P1 during an event (AL-10).</td><td>Verified Access logs with trust context; same P1 and P2 rules as Proposal 2.</td></tr>
+      <tr><th scope="row">Vendors</th><td>Two: Imperva and AWS, coordinated in one response process and one runbook per provider.</td><td>One: AWS.</td></tr>
+      <tr class="tot"><th scope="row">Monthly USD (list or worksheet)</th><td class="num sum">Imperva quote (placeholder 1,000.00) + origin web ACL 21.00 + trust store 3.65 + Regional data transfer (existing, excluded from the worksheet)</td><td class="num sum">504.70</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="section" id="services">
+  <div class="eyebrow">07 · AWS SERVICES VS IMPERVA</div>
+  <h2>Each AWS service against what Imperva includes</h2>
+  <p class="prose">"Included" means Imperva documents the capability as part of Cloud WAF. "Subscription-dependent" means Imperva's documentation says availability depends on the plan, so the contract must name it. "Not included" means AWS provides it in both options or Imperva has no equivalent in the path.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>AWS service or feature</th><th class="o2h">Role in Proposal 2</th><th class="o3h">Role in Proposal 3</th><th>Imperva includes it?</th><th>Cost effect</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Amazon CloudFront (CDN, TLS, caching, invalidations)</th><td>Public entry and cache; one distribution on a flat-rate plan.</td><td>Not used. Imperva's CDN caches, with Cache Shield and purge.</td><td><span class="pill ok">Included</span></td><td>Proposal 2: USD 200 (Business) or USD 1,000 (Premium), or pay-as-you-go. Proposal 3: inside the Imperva contract; no AWS line.</td></tr>
+      <tr><th scope="row">AWS WAF web ACL at the edge</th><td>On CloudFront: managed groups, allow-list, rate rules, country labels. Mandatory on a plan; counts against 50 or 75 rules.</td><td>None. Imperva WAF Rules policy, ACL and custom rules do this at the edge.</td><td><span class="pill ok">Included</span></td><td>Proposal 2: bundled in the plan (pay-as-you-go would be USD 5 + rules + USD 0.60 per million). Proposal 3: contract.</td></tr>
+      <tr><th scope="row">AWS WAF web ACL at the origin ALB</th><td>Second layer in BLOCK; reads X-Forwarded-For.</td><td>Second layer in BLOCK; reads Incap-Client-IP.</td><td><span class="pill na">Not applicable</span></td><td>Both: USD 5 + USD 10 for ten rule entries + USD 0.60 per million origin-bound requests, about USD 21 at the worksheet volume. Priced for both options in the worksheet.</td></tr>
+      <tr><th scope="row">AWS managed rule groups (Core, Known Bad Inputs, SQL database, Linux, Admin Protection)</th><td>At the edge and at the origin.</td><td>At the origin only.</td><td><span class="pill warn">Partly</span><span class="sub">Imperva's policy covers SQLi, XSS, RFI and illegal resource access; the Java deserialization and Log4j rules in Known Bad Inputs are AWS-specific.</span></td><td>USD 1 per managed group per web ACL, inside the ten-entry assumption. No change between options.</td></tr>
+      <tr><th scope="row">AWS WAF IP reputation and Anonymous IP lists</th><td>On the edge web ACL, effective.</td><td>Off on the public plane; on the admin web ACL only.</td><td><span class="pill ok">Included</span><span class="sub">Imperva reputation and client classification.</span></td><td>No price difference; two managed groups either way.</td></tr>
+      <tr><th scope="row">AWS WAF Bot Control</th><td>Common bots are part of Business and Premium; targeted bots are not supported on plans.</td><td>Not used; Imperva bot access control.</td><td><span class="pill ok">Included</span><span class="sub">Basic bot control. Advanced Bot Protection is a separate Imperva product.</span></td><td>USD 0 in both as designed. Targeted Bot Control would be USD 10 a month plus USD 10 per million on pay-as-you-go. <a class="cite" href="https://aws.amazon.com/waf/pricing/" target="_blank" rel="noopener noreferrer">WAF pricing</a></td></tr>
+      <tr><th scope="row">AWS WAF JavaScript challenge and CAPTCHA</th><td>JS challenge in Business and Premium; CAPTCHA responses in rules included in plans.</td><td>Not used; Imperva challenge on the write path under attack.</td><td><span class="pill ok">Included</span></td><td>Pay-as-you-go would bill USD 0.40 per million challenge responses; nothing inside a plan or inside Imperva.</td></tr>
+      <tr><th scope="row">AWS Shield Standard</th><td>CloudFront and the ALB.</td><td>The ALB behind Imperva.</td><td><span class="pill ok">Included</span><span class="sub">Imperva DDoS mitigation for the site; threshold and SLA per tier.</span></td><td>USD 0 in both.</td></tr>
+      <tr><th scope="row">AWS Shield Advanced</th><td>Not assumed; not allowed on a flat-rate distribution.</td><td>Not assumed.</td><td><span class="pill warn">Depends on tier</span><span class="sub">Imperva's DDoS SLA is the counterpart (B22).</span></td><td>USD 3,000 a month with a one-year term if ever bought; neither option includes it.</td></tr>
+      <tr><th scope="row">AWS WAF Anti-DDoS managed rule group</th><td>Included from Business ("Advanced DDoS protection").</td><td>Not used.</td><td><span class="pill ok">Included</span><span class="sub">Layer 7 DDoS mitigation is Imperva's core service.</span></td><td>Pay-as-you-go would be USD 20 per web ACL plus USD 0.15 per million.</td></tr>
+      <tr><th scope="row">CloudFront origin group (origin failover)</th><td>ALB primary, S3 secondary, GET only.</td><td>Not used; Imperva Load Balancing and Site Failover with health monitoring.</td><td><span class="pill warn">Subscription-dependent</span></td><td>Proposal 2: Premium plan (USD 1,000) or pay-as-you-go, where failover has no separate charge. Proposal 3: confirm it is in the contract.</td></tr>
+      <tr><th scope="row">Amazon S3 (signed static emergency page)</th><td>Secondary origin behind the origin group.</td><td>Failover target cached at Imperva.</td><td><span class="pill na">Not applicable</span></td><td>Negligible; Business includes 1 TB of S3 storage credits.</td></tr>
+      <tr><th scope="row">CloudFront origin-facing managed prefix list and secret origin header</th><td>Locks the ALB to CloudFront.</td><td>Replaced by Imperva's published IP ranges, maintained by the team.</td><td><span class="pill warn">Partly</span><span class="sub">Imperva publishes its IP ranges; nothing updates the security group automatically.</span></td><td>USD 0 in both; Proposal 3 carries an operational task.</td></tr>
+      <tr><th scope="row">CloudFront VPC origins and CloudFront-to-origin mTLS</th><td>Available from Business if the ALB should leave the internet entirely; not required by the proposal text.</td><td>Not applicable.</td><td><span class="pill ok">Included</span><span class="sub">Imperva-to-origin mTLS is the Proposal 3 equivalent.</span></td><td>Inside the plan. A design choice, not a cost line.</td></tr>
+      <tr><th scope="row">ALB mutual TLS trust store</th><td>Not needed.</td><td>Mandatory: validates Imperva's client certificate (G6).</td><td><span class="pill ok">Included</span><span class="sub">Imperva uploads and presents the client certificate.</span></td><td>USD 0.005 per trust-store hour, about USD 3.65 a month; in the worksheet. <a class="cite" href="https://aws.amazon.com/elasticloadbalancing/pricing/" target="_blank" rel="noopener noreferrer">ELB pricing</a></td></tr>
+      <tr><th scope="row">AWS WAF forwarded-IP configuration</th><td>Origin rules read X-Forwarded-For.</td><td>Origin rules read Incap-Client-IP; header stripped from any other source.</td><td><span class="pill ok">Included</span><span class="sub">Imperva inserts the header by default.</span></td><td>USD 0. <a class="cite" href="https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-statement-forwarded-ip-address.html" target="_blank" rel="noopener noreferrer">forwarded IP</a></td></tr>
+      <tr><th scope="row">Amazon Route 53</th><td>Public DNS for the distribution, included in the plan.</td><td>CNAME to Imperva from the existing hosted zone.</td><td><span class="pill warn">Separate product</span><span class="sub">Imperva DNS Protection is a different service, not assumed.</span></td><td>Hosted zone and queries are existing costs in both.</td></tr>
+      <tr><th scope="row">AWS Certificate Manager</th><td>Public certificate on CloudFront and on the origin ALB.</td><td>Certificate on the origin ALB; Imperva handles the edge certificate.</td><td><span class="pill ok">Included</span></td><td>USD 0 in both.</td></tr>
+      <tr><th scope="row">CloudFront standard logs and WAF logs to S3</th><td>Delivered to the home-Region archive; CloudWatch Logs ingestion included from Pro.</td><td>WAF and ALB logs as usual; edge logs come from Imperva's push.</td><td><span class="pill warn">Subscription-dependent</span><span class="sub">Imperva log integration to S3, SFTP or Splunk; 48-hour buffer at Imperva.</span></td><td>S3 storage sits in the Common allowance for both. Proposal 3 must confirm the log feature in the contract.</td></tr>
+      <tr><th scope="row">CloudWatch Synthetics canaries</th><td>Watch the site and emergency page through CloudFront.</td><td>Watch them through Imperva.</td><td><span class="pill na">Not applicable</span></td><td>Same in both; inside the Common monitoring allowance.</td></tr>
+      <tr><th scope="row">AWS Verified Access (one HTTP app, two TCP endpoints)</th><td>Administrator path.</td><td>Administrator path.</td><td><span class="pill bad">Not included</span><span class="sub">Imperva plays no part in administrator access.</span></td><td>USD 489.10 a month in both.</td></tr>
+      <tr><th scope="row">IAM Identity Center and CloudShell VPC environments</th><td>Trust provider and break-glass.</td><td>Same.</td><td><span class="pill bad">Not included</span></td><td>USD 0 in both.</td></tr>
+      <tr><th scope="row">AWS WAF web ACL on the Verified Access instance</th><td>Administrator web ACL.</td><td>Same.</td><td><span class="pill bad">Not included</span></td><td>USD 15.60 a month in both.</td></tr>
+      <tr><th scope="row">Regional data transfer out (ALB to the internet)</th><td>Not billed: origin fetches to CloudFront are free, delivery is inside the plan.</td><td>Billed for every byte the ALB sends to Imperva, at USD 0.09 per GB for the first 10 TB (us-east-1 list price).</td><td><span class="pill warn">Partly</span><span class="sub">Imperva's bandwidth allowance covers its own delivery, not the AWS egress toward it.</span></td><td>Proposal 3 continues an existing metered cost, reduced only by what Imperva caches. Excluded from the worksheet in both, and the worksheet now says so.</td></tr>
+      <tr><th scope="row">Network Firewall, VPC endpoints, EKS, RDS Proxy, KMS, Secrets Manager, GuardDuty, Security Hub, Inspector, Config, Backup</th><td>Identical inside the VPC and in Common.</td><td>Identical.</td><td><span class="pill bad">Not included</span></td><td>No difference; Common allowance or existing hosting.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="section" id="cost">
+  <div class="eyebrow">08 · COST</div>
+  <h2>Where the money goes</h2>
+
+  <h3 id="worksheet-defaults-side-by-side-corrected-29-october-2026">Worksheet defaults, side by side (corrected 29 October 2026)</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Line</th><th class="num o2h">Proposal 2</th><th class="num o3h">Proposal 3</th><th>Basis</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Common (detection, logs and backups, operations, licences)</th><td class="num">2,050.00</td><td class="num">2,050.00</td><td>Planning allowances, identical.</td></tr>
+      <tr><th scope="row">Verified Access (one web application, two TCP endpoints)</th><td class="num">489.10</td><td class="num">489.10</td><td>730 hours at USD 0.27 and 2 × USD 0.20.</td></tr>
+      <tr><th scope="row">Administrator web ACL</th><td class="num">15.60</td><td class="num">15.60</td><td>USD 5 + 10 rule entries + 1 million requests.</td></tr>
+      <tr><th scope="row">Public edge</th><td class="num">1,000.00</td><td class="num">1,000.00</td><td>CloudFront Premium plan example, the lowest flat-rate plan that lists origin failover, versus the Imperva placeholder, which is not a quote.</td></tr>
+      <tr><th scope="row">AWS WAF at the origin</th><td class="num">21.00</td><td class="num">21.00</td><td>USD 15 + USD 0.60 × 10 million, counting every public request as origin-bound.</td></tr>
+      <tr><th scope="row">ALB mutual TLS trust store</th><td class="num">—</td><td class="num">3.65</td><td>730 hours × USD 0.005; mandatory in Proposal 3 only.</td></tr>
+      <tr class="tot"><th scope="row">Monthly</th><td class="num">3,575.70</td><td class="num">3,579.35</td><td>USD 3.65 apart. The Imperva placeholder decides the rest.</td></tr>
+      <tr><th scope="row">Yearly recurring</th><td class="num">42,908.40</td><td class="num">42,952.20</td><td>Monthly × 12.</td></tr>
+      <tr><th scope="row">One-time (shared setup 8,000 + option setup 3,000)</th><td class="num">11,000.00</td><td class="num">11,000.00</td><td>Both options assume 30 hours of implementation.</td></tr>
+      <tr><th scope="row">First year</th><td class="num">53,908.40</td><td class="num">53,952.20</td><td>Yearly plus one-time.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="what-the-correction-changed">What the correction changed</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Line</th><th class="num o2h">Proposal 2</th><th class="num o3h">Proposal 3</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Worksheet monthly before 29 October 2026</th><td class="num">2,754.70</td><td class="num">3,575.70</td><td>Business plan at USD 200 and no origin web ACL for Proposal 2; no trust store for Proposal 3.</td></tr>
+      <tr><th scope="row">Edge-served failover needs Premium</th><td class="num">+ 800.00</td><td class="num">—</td><td>Origin failover is listed only on Premium (USD 1,000); Business (USD 200) lacks it. p2-cost now says so.</td></tr>
+      <tr><th scope="row">Origin web ACL in BLOCK</th><td class="num">+ 21.00</td><td class="num">—</td><td>p2-edge keeps the origin web ACL as a second layer; the worksheet now prices it.</td></tr>
+      <tr><th scope="row">ALB mutual TLS trust store</th><td class="num">—</td><td class="num">+ 3.65</td><td>p3-origin makes mTLS mandatory; USD 0.005 per hour per trust store, now a worksheet line.</td></tr>
+      <tr class="tot"><th scope="row">Corrected monthly (the current default)</th><td class="num">3,575.70</td><td class="num">3,579.35</td><td>USD 3.65 apart, as above.</td></tr>
+      <tr><th scope="row">Corrected first year</th><td class="num">53,908.40</td><td class="num">53,952.20</td><td>Both with USD 11,000 one-time.</td></tr>
+      <tr><th scope="row">Pay-as-you-go alternative for Proposal 2 at the worksheet volume</th><td class="num">2,596.70</td><td class="num">—</td><td>10 million requests and 1 TB fall inside CloudFront's always-free tier, so the edge costs only two web ACLs (USD 42). Origin failover has no separate charge on pay-as-you-go, but the plan's Anti-DDoS rules, uptime SLA and no-overage guarantee are not part of it.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="how-the-public-edge-scales-with-traffic">How the public edge scales with traffic</h3>
+  <p class="prose">Public-edge lines only, excluding Common, the admin plane and the Imperva quote. Volumes are illustrations, not forecasts: data assumes an average of 100 KB per request. Proposal 2 pay-as-you-go uses the Europe price class and charges the first-10 TB rate for all volume beyond the free 1 TB, an upper bound. Proposal 3 uses the us-east-1 data transfer tiers, and Imperva caching reduces origin-bound volume.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Requests and data per month</th><th class="num o2h">P2 pay-as-you-go</th><th class="num o2h">P2 Business (no failover)</th><th class="num o2h">P2 Premium</th><th class="num o3h">P3 AWS side</th><th class="num o3h">P3 with USD 1,000 placeholder</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">10 million · 1 TB (worksheet default)</th><td class="num">21.00</td><td class="num">200.00</td><td class="num">1,000.00</td><td class="num">114.65</td><td class="num">1,114.65</td></tr>
+      <tr><th scope="row">50 million · 5 TB</th><td class="num">433.00</td><td class="num">200.00</td><td class="num">1,000.00</td><td class="num">498.65</td><td class="num">1,498.65</td></tr>
+      <tr><th scope="row">125 million · 12.5 TB (Business allowance)</th><td class="num">1,205.50</td><td class="num">200.00</td><td class="num">1,000.00</td><td class="num">1,206.15</td><td class="num">2,206.15</td></tr>
+      <tr><th scope="row">300 million · 30 TB (event month)</th><td class="num">3,008.00</td><td class="num">above allowance</td><td class="num">1,000.00</td><td class="num">2,798.65</td><td class="num">3,798.65</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">P2 pay-as-you-go = CloudFront data transfer (USD 0.085 per GB after 1 TB free) + HTTPS requests (USD 0.012 per 10,000 after 10 million free) + edge web ACL (USD 15 + USD 0.60 per million). P3 AWS side = origin web ACL (USD 15 + USD 0.60 per million) + Regional data transfer out (USD 0.09 per GB first 10 TB, USD 0.085 next 40 TB) + trust store (USD 3.65). Add the origin web ACL to every P2 column for a like-for-like total. The flat-rate allowances are not hard limits, but AWS notifies at 50, 80 and 100 percent and the plan is sized for that baseline; blocked requests never count. Premium can be configured up to 6 billion requests and 600 TB for a new flat rate.</p>
+
+  <h3 id="what-the-worksheet-leaves-out-and-which-way-each-item-leans">What the worksheet leaves out, and which way each item leans</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Item</th><th>Proposal 2</th><th>Proposal 3</th><th>Leans toward</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Regional data transfer out from the ALB</th><td>Removed: origin fetches to CloudFront are free.</td><td>Continues: every byte to Imperva is billed by the Region; the worksheet now names this exclusion.</td><td><span class="o2h">Proposal 2</span></td></tr>
+      <tr><th scope="row">Surge and attack months</th><td>No overage on a flat-rate plan; blocked requests do not count.</td><td>Imperva traffic allowances and overage terms apply; AWS egress is metered.</td><td><span class="o2h">Proposal 2</span></td></tr>
+      <tr><th scope="row">Migration</th><td>Build and test a new edge, origin lock, caching and failover; run the origin-bypass and cache-update tests.</td><td>No migration; the existing site stays and the team adds mTLS, the origin web ACL and the log push.</td><td><span class="o3h">Proposal 3</span></td></tr>
+      <tr><th scope="row">Incident support and DDoS SLA</th><td>AWS uptime SLA from Business; Shield Response Team only with Shield Advanced and a Business or Enterprise support plan.</td><td>Contractual DDoS SLA and 24/7 Imperva security operations on the right tier.</td><td><span class="o3h">Proposal 3</span>, if the contract has it</td></tr>
+      <tr><th scope="row">Site failover and log push</th><td>Failover on Premium or pay-as-you-go; logs from Pro.</td><td>Both subscription-dependent at Imperva; must be in the written scope.</td><td>Unknown until the quote</td></tr>
+      <tr><th scope="row">Operational coordination</th><td>One vendor; the team tunes cache and invalidation rules and keeps the origin header secret.</td><td>Two vendors; WAF rules, log delivery, residency evidence and incidents coordinated across AWS and Imperva; the IP range list maintained by hand.</td><td><span class="o2h">Proposal 2</span></td></tr>
+      <tr><th scope="row">Residency evidence</th><td>Edge locations worldwide and a us-east-1 control plane need a B6 statement.</td><td>Imperva DPA, residency commitment and log location need supplier evidence (R18).</td><td>Neither; both need a steering-committee decision</td></tr>
+      <tr><th scope="row">Shield Advanced, targeted Bot Control, fraud control</th><td>Not assumed; not available on a flat-rate plan.</td><td>Not assumed.</td><td>Neither</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="section" id="approve">
+  <div class="eyebrow">09 · BEFORE APPROVAL</div>
+  <h2>What each option must prove, and what the quote must say</h2>
+  <div class="findings">
+    <div class="finding"><div class="k">Proposal 2</div><h4>Approve only after</h4><p>A traffic model with normal and emergency forecasts; an origin-bypass test proving a direct connection to the ALB is refused (G6); a cache-update test against the publishing procedure; the surge drill with edge failover and an emergency guidance update (G11); a residency review accepting worldwide edge delivery; and a decision between Premium and pay-as-you-go once the failover requirement is priced.</p></div>
+    <div class="finding"><div class="k">Proposal 3</div><h4>Approve only after</h4><p>A written Imperva price and scope confirmation naming the tier, bot management, the DDoS SLA, site failover, log integration to S3, traffic allowances and overage terms; mandatory origin mutual TLS tested (G6); the log push to the home Region confirmed before go-live (B22); the DPA and residency clauses in the supplier register; and the comparison of that total plus the avoided migration against Proposal 2.</p></div>
+    <div class="finding"><div class="k">Both</div><h4>Unchanged either way</h4><p>Verified Access with Identity Center MFA for administrators, the origin web ACL in BLOCK after a clean seven-day COUNT period, exact-match public routes, the signed S3 emergency page, Kyverno in Enforce, and the twelve go-live gates with evidence.</p></div>
+  </div>
+  <div class="callout">If the Imperva quote lands near the USD 1,000 placeholder, the two options cost the same on the AWS lines and the choice is about operations and contract value: one vendor with no overage and no migration risk on AWS egress, against an existing edge with a contractual DDoS SLA and no migration. If the quote is materially higher, Proposal 2 on Premium is cheaper and also removes the metered egress. If it is materially lower, Proposal 3 wins on price but still needs failover and log push in the contract.</div>
+</section>
+
+<section class="section" id="sources">
+  <div class="eyebrow">10 · SOURCES</div>
+  <h2>Documents this comparison relies on</h2>
+  <h3 id="project-documents">Project documents</h3>
+  <ol class="src">
+    <li>Management proposal, Proposal 2 items p2-fit to p2-work and Proposal 3 items p3-fit to p3-work, and the budget worksheet: <a href="https://talorlik.github.io/cloud-and-web-security/proposal/index.html" data-source-path="proposal/index.html" target="_blank" rel="noopener noreferrer">management proposal</a></li>
+    <li>Security strategy 8.1 WAF rules (WAF-01 to WAF-14), 8.5 admin hostname, 8.7 admin access (HC-01 to HC-12), decisions B6 and B22, risks R05, R07 and R18, changes CH-12 and CH-15, gates G6 and G11: <a href="https://talorlik.github.io/cloud-and-web-security/index.html" data-source-path="index.html" target="_blank" rel="noopener noreferrer">security strategy</a></li>
+  </ol>
+  <h3 id="aws-checked-29-october-2026">AWS, checked 29 October 2026</h3>
+  <ol class="src">
+    <li>CloudFront pricing, flat-rate plans: <a href="https://aws.amazon.com/cloudfront/pricing/" target="_blank" rel="noopener noreferrer">aws.amazon.com/cloudfront/pricing/</a></li>
+    <li>CloudFront flat-rate pricing plan guide, features by tier, usage allowances, unsupported features: <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/flat-rate-pricing-plan.html" target="_blank" rel="noopener noreferrer">docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/flat-rate-pricing-plan.html</a></li>
+    <li>CloudFront pay-as-you-go pricing: <a href="https://aws.amazon.com/cloudfront/pricing/pay-as-you-go/" target="_blank" rel="noopener noreferrer">aws.amazon.com/cloudfront/pricing/pay-as-you-go/</a></li>
+    <li>AWS WAF pricing: <a href="https://aws.amazon.com/waf/pricing/" target="_blank" rel="noopener noreferrer">aws.amazon.com/waf/pricing/</a></li>
+    <li>AWS Verified Access pricing: <a href="https://aws.amazon.com/verified-access/pricing/" target="_blank" rel="noopener noreferrer">aws.amazon.com/verified-access/pricing/</a></li>
+    <li>AWS Shield pricing: <a href="https://aws.amazon.com/shield/pricing/" target="_blank" rel="noopener noreferrer">aws.amazon.com/shield/pricing/</a></li>
+    <li>Elastic Load Balancing pricing, including the mutual TLS trust-store rate: <a href="https://aws.amazon.com/elasticloadbalancing/pricing/" target="_blank" rel="noopener noreferrer">aws.amazon.com/elasticloadbalancing/pricing/</a></li>
+    <li>EC2 on-demand pricing, data transfer out to the internet: <a href="https://aws.amazon.com/ec2/pricing/on-demand/" target="_blank" rel="noopener noreferrer">aws.amazon.com/ec2/pricing/on-demand/</a></li>
+    <li>CloudFront origin failover: <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/high_availability_origin_failover.html" target="_blank" rel="noopener noreferrer">high_availability_origin_failover.html</a></li>
+    <li>Restricting access to an Application Load Balancer origin: <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/restrict-access-to-load-balancer.html" target="_blank" rel="noopener noreferrer">restrict-access-to-load-balancer.html</a></li>
+    <li>CloudFront VPC origins: <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-vpc-origins.html" target="_blank" rel="noopener noreferrer">private-content-vpc-origins.html</a></li>
+    <li>AWS WAF IP reputation rule groups: <a href="https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-ip-rep.html" target="_blank" rel="noopener noreferrer">aws-managed-rule-groups-ip-rep.html</a></li>
+    <li>AWS WAF forwarded IP address: <a href="https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-statement-forwarded-ip-address.html" target="_blank" rel="noopener noreferrer">waf-rule-statement-forwarded-ip-address.html</a></li>
+    <li>Application Load Balancer mutual TLS: <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/mutual-authentication.html" target="_blank" rel="noopener noreferrer">mutual-authentication.html</a></li>
+    <li>IAM Identity Center FAQ (no additional charge): <a href="https://aws.amazon.com/iam/identity-center/faqs/" target="_blank" rel="noopener noreferrer">aws.amazon.com/iam/identity-center/faqs/</a></li>
+  </ol>
+  <h3 id="imperva-checked-29-october-2026">Imperva, checked 29 October 2026</h3>
+  <ol class="src">
+    <li>Imperva Cloud WAF datasheet (CDN, DDoS Protection, Advanced Bot Protection, API Security and Load Balancing as a suite): <a href="https://www.imperva.com/resources/datasheets/cloud-web-application-firewall.pdf" target="_blank" rel="noopener noreferrer">cloud-web-application-firewall.pdf</a></li>
+    <li>Create and manage policies (WAF Rules, ACL): <a href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/policies.htm" target="_blank" rel="noopener noreferrer">policies.htm</a></li>
+    <li>WAF settings and security settings: <a href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/settings/waf-settings.htm" target="_blank" rel="noopener noreferrer">waf-settings.htm</a>, <a href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/settings/security-settings.htm" target="_blank" rel="noopener noreferrer">security-settings.htm</a></li>
+    <li>Rules (rate criteria): <a href="https://docs.imperva.com/bundle/cloud-application-security/page/rules/rules.htm" target="_blank" rel="noopener noreferrer">rules.htm</a></li>
+    <li>Cache settings and Cache Shield: <a href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/settings/caching-settings.htm" target="_blank" rel="noopener noreferrer">caching-settings.htm</a></li>
+    <li>Load Balancing and Failover (availability depends on subscription): <a href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/introducing/load-balancing-failover.htm" target="_blank" rel="noopener noreferrer">load-balancing-failover.htm</a></li>
+    <li>Cloud WAF Log Integration (availability depends on subscription; push to SFTP, Amazon S3 or Splunk; 48-hour repository): <a href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/settings/log-integration.htm" target="_blank" rel="noopener noreferrer">log-integration.htm</a></li>
+    <li>Imperva-to-Origin mTLS: <a href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/certificate-mtls.htm" target="_blank" rel="noopener noreferrer">certificate-mtls.htm</a></li>
+    <li>Customer setup checklist (Incap-Client-IP and X-Forwarded-For headers): <a href="https://docs-cybersec.thalesgroup.com/bundle/cloud-application-security/page/onboarding/setup-checklist.htm" target="_blank" rel="noopener noreferrer">setup-checklist.htm</a></li>
+  </ol>
+  <p class="note">Every amount is a list price in US dollars at the Region shown on the pricing page, or a worksheet planning placeholder. None is a vendor quote, a capacity model or a promise of savings. Confirm us-east-1 rates, Verified Access availability and the Imperva contract before approval.</p>
+</section>
+
+<footer>Proposal 2 vs Proposal 3 · General edition · 29 October 2026 · List prices and worksheet placeholders, not vendor quotes.</footer></main></div><div id="status" class="status" role="status"></div><script src="document-links.js?v=2"></script><script src="comparison-app.js?v=1"></script></body></html>
