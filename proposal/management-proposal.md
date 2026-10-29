@@ -417,9 +417,10 @@ General edition. Choose the common foundation plus one proposal. Maximum 100 adm
 **Compare total edge cost before buying**
 
 - Budget about USD 489 per month for the Verified Access configuration, as in Proposal 1. ([Verified Access pricing](https://aws.amazon.com/verified-access/pricing/))
-- CloudFront is priced pay-as-you-go or on a flat-rate plan. ([CloudFront pricing](https://aws.amazon.com/cloudfront/pricing/))
-- The Business plan at USD 200 per month includes AWS WAF, advanced DDoS protection, JavaScript challenge, custom caching rules and logging, with 125 million requests and 50 TB. ([CloudFront pricing](https://aws.amazon.com/cloudfront/pricing/))
-- Origin failover is listed only from the Premium plan at USD 1,000 per month, so the edge-served fallback needs Premium or pay-as-you-go, and the worksheet’s USD 200 starting value must be revised. ([CloudFront pricing](https://aws.amazon.com/cloudfront/pricing/))
+- CloudFront is priced pay-as-you-go or on a flat-rate plan, and the Business and Premium plans bundle the edge web ACL. ([CloudFront pricing](https://aws.amazon.com/cloudfront/pricing/))
+- The edge-served emergency page needs origin failover, which CloudFront lists only from the Premium plan at USD 1,000 per month, so the worksheet starts there. ([CloudFront pricing](https://aws.amazon.com/cloudfront/pricing/))
+- Premium also bundles advanced DDoS protection, JavaScript challenge, custom caching rules, logging and 500 million requests, while pay-as-you-go bills requests, data transfer and each WAF feature per use. ([CloudFront pricing](https://aws.amazon.com/cloudfront/pricing/))
+- The origin web ACL behind CloudFront is a separate Regional AWS WAF charge, priced in the worksheet as if every public request were a cache miss. ([AWS WAF pricing](https://aws.amazon.com/waf/pricing/))
 - Price with normal and emergency traffic forecasts, check what each plan bundles so WAF is not counted twice, and confirm all rates before approval. ([CloudFront pricing](https://aws.amazon.com/cloudfront/pricing/))
 
 <a id="p2-work"></a>
@@ -552,6 +553,7 @@ General edition. Choose the common foundation plus one proposal. Maximum 100 adm
 
 - Add the quoted Imperva service and support cost to about USD 489 per month for Verified Access. ([Verified Access pricing](https://aws.amazon.com/verified-access/pricing/))
 - Add the AWS WAF web ACL at the origin, which inspects every request that passes Imperva, and the common detection, logging and backup allowances. ([AWS WAF pricing](https://aws.amazon.com/waf/pricing/))
+- Add the mandatory load balancer trust store for origin mutual TLS, billed at USD 0.005 per hour, about USD 3.65 per month. ([AWS documentation](https://aws.amazon.com/elasticloadbalancing/pricing/))
 - Compare that total and the migration avoided against Proposals 1 and 2, including traffic overages, contract commitments and incident support. ([Strategy: Imperva decision](https://talorlik.github.io/cloud-and-web-security/index.html#dec-b22))
 - Replace the worksheet’s placeholder with the actual contract figure before approval. ([Strategy: Imperva decision](https://talorlik.github.io/cloud-and-web-security/index.html#dec-b22))
 
@@ -570,7 +572,7 @@ General edition. Choose the common foundation plus one proposal. Maximum 100 adm
 
 ## Budget worksheet
 
-Common + one option, not all three options added together. USD; 730 hours per month; maximum 100 administrators. Rates checked 22 October 2026; confirm deployment-region prices. All fields start with editable planning estimates, not approved budgets or vendor quotes; clearing a field means not priced, not zero.
+Common + one option, not all three options added together. USD; 730 hours per month; maximum 100 administrators. Rates checked 29 October 2026; confirm deployment-region prices. All fields start with editable planning estimates, not approved budgets or vendor quotes; clearing a field means not priced, not zero.
 
 Public requests: 10 million per month (illustrative input, not a traffic forecast). WAF example: one ACL and ten billable rule entries per inspected layer, plus one million administrator requests.
 
@@ -625,9 +627,10 @@ Planning allowance: 20 hours × USD 100 for access, firewall configuration and t
 | Verified Access web application | USD 197.10 ([AWS pricing](https://aws.amazon.com/verified-access/pricing/)) |
 | Two technical access endpoints | USD 292.00 ([AWS pricing](https://aws.amazon.com/verified-access/pricing/)) |
 | Administrator web firewall | USD 15.60 ([WAF pricing](https://aws.amazon.com/waf/pricing/)) |
-| CloudFront including public WAF | USD 200.00 ([CloudFront pricing](https://aws.amazon.com/cloudfront/pricing/)) |
+| CloudFront including the edge WAF | USD 1,000.00 ([CloudFront pricing](https://aws.amazon.com/cloudfront/pricing/)) |
+| AWS firewall at the origin behind CloudFront | USD 21.00 ([WAF pricing](https://aws.amazon.com/waf/pricing/)) |
 
-Option-only priced subtotal: USD 704.70 (estimate) per month, before Common.
+Option-only priced subtotal: USD 1,525.70 (estimate) per month, before Common.
 
 Implementation and testing, one-time: USD 3,000.00.
 
@@ -643,9 +646,10 @@ Planning allowance: 30 hours × USD 100 for access, edge configuration and testi
 | Two technical access endpoints | USD 292.00 ([AWS pricing](https://aws.amazon.com/verified-access/pricing/)) |
 | Administrator web firewall | USD 15.60 ([WAF pricing](https://aws.amazon.com/waf/pricing/)) |
 | AWS firewall at the public origin | USD 21.00 ([WAF pricing](https://aws.amazon.com/waf/pricing/)) |
+| Origin mutual TLS trust store | USD 3.65 ([ELB pricing](https://aws.amazon.com/elasticloadbalancing/pricing/)) |
 | Imperva service and support | USD 1,000.00 |
 
-Option-only priced subtotal: USD 1,525.70 (estimate) per month, before Common.
+Option-only priced subtotal: USD 1,529.35 (estimate) per month, before Common.
 
 Implementation and testing, one-time: USD 3,000.00.
 
@@ -653,7 +657,7 @@ Planning allowance: 30 hours × USD 100 for access, vendor integration and testi
 
 Planning placeholder: USD 1,000 per month for service and support, not an Imperva quote; replace with the actual contract cost.
 
-CloudFront starts with an illustrative Business plan at USD 200, not a confirmed fit for emergency traffic; that plan does not list origin failover, which the edge-served emergency page needs, so expect the Premium plan or pay-as-you-go pricing. If using pay-as-you-go, enter CDN plus public WAF together without double counting. Replace the Imperva placeholder with a contract quote before approval.
+CloudFront starts at the illustrative Premium plan, USD 1,000, because it is the lowest flat-rate plan that lists origin failover, which the edge-served emergency page needs; the USD 200 Business plan does not list it, and neither value is a confirmed fit for emergency traffic. If using pay-as-you-go, enter CDN plus edge WAF together without double counting; the origin web ACL behind CloudFront is a separate AWS WAF charge, priced as if every public request were a cache miss. Proposal 3 adds the mandatory load balancer trust store for origin mutual TLS. Data transfer out of the load balancer is excluded from every option; in Proposal 3 it covers every byte sent to Imperva, billed per gigabyte, whereas CloudFront origin fetches are free. Replace the Imperva placeholder with a contract quote before approval.
 
 <a id="budget-total"></a>
 
@@ -664,20 +668,20 @@ Selected: Proposal 1. Monthly: USD 2,575.70 (estimate); yearly recurring: USD 30
 | Common + option | Monthly | Yearly recurring | One-time |
 |---|---:|---:|---:|
 | Proposal 1 | USD 2,575.70 (estimate) | USD 30,908.40 (estimate) | USD 10,000.00 (estimate) |
-| Proposal 2 | USD 2,754.70 (estimate) | USD 33,056.40 (estimate) | USD 11,000.00 (estimate) |
-| Proposal 3 | USD 3,575.70 (estimate) | USD 42,908.40 (estimate) | USD 11,000.00 (estimate) |
+| Proposal 2 | USD 3,575.70 (estimate) | USD 42,908.40 (estimate) | USD 11,000.00 (estimate) |
+| Proposal 3 | USD 3,579.35 (estimate) | USD 42,952.20 (estimate) | USD 11,000.00 (estimate) |
 
 First year, including Common and option setup costs:
 
 - **Proposal 1:** USD 40,908.40 (estimate).
-- **Proposal 2:** USD 44,056.40 (estimate).
-- **Proposal 3:** USD 53,908.40 (estimate).
+- **Proposal 2:** USD 53,908.40 (estimate).
+- **Proposal 3:** USD 53,952.20 (estimate).
 
 Labour uses a USD 100 hourly planning rate; routine operations assume existing on-call coverage. No contingency or separately purchased 24/7 response service is included.
 
 Include detection, logging, backups, keys, secrets, access usage and operations in the Common allowances. Existing hosting, load balancers, cluster/database capacity, taxes and general internet delivery are excluded unless explicitly included; confirm licence, support, peak-traffic and migration costs before approval.
 
-Prices: [Verified Access](https://aws.amazon.com/verified-access/pricing/), [AWS WAF](https://aws.amazon.com/waf/pricing/), [CloudFront](https://aws.amazon.com/cloudfront/pricing/), [IAM Identity Center](https://aws.amazon.com/iam/identity-center/faqs/), [Organizations](https://docs.aws.amazon.com/organizations/latest/userguide/pricing.html), [GuardDuty](https://aws.amazon.com/guardduty/pricing/), [CloudWatch](https://aws.amazon.com/cloudwatch/pricing/).
+Prices: [Verified Access](https://aws.amazon.com/verified-access/pricing/), [AWS WAF](https://aws.amazon.com/waf/pricing/), [CloudFront](https://aws.amazon.com/cloudfront/pricing/), [Elastic Load Balancing](https://aws.amazon.com/elasticloadbalancing/pricing/), [EC2 data transfer](https://aws.amazon.com/ec2/pricing/on-demand/), [IAM Identity Center](https://aws.amazon.com/iam/identity-center/faqs/), [Organizations](https://docs.aws.amazon.com/organizations/latest/userguide/pricing.html), [GuardDuty](https://aws.amazon.com/guardduty/pricing/), [CloudWatch](https://aws.amazon.com/cloudwatch/pricing/).
 
 [Back to contents](#top)
 

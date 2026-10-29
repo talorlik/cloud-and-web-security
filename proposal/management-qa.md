@@ -8,7 +8,7 @@ General edition. Prepared 25 October 2026 from the current strategy and proposal
 
 Supporting evidence opens in a new tab, so this worksheet stays at your question. Internal citations and exports refer to this GitHub-deployed edition; external documentation remains unchanged.
 
-Before quoting a price: the saved Option 2 budget starts with CloudFront Business, but its proposed origin failover needs a different plan or pricing model. See [the plan qualification](#qa-30) and [missing costs](#qa-46).
+Before quoting a price: the saved Option 2 budget starts with the CloudFront Premium plan, the lowest flat-rate plan that lists origin failover, and has not been checked against a traffic forecast. See [the plan qualification](#qa-30) and [missing costs](#qa-46).
 
 ## Contents
 
@@ -334,12 +334,12 @@ Question 29.
 
 <a id="qa-30"></a>
 
-### Does the worksheet’s USD 200 CloudFront plan provide the proposed failover?
+### Does the worksheet’s CloudFront plan provide the proposed failover?
 
 Question 30.
 
-- No: the current pricing table excludes origin failover from Business and includes it with Premium, listed at USD 1,000 per month, so Business is not a complete fit for the described Option 2. ([CloudFront pricing](https://aws.amazon.com/cloudfront/pricing/)) ([Proposal: Compare total edge cost before buying](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#p2-cost))
-- Obtain a Premium or suitably configured pay-as-you-go estimate, validate traffic and feature requirements, and price the separate origin WAF required by the proposal. ([Proposal: Compare total edge cost before buying](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#p2-cost)) ([Proposal: Public entry](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#p2-edge))
+- Yes: the worksheet starts at Premium, listed at USD 1,000 per month, because the current pricing table excludes origin failover from the USD 200 Business plan and includes it with Premium. ([CloudFront pricing](https://aws.amazon.com/cloudfront/pricing/)) ([Proposal: Compare total edge cost before buying](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#p2-cost))
+- Validate traffic and feature requirements against the Premium allowances, or obtain a pay-as-you-go estimate if traffic stays low; the separate origin WAF is now priced in the worksheet. ([Proposal: Compare total edge cost before buying](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#p2-cost)) ([Proposal: Public entry](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#p2-edge))
 - Monthly request and transfer allowances are not concurrent-user capacity guarantees; the emergency traffic model and drill remain approval requirements. ([CloudFront pricing](https://aws.amazon.com/cloudfront/pricing/)) ([Proposal: What the team still owns and the approval condition](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#p2-work))
 
 [Back to contents](#top)
@@ -487,9 +487,9 @@ Question 42.
 Question 43.
 
 - Common plus Option 1: USD 2,575.70 monthly, USD 30,908.40 yearly recurring, USD 10,000.00 one-time setup and USD 40,908.40 for the first year including setup. ([Proposal: Budget totals](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#budget-total))
-- Common plus Option 2: USD 2,754.70 monthly, USD 33,056.40 yearly recurring, USD 11,000.00 one-time setup and USD 44,056.40 for the first year including setup. ([Proposal: Budget totals](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#budget-total))
-- Common plus Option 3: USD 3,575.70 monthly, USD 42,908.40 yearly recurring, USD 11,000.00 one-time setup and USD 53,908.40 for the first year including setup. ([Proposal: Budget totals](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#budget-total))
-- These are the worksheet’s initial planning scenario, not complete supplier quotes, and the Option 2 feature gap must be corrected before comparing approval-ready totals. ([Proposal: Budget assumptions](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#budget)) ([Proposal: Compare total edge cost before buying](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#p2-cost))
+- Common plus Option 2: USD 3,575.70 monthly, USD 42,908.40 yearly recurring, USD 11,000.00 one-time setup and USD 53,908.40 for the first year including setup. ([Proposal: Budget totals](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#budget-total))
+- Common plus Option 3: USD 3,579.35 monthly, USD 42,952.20 yearly recurring, USD 11,000.00 one-time setup and USD 53,952.20 for the first year including setup. ([Proposal: Budget totals](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#budget-total))
+- These are the worksheet’s initial planning scenario, not complete supplier quotes; Option 2 assumes the Premium plan without a capacity check and Option 3 carries an Imperva placeholder. ([Proposal: Budget assumptions](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#budget)) ([Proposal: Compare total edge cost before buying](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#p2-cost))
 
 <a id="qa-44"></a>
 
@@ -518,8 +518,8 @@ Question 45.
 Question 46.
 
 - The worksheet excludes or leaves insufficiently scoped existing hosting, load balancers, cluster/database capacity, general delivery, taxes and contingency, and the full cost of networking and security usage still needs validation. ([Proposal: Budget assumptions](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#budget)) ([Proposal: Inside the VPC](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#p1-internal))
-- Option 1 needs its HTTPS emergency fallback priced, while Option 2 needs the correct CloudFront failover plan and its separately described origin WAF priced. ([Proposal: Detection, response and the emergency fallback in this package](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#p1-response)) ([Proposal: Compare total edge cost before buying](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#p2-cost)) ([Proposal: Public entry](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#p2-edge))
-- As a sensitivity example only, changing Option 2 from USD 200 to USD 1,000 and adding the worksheet’s USD 21 origin-WAF example raises it to USD 3,575.70 monthly, before other gaps. ([Proposal: Budget assumptions](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#budget)) ([CloudFront pricing](https://aws.amazon.com/cloudfront/pricing/))
+- Option 1 needs its HTTPS emergency fallback priced, while Option 2 now prices the Premium failover plan and its origin WAF but still needs a traffic forecast against the plan allowances. ([Proposal: Detection, response and the emergency fallback in this package](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#p1-response)) ([Proposal: Compare total edge cost before buying](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#p2-cost)) ([Proposal: Public entry](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#p2-edge))
+- As a sensitivity example only, the USD 3,575.70 Option 2 total already includes the USD 1,000 Premium plan and the USD 21 origin-WAF example; on the USD 200 Business plan without failover it would be USD 2,775.70 monthly. ([Proposal: Budget assumptions](https://talorlik.github.io/cloud-and-web-security/proposal/index.html#budget)) ([CloudFront pricing](https://aws.amazon.com/cloudfront/pricing/))
 
 <a id="qa-47"></a>
 
