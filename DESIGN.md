@@ -18,7 +18,7 @@ This document describes the shared visual language and the current implementatio
 
 - **Character:** Quiet, technical and editorial, with dark blue-green accents, serif display headings and sans-serif body text. Emphasize decisions and evidence rather than decoration.
 - **Hierarchy:** Document identity, section label, section heading, item title, explanation, then supporting citations. Use small uppercase labels sparingly and keep descriptive text in sentence case.
-- **Density:** Long-form prose receives comfortable line spacing and bounded reading widths. Tables are intentionally denser and scroll horizontally instead of shrinking beyond readability.
+- **Density:** Long-form prose receives comfortable line spacing and bounded reading widths. Tables are intentionally denser, and no table ever scrolls horizontally: on desktop their columns are sized by role (text-heavy columns share the width evenly, identifier, rating and numeric columns stay compact), and below 760px every row stacks into a block headed by its row label with each cell showing its column header.
 - **Geometry:** Use fine one-pixel dividers, small rounded controls and restrained panel backgrounds. Reserve pill shapes for labels and status badges, not every container.
 - **Color semantics:** Blue-green identifies links, selection and primary actions; red, amber, green and purple are reserved for risk or control status. Status must also have a readable label, never color alone.
 
@@ -67,15 +67,15 @@ This document describes the shared visual language and the current implementatio
 | Header | 64px high; translucent page-colored backdrop with 10px blur | Same, from the shared stylesheet |
 | Sidebar | Sticky below header; independently scrollable | Same 64px offset and remaining viewport height |
 | Main spacing | Horizontal padding fluid from 24px to 64px; sections 64px vertically | Main padding 42px 56px 72px; sections 45px top / 15px bottom |
-| Intermediate width | At 1200px, search and download actions use compact icons; at 1100px, three-column cards become two columns and complex comparisons stack | Same toolbar breakpoint; at 1050px, main padding becomes 30px |
+| Intermediate width | At 1300px, search and download actions use compact icons and the control matrix stacks; at 1100px, three-column cards become two columns and complex comparisons stack | Same toolbar breakpoint; at 1050px, main padding becomes 30px |
 | Mobile navigation | At 900px, sidebar becomes a sliding drawer, maximum 320px / 86vw | At 900px, sidebar becomes a drawer with the same width and top offset |
 | Small-screen layout | At 640px, card grids stack, brand text hides and header padding reduces | Same header breakpoint; at 760px, main padding becomes 25px 22px |
-| Table overflow | Scroll within the table wrapper | Budget tables have a 590px minimum width and scroll within their wrapper |
+| Table overflow | None: fixed-layout columns by role, rows stack below 760px | None: fixed-layout columns, rows stack below 760px |
 
 - **Spacing scale:** Strategy uses 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80 and 96px-equivalent spacing tokens. Proposal uses explicit spacing values with the same broad rhythm, not the same variable names.
 - **Radii:** Strategy uses 6px, 8px and 12px corners, plus fully rounded badges. Proposal uses mostly 3–7px corners, with 6px buttons and 7px budget panels.
 - **Layering:** Both headers use z-index 40 and mobile navigation uses 50. Proposal status messages remain at 20.
-- **Responsive controls:** Both headers hide search and download labels at 1200px and below while retaining accessible names. Both show the menu below 900px and hide brand text below 640px.
+- **Responsive controls:** Both headers hide search and download labels at 1300px and below while retaining accessible names. Both show the menu below 900px and hide brand text below 640px.
 - **Narrow phones:** At 360px and below, toolbar gaps reduce to 4px and side padding to 8px so all controls remain available without horizontal scrolling.
 
 ### Components and interactions
@@ -91,7 +91,8 @@ This document describes the shared visual language and the current implementatio
 - **Strategy panels:** Cards use a neutral surface, divider border and 12px radius; callouts use a 4px accent edge. Risk and control badges pair the semantic foreground with its matching tinted background.
 - **Strategy tables:** Cells use 12px 16px padding, top alignment and row dividers. Headers are compact uppercase labels with sticky positioning; narrow identifier columns use monospace.
 - **Proposal items:** Numbered independently per section with a leading-zero counter, an accent number, a top divider and a left text indent of 50px on desktop / 34px on mobile. A linked target receives a soft accent highlight.
-- **Budget tables:** Three columns identify the item, editable monthly amount and pricing basis; comparison tables separate recurring and one-time amounts. Use 14px table text and 12px cell padding on screen.
+- **Budget tables:** Three columns identify the item, editable monthly amount and pricing basis; comparison tables separate recurring and one-time amounts. Use 0.875rem table text and 12px cell padding on screen; rows stack below 760px like every other table.
+- **Stacked tables:** Each page script copies the column headers onto the cells as `data-label`, so the stacked layout can show them; printing never stacks.
 - **Budget inputs:** Neutral backgrounds, visible borders and 4px corners; minimum numeric value zero. Initial values are planning estimates, clearing a value marks totals partial, and reset restores the estimates.
 - **Feedback:** Search exposes a matching-item count or a zero-result state; budget totals recalculate visibly; downloads announce their status. Do not substitute an invisible console message for user feedback.
 
