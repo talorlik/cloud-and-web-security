@@ -320,4 +320,6 @@
     }
   }
   if (location.hash.length > 1) setTimeout(() => reveal(decodeURIComponent(location.hash.slice(1)), false), 60);
+  // Small screens stack table rows, so each cell carries its column header for the stacked layout.
+  document.querySelectorAll('table').forEach(t=>{const heads=[...t.querySelectorAll('thead th')].map(th=>th.textContent.trim());if(!heads.length)return;t.querySelectorAll('tbody tr').forEach(tr=>{let i=0;for(const cell of tr.children){if(cell.tagName==='TD'&&heads[i]&&!cell.dataset.label)cell.dataset.label=heads[i];i+=cell.colSpan||1;}});});
 })();

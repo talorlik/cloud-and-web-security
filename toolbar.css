@@ -33,7 +33,7 @@ header.document-toolbar .search-trigger:hover,header.document-toolbar .btn-ghost
 header.document-toolbar :focus-visible{outline:2px solid var(--ui-accent);outline-offset:3px;border-radius:6px}
 header.document-toolbar #menuBtn{display:none}
 header.document-toolbar #menuBtn,header.document-toolbar #themeBtn{font:inherit}
-@media(max-width:1200px){
+@media(max-width:1300px){
   header.document-toolbar .search-trigger{min-width:0}
   header.document-toolbar .search-trigger .label,header.document-toolbar .kbd,header.document-toolbar .export-btn .label{display:none}
 }
