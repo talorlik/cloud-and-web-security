@@ -10,6 +10,7 @@ This document describes the shared visual language and the current implementatio
 - **Management Proposal:** `proposal/content.mjs`, `proposal/styles.css`, `proposal/app.js` and `proposal/budget.js` define the short proposal and editable budget; `proposal-build/build.mjs` generates its HTML and exports.
 - **Design specification:** This root `DESIGN.md` is the canonical downloadable document. Both interfaces follow the Security Strategy visual system; document-specific content layouts remain appropriate to their different reading tasks.
 - **Shared toolbar:** `shared-ui/toolbar.mjs` and `shared-ui/toolbar.css` are the single source for header markup, icons and styling. Each builder outputs its own local copy, preventing the two headers from drifting apart.
+- **Shared fonts:** `shared-ui/fonts.css` and `shared-ui/fonts/` hold the self-hosted Zodiak and General Sans web files with their ITF Free Font License; each builder copies them beside its stylesheet, so no page depends on a font provider's edge. JetBrains Mono still comes from Google Fonts.
 - **Publishing:** Each security document retains its own build and exports. A separate design-only workflow publishes `DESIGN.md` without rebuilding either PDF, and both document toolbars download that same file.
 - **Shared changes:** Editing `shared-ui/` intentionally rebuilds both documents because both consume it. Editing strategy-only or proposal-only content still runs only that document's workflow.
 
@@ -45,7 +46,7 @@ This document describes the shared visual language and the current implementatio
 | Display | Zodiak, Georgia, serif | Same |
 | Body and controls | General Sans, Inter, system-ui, sans-serif | Same |
 | Code and identifiers | JetBrains Mono, ui-monospace, monospace | Same for item numbers and keyboard hints |
-| Font loading | Zodiak and General Sans from Fontshare; JetBrains Mono from Google Fonts | Same providers and font weights |
+| Font loading | Zodiak and General Sans self-hosted from `shared-ui/fonts` (Zodiak Regular serves weights 400 to 500, as Fontshare delivered it; General Sans 400, 500 and 600); JetBrains Mono from Google Fonts | Same files, copied by the proposal build |
 | Body scale | Fluid 16–17px equivalent at a 16px root, line-height 1.62 | 16px base, line-height 1.62; item paragraphs use 1.75 |
 | Document title | Fluid 36–64px equivalent; weight 500, line-height 1.05 | Fluid 30–48px; weight 400, line-height 1.23; 32px at the mobile breakpoint |
 | Section heading | Fluid 24–34px equivalent, serif, weight 500 | 27px serif, line-height 1.4; 24px on mobile |
